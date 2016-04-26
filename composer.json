@@ -1,5 +1,5 @@
 {
-    "name": "mapbender/data-manager-element",
+    "name": "mapbender/data-manager",
     "description": "Mapbender data manager",
     "keywords": ["mapbender", "data", "data manager"],
     "type": "library",
