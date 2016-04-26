@@ -110,7 +110,7 @@ class DataManagerElement extends BaseElement
     {
         return array(
             'css' => array(
-                'sass/element/dataManager.element.scss'
+                '@MapbenderDataSourceBundle/Resources/styles/dataManager.element.scss',
             ),
             'js'  => array(
                 'dataManager.element.js'
