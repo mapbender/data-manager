@@ -1,0 +1,21 @@
+{
+    "name": "mapbender/data-manager",
+    "description": "Mapbender data manager",
+    "keywords": ["mapbender", "data", "data manager"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {"name": "Andriy Oblivantsev",  "email": "andriy.oblivantsev@wheregroup.com"}
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "mapbender/data-source": "0.x"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "autoload": {
+        "psr-0": {"Mapbender\\DataManagerBundle": "."}
+    },
+    "target-dir": "Mapbender/DataManagerBundle"
+}
