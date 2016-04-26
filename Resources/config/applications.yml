@@ -1,0 +1,149 @@
+parameters:
+  applications:
+    test-data-manager:
+      title: &title Mapbender data manager test
+      excludeFromList: true
+      published: true
+      description: *title
+      published: true
+      template:  Mapbender\CoreBundle\Template\Fullscreen
+      regionProperties:
+        - name: sidepane
+          properties:
+            name: accordion
+            label: mb.manager.template.region.accordion.label
+      layersets:
+        main:
+          osm: &osm_layer
+            class: Mapbender\WmsBundle\Entity\WmsInstance
+            title: OSM Demo
+            url: http://osm-demo.wheregroup.com/service
+            layers:
+              - name: osm
+                title: Germany OSM Demo WhereGroup
+                visible: true
+            info_format: text/html
+            visible: true
+            format: image/png
+            transparent: true
+            tiled: true
+            opacity: 100
+        overview:
+          osm_overview:
+            <<: *osm_layer
+            tiled: false
+      elements:
+        toolbar:
+          about:
+            title: About
+            label: true
+            class: Mapbender\CoreBundle\Element\AboutDialog
+        content:
+          map:
+            title: Main Map
+            class: Mapbender\CoreBundle\Element\Map
+            layersets: [main]
+            srs: EPSG:25832
+            units: m
+            extents:
+              start: [361000,5619000,371150,5625000]
+              max: [-500000,4350000,1600000,6850000]
+            scales: [5000000,1000000,500000,100000,50000,25000,10000,7500,5000,2500,1000,500]
+            maxResolution: auto
+            otherSrs: [EPSG:25833, EPSG:31466, EPSG:31467, EPSG:900913, EPSG:4326]
+          zoombar:
+            class: Mapbender\CoreBundle\Element\ZoomBar
+            target: map
+            components: [pan, history, zoom_box ,zoom_max, zoom_slider]
+            position: [15em, 3em]
+            stepsize: 50
+            stepbypixel: true
+            anchor: right-top
+            position: [200, 40]
+            draggable: false
+        sidepane:
+
+          queyBuilder:
+            title: SQL Queries
+            class: Mapbender\DataSourceBundle\Element\QueryBuilderElement
+
+            # Allow edit
+            allowEdit: true
+
+            # Allow edit
+            allowCreate: false
+
+            # Allow save
+            allowSave: true
+
+            # Allow remove
+            allowRemove: false
+
+            # Allow execute button
+            allowExecute: true
+
+            # Allow data export as excel file
+            allowExport: true
+
+            # Allow search
+            #allowSearch: true
+
+            # Data source name or ID, defined in "parameters.yml"
+            source: elements
+
+            # Field name this contains SQL to be executed
+            sqlFieldName: sql_definition
+
+            # Field name this contains doctrine connection name
+            connectionFieldName: connection_name
+
+            orderByFieldName: id
+
+            # Queries field definitions
+            tableColumns:
+              - {title: "Title", data: "name"}
+
+
+          layertree:
+            title: Layertree
+            class: Mapbender\CoreBundle\Element\Layertree
+            target: map
+            type: element
+            displaytype: tree
+            useAccordion: false
+            autoOpen: false
+            titlemaxlength: 30
+            showBaseSource: true
+            layerRemove: true
+            menu: [opacity, zoomtolayer, metadata]
+        footer:
+          activityindicator:
+            class: Mapbender\CoreBundle\Element\ActivityIndicator
+            title: Activity Indicator
+            activityClass: mb-activity
+            ajaxActivityClass: mb-activity-ajax
+            tileActivityClass: mb-activity-tile
+          coordinates:
+              class: Mapbender\CoreBundle\Element\CoordinatesDisplay
+              title: Coordinates Display
+              tooltip: Coordinates Display
+              target: map
+              label: false
+              empty:  "x: - y: -"
+              prefix: "x: "
+              separator:  " y: "
+          srs:
+            class: Mapbender\CoreBundle\Element\SrsSelector
+            title: SRS Selector
+            label: false
+            target: map
+          scaleselector:
+            class: Mapbender\CoreBundle\Element\ScaleSelector
+            title: Scale Selector
+            label: false
+            target: map
+          copyrightButton:
+            title: © OpenStreetMap contributors
+            class: Mapbender\CoreBundle\Element\Button
+            label: true
+            click: http://www.openstreetmap.org/copyright
