@@ -26,6 +26,6 @@ class MapbenderDataManagerExtension extends Extension
 
     public function getAlias()
     {
-        return 'mapbender_datamanager';
+        return 'mapbender_data_manager';
     }
 }
