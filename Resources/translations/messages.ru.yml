@@ -1,0 +1,11 @@
+mb.data.store.feature.remove: Удалить
+mb.data.store.edit: Редактировать
+mb.data.store.save: Сохранить
+mb.data.store.cancel: Отменить
+mb.data.store.edit.title: 'Редактирование данных'
+mb.data.store.save.successfully: 'Данные сохранены'
+mb.data.store.remove.successfully: 'Данные удалены'
+mb.data.store.remove.confirm.text: 'Подведите удаление'
+api.query.error-message: Ошибка
+mb.data.store.remove: Удалить
+mb.data.store.create: Создать
