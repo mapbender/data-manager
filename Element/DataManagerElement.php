@@ -1,16 +1,11 @@
 <?php
 namespace Mapbender\DataManagerBundle\Element;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\DBAL\Connection;
-use FOM\CoreBundle\Component\ExportResponse;
-use Mapbender\CoreBundle\Asset\NamedAssetCache;
 use Mapbender\CoreBundle\Component\Application;
-use Mapbender\CoreBundle\Element\HTMLElement;
 use Mapbender\CoreBundle\Entity\Element;
+use Mapbender\DataManagerBundle\Entity\DataManagerSchema;
 use Mapbender\DataSourceBundle\Component\DataStore;
-use Mapbender\DataSourceBundle\Entity\DataItem;
-use Mapbender\DataSourceBundle\Entity\DataStoreSchemaConfig;
+use Mapbender\DataSourceBundle\Element\BaseElement;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -100,7 +95,11 @@ class DataManagerElement extends BaseElement
      */
     public function render()
     {
-        return /** @lang XHTML */ '<div id="' . $this->getId() . '"  class="mb-element mb-element-digitizer mb-element-data-manager modal-body" title="' . _($this->getTitle()) . '"></div>';
+        return /** @lang XHTML */ '<div 
+               id="' . $this->getId() . '"  
+               class="mb-element mb-element-digitizer mb-element-data-manager modal-body" 
+               title="' . _($this->getTitle()) . '">
+            </div>';
     }
 
     /**
@@ -110,13 +109,13 @@ class DataManagerElement extends BaseElement
     {
         return array(
             'css' => array(
-                '@MapbenderDataSourceBundle/Resources/styles/dataManager.element.scss',
+                '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
             ),
             'js'  => array(
                 'dataManager.element.js'
             ),
             'trans' => array(
-                'MapbenderDataSourceBundle:Element:datamanager.json.twig'
+                'MapbenderDataManagerBundle:Element:datamanager.json.twig'
             )
         );
     }
@@ -165,7 +164,7 @@ class DataManagerElement extends BaseElement
         $defaultCriteria = array('returnType' => 'FeatureCollection',
                                  'maxResults' => 2500);
         $schema          = $schemas[ $schemaName ];
-        $schemaConfig    = new DataStoreSchemaConfig($schemas[ $schemaName ]);
+        $schemaConfig    = new DataManagerSchema($schemas[ $schemaName ]);
 
 
         if (is_array($schemaConfig->dataStore)) {
