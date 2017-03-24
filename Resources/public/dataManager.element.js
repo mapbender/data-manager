@@ -112,7 +112,7 @@
             popup:          {
 
             }
-        }, 
+        },
         toolsets: {
             point: [
               {type: 'drawPoint'},
@@ -394,12 +394,12 @@
                     text:  translate("save"),
                     click: function() {
                         var form = $(this).closest(".ui-dialog-content");
+                        var formData = form.formData();
                         var errorInputs = $(".has-error", dialog);
                         var hasErrors = errorInputs.size() > 0;
 
+                        if(!hasErrors) {
 
-                        if( !hasErrors ){
-                            var formData = form.formData();
                             var uniqueIdKey = schema.dataStore.uniqueId;
                             var isNew = !dataItem.hasOwnProperty(uniqueIdKey) && !!dataItem[uniqueIdKey];
 
@@ -458,11 +458,6 @@
                 }
             });
             var dialog = $("<div/>");
-            dialog.on("popupdialogopen", function(event, ui) {
-                setTimeout(function() {
-                    dialog.formData(dataItem);
-                }, 1);
-            });
 
             if(!schema.elementsTranslated) {
                 translateStructure(widget.currentSettings.formItems);
@@ -530,6 +525,11 @@
             dialog.popupDialog(popupConfig);
             dialog.addClass("data-manager-edit-data");
             widget.currentPopup = dialog;
+
+            setTimeout(function() {
+                dialog.formData(dataItem);
+            }, 30);
+
             return dialog;
         },
 
