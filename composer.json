@@ -15,7 +15,8 @@
         "bin-dir": "bin"
     },
     "autoload": {
-        "psr-0": {"Mapbender\\DataManagerBundle": "."}
-    },
-    "target-dir": "Mapbender/DataManagerBundle"
+        "psr-0": {
+            "Mapbender\\DataManagerBundle": "."
+        }
+    }
 }
