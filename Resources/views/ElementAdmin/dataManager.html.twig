@@ -18,6 +18,11 @@
             height: 325px;
         }
 
+        .elementDataManager .dropdown {
+            min-width: auto;
+            width: 100%;
+        }
+
         /* Dirty fix */
         .popupContainer.modal.show .popupContent, .popupSubContent {
             margin-bottom: 0;
@@ -148,16 +153,17 @@
             });
 
             // Resize popup and elements
-            var popupContainer = $(".popupContainer.modal.show > .popup");
+            var popupContainer = $(".popupContainer.modal.modal > .popup");
             var yamlEditorElement = $("#elementForm > div > div.inputWrapper.code-yaml > div");
 
+            popupContainer.css('margin-top', 0);
             popupContainer.animate({
-                width:  $(document).width() - 100,
-                height: $(window).height() - 200
+                width:  $(document).width() ,
+                height: $(window).height() -10
             }, 350);
 
             yamlEditorElement.animate({
-                height: $(window).height() - 430
+                height: $(window).height() - 285
             }, 350);
         })
     </script>
