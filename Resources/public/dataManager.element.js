@@ -89,6 +89,21 @@
         return dialog;
     };
 
+    /**
+     * Escape HTML chars
+     * @param text
+     * @returns {string}
+     */
+    function escapeHtml(text) {
+        'use strict';
+        return text.replace(/[\"&'\/<>]/g, function (a) {
+            return {
+                '"': '&quot;', '&': '&amp;', "'": '&#39;',
+                '/': '&#47;',  '<': '&lt;',  '>': '&gt;'
+            }[a];
+        });
+    }
+
 
     /**
      * Digitizing tool set
@@ -235,11 +250,16 @@
 
                 option.val(schemaName).html(schema.label ? schema.label : schemaName);
 
-                //_.each(schema.tableFields, function(fieldSettings, fieldName) {
-                //    fieldSettings.title = fieldSettings.label;
-                //    fieldSettings.data = fieldName;
-                //    columns.push(fieldSettings);
-                //});
+
+                if(schema.table.columns) {
+                    $.each(schema.table.columns, function(fieldId, fieldSettings) {
+                        var fieldName = fieldSettings.data;
+                        fieldSettings.fieldName = fieldName;
+                        fieldSettings.data = function(row, type, val, meta) {
+                            return row.hasOwnProperty(fieldName) ? escapeHtml('' + row[fieldName]) : '';
+                        };
+                    });
+                }
 
                 var resultTableSettings = _.extend({
                     lengthChange: false,
