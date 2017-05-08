@@ -112,7 +112,7 @@ class DataManagerElement extends BaseElement
                 '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
             ),
             'js'  => array(
-                'dataManager.element.js'
+                '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js'
             ),
             'trans' => array(
                 'MapbenderDataManagerBundle:Element:datamanager.json.twig'
