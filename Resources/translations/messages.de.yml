@@ -1,11 +1,17 @@
-mb.data.store.feature.remove: Löschen
-mb.data.store.edit: Edit
-mb.data.store.save: Speichern
-mb.data.store.cancel: Abbrechen
-mb.data.store.edit.title: Daten
-mb.data.store.save.successfully: 'Datensatz ist gespeichert!'
-mb.data.store.remove.successfully: 'Datensatz ist gelöscht!'
-mb.data.store.remove.confirm.text: 'Datensatz löschen?'
+mb.data.store:  
+  cancel: Abbrechen
+  create: Erstellen
+  edit: Bearbeiten
+  edit:
+    title: Daten
+  feature:
+    remove: Löschen
+  remove: Löschen
+  remove:
+    successfully: 'Datensatz wurde gelöscht!'
+    confirm:
+      text: 'Datensatz löschen?' 
+  save: Speichern
+  save:
+    successfully: 'Datensatz wurde gespeichert!'
 api.query.error-message: Fehler
-mb.data.store.remove: Löschen
-mb.data.store.create: Erstellen
