@@ -1,11 +1,17 @@
-mb.data.store.feature.remove: Remove
-mb.data.store.edit: Edit
-mb.data.store.save: Save
-mb.data.store.cancel: Cancel
-mb.data.store.edit.title: Data
-mb.data.store.save.successfully: 'Save successfully!'
-mb.data.store.remove.successfully: 'Removed successfully!'
-mb.data.store.remove.confirm.text: 'Remove data?'
+mb.data.store:
+  cancel: Cancel
+  create: Create
+  edit: Edit
+  edit:
+    title: Data
+  feature:
+    remove: Remove
+  remove: Remove
+  remove:
+    successfully: 'Removed successfully!'
+    confirm:
+      text: 'Remove data?'
+  save: Save
+  save:
+    successfully: 'Save successfully!'
 api.query.error-message: Error
-mb.data.store.remove: Remove
-mb.data.store.create: Create
