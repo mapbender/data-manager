@@ -1,11 +1,17 @@
-mb.data.store.feature.remove: Удалить
-mb.data.store.edit: Редактировать
-mb.data.store.save: Сохранить
-mb.data.store.cancel: Отменить
-mb.data.store.edit.title: 'Редактирование данных'
-mb.data.store.save.successfully: 'Данные сохранены'
-mb.data.store.remove.successfully: 'Данные удалены'
-mb.data.store.remove.confirm.text: 'Подведите удаление'
+mb.data.store:
+  cancel: Отменить
+  create: Создать
+  edit: Редактировать
+  edit:
+    title: 'Редактирование данных'
+  feature:
+    remove: Удалить
+  remove: Удалить
+  remove:
+    successfully: 'Данные удалены'
+    confirm:
+      text: 'Подведите удаление'
+  save: Сохранить
+  save:
+    successfully: 'Данные сохранены'
 api.query.error-message: Ошибка
-mb.data.store.remove: Удалить
-mb.data.store.create: Создать
