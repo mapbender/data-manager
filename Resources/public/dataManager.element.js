@@ -130,11 +130,11 @@
         },
         toolsets: {
             point: [
-              {type: 'drawPoint'},
+                {type: 'drawPoint'},
             ],
             line: [
-              {type: 'removeSelected'}
-              //{type: 'removeAll'}
+                {type: 'removeSelected'}
+                //{type: 'removeAll'}
             ],
             polygon: [
                 {type: 'removeAll'}
@@ -451,6 +451,7 @@
                                 widget.currentPopup.popupDialog('close');
                                 widget.currentPopup = null;
                                 $.notify(translate("save.successfully"), 'info');
+                                $(widget.element).trigger('data.manager.item.saved',{ item : dataItem, uniqueIdKey : uniqueIdKey, scheme : schema.schemaName})
                             }).done(function(){
                                 form.enableForm();
                             });
