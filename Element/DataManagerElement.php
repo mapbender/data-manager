@@ -23,21 +23,9 @@ class DataManagerElement extends BaseElement
     const ERROR_ACCESS_DENIED = "1";
 
     /**
-     * The constructor.
-     *
-     * @param Application        $application The application object
-     * @param ContainerInterface $container   The container object
-     * @param Element            $entity
-     */
-    public function __construct(Application $application, ContainerInterface $container, Element $entity)
-    {
-        parent::__construct($application, $container, $entity);
-    }
-
-    /**
      * @inheritdoc
      */
-    static public function getClassTitle()
+    public static function getClassTitle()
     {
         return "Data manager";
     }
@@ -45,7 +33,7 @@ class DataManagerElement extends BaseElement
     /**
      * @inheritdoc
      */
-    static public function getClassDescription()
+    public static function getClassDescription()
     {
         return "Data manager element";
     }
@@ -61,7 +49,7 @@ class DataManagerElement extends BaseElement
     /**
      * @inheritdoc
      */
-    static public function getTags()
+    public static function getClassTags()
     {
         return array();
     }
@@ -90,33 +78,26 @@ class DataManagerElement extends BaseElement
         return 'MapbenderDataManagerBundle:ElementAdmin:dataManager.html.twig';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function render()
+    public function getFrontendTemplatePath($suffix = '.html.twig')
     {
-        return /** @lang XHTML */ '<div 
-               id="' . $this->getId() . '"  
-               class="mb-element mb-element-digitizer mb-element-data-manager modal-body" 
-               title="' . _($this->getTitle()) . '">
-            </div>';
+        return "MapbenderDataManagerBundle:Element:dataManager{$suffix}";
     }
 
     /**
      * @inheritdoc
      */
-    static public function listAssets()
+    public function getAssets()
     {
         return array(
             'css' => array(
                 '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
             ),
             'js'  => array(
-                '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js'
+                '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
             ),
             'trans' => array(
-                'MapbenderDataManagerBundle:Element:datamanager.json.twig'
-            )
+                'MapbenderDataManagerBundle:Element:datamanager.json.twig',
+            ),
         );
     }
 
