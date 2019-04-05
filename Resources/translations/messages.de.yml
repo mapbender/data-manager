@@ -1,17 +1,19 @@
 mb.data.store:  
   cancel: Abbrechen
   create: Erstellen
-  edit: Bearbeiten
   edit:
+    edit: Bearbeiten
     title: Daten
   feature:
     remove: Löschen
-  remove: Löschen
+
   remove:
+    remove: Löschen
     successfully: 'Datensatz wurde gelöscht!'
     confirm:
       text: 'Datensatz löschen?' 
-  save: Speichern
+
   save:
+    save: Speichern
     successfully: 'Datensatz wurde gespeichert!'
 api.query.error-message: Fehler
