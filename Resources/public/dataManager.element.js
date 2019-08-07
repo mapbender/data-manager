@@ -5,26 +5,6 @@
 
     $.fn.dataTable.ext.errMode = 'throw';
 
-
-    /**
-     * Escape HTML chars
-     * @returns {string}
-     */
-    String.prototype.escapeHtml = function () {
-
-        return this.replace(/["&'\/<>]/g, function (a) {
-            return {
-                '"': '&quot;',
-                '&': '&amp;',
-                "'": '&#39;',
-                '/': '&#47;',
-                '<': '&lt;',
-                '>': '&gt;'
-            }[a];
-        });
-    };
-
-
     $.widget("mapbender.mbDataManager", {
 
         options: {
