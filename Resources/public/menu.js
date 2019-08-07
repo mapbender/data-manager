@@ -6,74 +6,77 @@
 
         var menu = this;
         menu.schema = schema;
-        var frame = menu.frame = $("<div />").addClass('frame');
+        var frame = $("<div />").addClass('frame');
 
-        frame.append('<div style="clear:both;"/>');
-
-        menu.generateDataTable_();
+        menu.generateDataTable_(frame);
 
         frame.hide();
+
+        menu.show = function() {
+            frame.show();
+        };
+
+        menu.hide = function() {
+            frame.hide();
+        };
+
+        menu.appendTo = function($element) {
+            $element.append(frame);
+        };
+
+
     };
 
 
     Mapbender.DataManager.Menu.prototype = {
 
+        registerResulTableEvents: function(resultTable) {
 
+        },
 
-        generateDataTable_: function () {
+        generateResultDataTableButtons: function () {
             var menu = this;
-            var frame = menu.frame;
             var schema = menu.schema;
-            var map = schema.widget.map;
+
+            var buttons = [];
+
+            if (schema.allowEditData) {
+                buttons.push({
+                    title: Mapbender.DataManager.Translator.translate('feature.edit'),
+                    className: 'edit',
+                    onClick: function (feature, ui) {
+                        schema.openFeatureEditDialog(feature);
+                    }
+                });
+            }
+
+            if (schema.allowDelete) {
+
+                buttons.push({
+                    title: Mapbender.DataManager.Translator.translate("feature.remove.title"),
+                    className: 'remove',
+                    cssClass: 'critical',
+                    onClick: function (feature, ui) {
+                        if (schema.allowDelete) {
+                            schema.removeFeature(feature);
+                        } else {
+                            $.notify("Deletion is not allowed");
+                        }
+                    }
+                });
+            }
+
+            return buttons;
+
+        },
+
+        generateDataTable_: function (frame) {
+            var menu = this;
+            var schema = menu.schema;
 
             var resultTable;
 
-            var generateResultDataTableButtons = function () {
 
-
-                map.on("DataManager.activateSchema",  function (event) {
-                    resultTable.getApi().clear();
-
-                });
-
-                map.on("DataManager.FeatureLoaded",  function (event) {
-                    var feature = event.feature;
-                    resultTable.addRow(feature);
-
-                });
-
-                var buttons = [];
-
-                if (schema.allowEditData) {
-                    buttons.push({
-                        title: Mapbender.DigitizerTranslator.translate('feature.edit'),
-                        className: 'edit',
-                        onClick: function (feature, ui) {
-                            schema.openFeatureEditDialog(feature);
-                        }
-                    });
-                }
-
-                if (schema.allowDelete) {
-
-                    buttons.push({
-                        title: Mapbender.DigitizerTranslator.translate("feature.remove.title"),
-                        className: 'remove',
-                        cssClass: 'critical',
-                        onClick: function (feature, ui) {
-                            if (schema.allowDelete) {
-                                schema.removeFeature(feature);
-                            } else {
-                                $.notify("Deletion is not allowed");
-                            }
-                        }
-                    });
-                }
-
-                return buttons;
-
-
-            };
 
             var generateResultDataTableColumns = function () {
 
@@ -107,7 +110,7 @@
 
                 var getDefaultTableFields = function () {
                     var tableFields = this;
-                    console.log(tableFields,"!");
+
                     tableFields[schema.featureType.uniqueId] = {label: 'Nr.', width: '20%'};
                     if (schema.featureType.name) {
                         tableFields[schema.featureType.name] = {label: 'Name', width: '80%'};
@@ -128,9 +131,9 @@
             };
 
 
-            var tableTranslation = schema.tableTranslation ? Mapbender.DigitizerTranslator.translateObject(schema.tableTranslation) : Mapbender.DigitizerTranslator.tableTranslations();
+            var tableTranslation = schema.tableTranslation ? Mapbender.DataManager.Translator.translateObject(schema.tableTranslation) : Mapbender.DataManager.Translator.tableTranslations();
 
-            var buttons = generateResultDataTableButtons();
+            var buttons = menu.generateResultDataTableButtons();
 
             var resultTableSettings = {
                 lengthChange: false,
@@ -161,8 +164,15 @@
 
             resultTable.initializeResultTableEvents(schema.highlightControl);
 
+            menu.registerEvents(resultTable);
 
             frame.append($table);
+
+            if (schema.hideSearchField) {
+                $table.find(".dataTables_filter").hide();
+            }
+
+
 
         },
 

@@ -109,10 +109,12 @@ class DataManagerElement extends BaseElement
             ),
             'js'  => array(
                 '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
+                '@MapbenderDataManagerBundle/Resources/public/dataManager.js',
                 '@MapbenderDataManagerBundle/Resources/public/featureEditDialog.js',
                 '@MapbenderDataManagerBundle/Resources/public/menu.js',
                 '@MapbenderDataManagerBundle/Resources/public/queryEngine.js',
                 '@MapbenderDataManagerBundle/Resources/public/schema.js',
+                '@MapbenderDataManagerBundle/Resources/public/translator.js',
             ),
             'trans' => array(
                 'MapbenderDataManagerBundle:Element:datamanager.json.twig',

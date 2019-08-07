@@ -1,11 +1,11 @@
 (function () {
     "use strict";
 
-    Mapbender.DataManager.QueryEngine = function(widget) {
+    Mapbender.DataManager.QueryEngine = function(id,spinner) {
 
 
         this.getElementURL = function() {
-            return Mapbender.configuration.application.urls.element + '/' + widget.id + '/';
+            return Mapbender.configuration.application.urls.element + '/' + id + '/';
         };
 
         /**
@@ -18,7 +18,7 @@
          */
         this.query = function (uri, request) {
             var elementUrl = this.getElementURL();
-            widget.spinner.addRequest();
+            spinner && spinner.addRequest();
             return $.ajax({
                 url: elementUrl + uri,
                 type: 'POST',
@@ -37,7 +37,7 @@
                 if (xhr.statusText === 'abort') {
                     return;
                 }
-                var errorMessage = Mapbender.DigitizerTranslator.translate('api.query.error-message');
+                var errorMessage = Mapbender.DataManager.Translator.translate('api.query.error-message');
                 var errorDom = $(xhr.responseText);
 
                 // https://stackoverflow.com/a/298758
@@ -51,7 +51,7 @@
                     autoHide: false
                 });
             }).always( function() {
-                widget.spinner.removeRequest();
+                spinner.removeRequest();
             });
         };
 
