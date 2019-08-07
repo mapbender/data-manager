@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    Mapbender.Digitizer.PopupConfiguration = function (configuration, schema) {
+    Mapbender.DataManager.PopupConfiguration = function (configuration, schema) {
         var popupConfiguration = this;
         popupConfiguration.schema = schema;
 
@@ -16,7 +16,7 @@
 
     };
 
-    Mapbender.Digitizer.PopupConfiguration.prototype = {
+    Mapbender.DataManager.PopupConfiguration.prototype = {
         remoteData: false,
 
 

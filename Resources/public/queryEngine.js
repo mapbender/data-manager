@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    Mapbender.Digitizer.QueryEngine = function(widget) {
+    Mapbender.DataManager.QueryEngine = function(widget) {
 
 
         this.getElementURL = function() {

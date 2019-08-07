@@ -9,7 +9,7 @@
      * @constructor
      */
 
-    Mapbender.Digitizer.Scheme = function (rawScheme, widget, index) {
+    Mapbender.DataManager.Scheme = function (rawScheme, widget, index) {
 
         var schema = this;
 
@@ -27,302 +27,38 @@
          */
         this.allowOpenEditDialog = false;
 
-        this.openFormAfterEdit = true;
-
         $.extend(schema, rawScheme);
 
         schema.createPopupConfiguration_();
 
-        // schema.createSourceModification_();
-
-        schema.createSchemaFeatureLayer_();
-
-        schema.addSelectControl_();
-
         schema.createMenu_();
-
-        schema.initializeWithDefaultStyles_();
-
-
-        schema.layer.getSource().on('controlFactory.FeatureMoved', function (event) {
-            var feature = event.feature;
-
-            feature.temporaryStyle = schema.styles.unsaved;
-            feature.setStyle(feature.temporaryStyle);
-
-            feature.dispatchEvent({type: 'Digitizer.ModifyFeature', allowSaving: true});
-
-
-        });
-
-        schema.layer.getSource().on('controlFactory.FeatureModified', function (event) {
-
-            var feature = event.feature;
-
-            feature.temporaryStyle = schema.styles.unsaved;
-            feature.setStyle(feature.temporaryStyle);
-
-            feature.dispatchEvent({type: 'Digitizer.ModifyFeature', allowSaving: true});
-
-        });
-
-        schema.layer.getSource().on('controlFactory.FeatureAdded', function (event) {
-            var feature = event.feature;
-
-            schema.introduceFeature(feature);
-
-            feature.temporaryStyle = schema.styles.unsaved;
-            feature.setStyle(feature.temporaryStyle);
-
-            if (schema.openFormAfterEdit) {
-                var dialog = schema.openFeatureEditDialog(feature);
-
-                dialog.$popup.bind('popupdialogclose', function () {
-                    feature.dispatchEvent({type: 'Digitizer.ModifyFeature', allowSaving: true});
-                    if (schema.allowDeleteByCancelNewGeometry) {
-                        schema.removeFeature(feature);
-                    }
-                });
-            }
-
-
-        });
-
-
-        schema.layer.getSource().on('controlFactory.FeatureCopied', function (event) {
-            var feature = event.feature;
-
-            schema.introduceFeature(feature);
-
-            feature.temporaryStyle = schema.styles.copy;
-            feature.setStyle(feature.temporaryStyle);
-
-            var dialog = schema.openFeatureEditDialog(feature);
-
-            feature.dispatchEvent({type: 'Digitizer.ModifyFeature', allowSaving: true});
-
-        });
-
-
-        schema.layer.getSource().on('toggleFeatureVisibility', function (event) {
-
-            var feature = event.feature;
-            var hidden = !feature.hidden;
-
-            if (hidden) {
-                feature.hidden = true;
-                feature.temporaryStyle2 = feature.getStyle();
-                feature.setStyle(schema.styles.invisible);
-            } else {
-                feature.hidden = false;
-                feature.setStyle(feature.temporaryStyle2);
-            }
-
-        });
-
-        schema.layer.getSource().dispatchEvent({type: "Digitizer.ChangeCurrentExtentSearch", currentExtentSearch: schema.currentExtentSearch});
 
     };
 
 
-    Mapbender.Digitizer.Scheme.prototype = {
-
-        initializeWithDefaultStyles_: function () {
-            var schema = this;
-            var styles = {
-                default: {
-                    strokeWidth: 1,
-                    strokeColor: '#6fb536',
-                    fillColor: '#6fb536',
-                    fillOpacity: 0.3
-                },
-                select: {
-                    strokeWidth: 3,
-                    fillColor: '#F7F79A',
-                    strokeColor: '#6fb536',
-                    fillOpacity: 0.5,
-                    graphicZIndex: 15
-                },
-                copy: {
-                    strokeWidth: 5,
-                    fillColor: '#f7ef7e',
-                    strokeColor: '#4250b5',
-                    fillOpacity: 0.7,
-                },
-                unsaved: {
-                    strokeWidth: 3,
-                    fillColor: '#FFD14F',
-                    strokeColor: '#F5663C',
-                    fillOpacity: 0.5
-                },
-                invisible: {
-                    fillOpacity: 0,
-                    strokeOpacity: 0,
-                },
-            };
-
-            schema.styles = schema.styles || {};
-
-            $.each(styles, function (label, style) {
-                schema.styles[label] = ol.style.StyleConverter.convertToOL4Style(schema.styles[label] || style);
-
-            });
-
-        },
+    Mapbender.DataManager.Scheme.prototype = {
 
 
-        // createSourceModification_: function () {
-        //     var schema = this;
-        //     var widget = schema.widget;
-        //
-        //     var createRequest = function (extent) {
-        //
-        //         var request = {
-        //             srid: widget.getProjectionCode(),
-        //             maxResults: schema.maxResults,
-        //             schema: schema.schemaName,
-        //
-        //         };
-        //         return request;
-        //
-        //     };
-        //
-        //     var sourceModificatorGlobal = {
-        //         strategy: ol.loadingstrategy.all,
-        //         createRequest: createRequest
-        //     };
-        //
-        //     var sourceModificatorExtent = {
-        //         strategy: function (extent, resolution) {
-        //             if (this.resolution && this.resolution !== resolution) {
-        //                 this.loadedExtentsRtree_.clear();
-        //             }
-        //             return [extent];
-        //         },
-        //         createRequest: function (extent) {
-        //             var request = createRequest(extent);
-        //             var extentPolygon = new ol.geom.Polygon.fromExtent(extent);
-        //             request['intersectGeometry'] = new ol.format.WKT().writeGeometryText(extentPolygon);
-        //
-        //             return request;
-        //
-        //         }
-        //     };
-        //
-        //     schema.currentSourceModificator = schema.currentExtentSearch ? sourceModificatorExtent : sourceModificatorGlobal;
-        //
-        //     schema.switchSourceModificator = function (currentExtent) {
-        //
-        //         var sourceModificator = currentExtent ? sourceModificatorExtent : sourceModificatorGlobal;
-        //
-        //         schema.currentSourceModificator = sourceModificator;
-        //         schema.layer.getSource().strategy_ = sourceModificator.strategy;
-        //
-        //
-        //         schema.layer.getSource().loadedExtentsRtree_.clear();
-        //         schema.layer.getSource().refresh();
-        //     };
-        // },
+
 
 
         createPopupConfiguration_: function () {
             var schema = this;
-            schema.popup = new Mapbender.Digitizer.PopupConfiguration(schema.popup, schema);
+            schema.popup = new Mapbender.DataManager.PopupConfiguration(schema.popup, schema);
         },
 
 
-        createSchemaFeatureLayer_: function () {
-            var schema = this;
-            var widget = schema.widget;
-
-
-            var layer = new ol.layer.Vector({
-                source: new ol.source.Vector({
-                    format: new ol.format.GeoJSON(),
-                    loader: schema.getData.bind(schema),
-                    minResolution: schema.minScale ? Mapbender.Digitizer.Utilities.scaleToResolution(schema.minScale) : 0,
-                    maxResolution: schema.maxScale ? Mapbender.Digitizer.Utilities.scaleToResolution(schema.maxScale) : Infinity,
-                    strategy: ol.loadingstrategy.bbox // ol.loadingstrategy.bbox
-                }),
-                visible: false,
-            });
-
-            schema.layer = layer;
-
-            widget.map.addLayer(schema.layer);
-
-        },
 
         createMenu_: function () {
             var schema = this;
             var widget = schema.widget;
             var element = $(widget.element);
 
-            schema.menu = new Mapbender.Digitizer.Menu(schema);
+            schema.menu = new Mapbender.DataManager.Menu(schema);
 
             element.append(schema.menu.frame);
-
         },
 
-        addSelectControl_: function () {
-            var schema = this;
-            var widget = schema.widget;
-
-
-            var highlightControl = new ol.interaction.Select({
-
-                condition: ol.events.condition.pointerMove,
-                layers: [schema.layer]
-
-            });
-
-
-            schema.highlightControl = highlightControl;
-            widget.map.addInteraction(schema.highlightControl);
-
-            highlightControl.on('select', function (e) {
-
-                e.selected.forEach(function (feature) {
-                    feature.dispatchEvent({type: 'Digitizer.HoverFeature', hover: true});
-                });
-
-                e.deselected.forEach(function (feature) {
-                    feature.dispatchEvent({type: 'Digitizer.HoverFeature', hover: false});
-                });
-
-            });
-
-            highlightControl.setActive(false);
-
-            var selectControl = new ol.interaction.Select({
-
-                condition: ol.events.condition.singleClick,
-                layers: [schema.layer],
-                style: function () {
-                    return null;
-                }
-
-            });
-
-            schema.selectControl = selectControl;
-
-            widget.map.addInteraction(schema.selectControl);
-
-            selectControl.on('select', function (event) {
-                if (schema.allowEditData || schema.allowOpenEditDialog) {
-                    schema.openFeatureEditDialog(event.selected[0]);
-                    selectControl.getFeatures().clear();
-                }
-            });
-
-            selectControl.setActive(false);
-
-        },
-
-        getGeomType: function () {
-            var schema = this;
-            return schema.featureType.geomType;
-        },
 
         activateSchema: function (wholeWidget) {
 
@@ -330,7 +66,6 @@
 
             var widget = schema.widget;
             var frame = schema.menu.frame;
-            var layer = schema.layer;
 
             widget.getCurrentSchema = function () {
                 return schema;
@@ -338,14 +73,10 @@
 
             frame.show();
 
-            schema.highlightControl.setActive(true);
-            schema.selectControl.setActive(true);
+            widget.map.dispatchEvent({ type: 'DataManager.activateSchema', schema: schema});
 
-            if (!wholeWidget) {
-                layer.setVisible(true);
-            }
+            schema.getData();
 
-           widget.map.dispatchEvent({ type: 'Digitizer.activateSchema', schema: schema});
         },
 
         deactivateSchema: function (wholeWidget) {
@@ -353,57 +84,14 @@
             var schema = this;
             var widget = schema.widget;
             var frame = schema.menu.frame;
-            var layer = schema.layer;
 
             frame.hide();
-
-            schema.highlightControl.setActive(false);
-            schema.selectControl.setActive(false);
 
             if (widget.currentPopup) {
                 widget.currentPopup.popupDialog('close');
             }
 
-            schema.deactivateInteractions();
-
-            if (!wholeWidget) {
-                if (!schema.displayPermanent) {
-                    layer.setVisible(false);
-                }
-            }
-
             widget.map.dispatchEvent({ type: 'Digitizer.deactivateSchema', schema: schema});
-
-        },
-
-        deactivateInteractions: function () {
-            var schema = this;
-            schema.menu.toolSet.activeInteraction && schema.menu.toolSet.activeInteraction.setActive(false);
-            schema.highlightControl.setActive(false);
-            schema.selectControl.setActive(false);
-        },
-
-
-        openFeatureEditDialog: function (feature) {
-            var schema = this;
-            return schema.popup.createFeatureEditDialog(feature, schema);
-        },
-
-
-        introduceFeature: function (feature) {
-
-            var schema = this;
-            feature.mbOrigin = 'digitizer';
-
-            feature.setStyle(schema.styles.default);
-
-            feature.on('Digitizer.HoverFeature', function (event) {
-
-                if (!feature.hidden) {
-                    feature.setStyle(event.hover ? schema.styles.select : feature.temporaryStyle || schema.styles.default);
-                }
-
-            });
 
         },
 
@@ -446,72 +134,20 @@
                 features: featureCollection.features
             });
 
-            // Actually, this only needs to be done when doing currentExtent Search, but as long as it doesn't hurt performance, it can stay
-            $.each(schema.layer.getSource().getFeatures(), function (key, feature) {
-                schema.layer.getSource().removeFeature(feature);
-            });
-
             newFeatures.forEach(function (feature) {
-                schema.introduceFeature(feature);
+                schema.widget.map.dispatchEvent({type: "DataManager.FeatureLoaded", feature: feature});
             });
 
-            schema.layer.getSource().addFeatures(newFeatures);
 
         },
 
 
-        copyFeature: function (feature) {
+
+
+        openFeatureEditDialog: function (feature) {
             var schema = this;
-            var layer = schema.layer;
-            var newFeature = feature.clone();
-
-            var defaultAttributes = schema.copy.data || {};
-
-            /** Copy prevention is disabled - no code in Configuration**/
-                // var allowCopy = true;
-                //
-                //
-                // _.each(schema.evaluatedHooksForCopyPrevention, function (allowCopyForFeature) {
-                //     allowCopy = allowCopy && (allowCopyForFeature(feature));
-                // });
-                //
-                // if (!allowCopy) {
-                //     $.notify(Mapbender.DigitizerTranslator.translate('feature.clone.on.error'));
-                //     return;
-                // }
-
-            var newAttributes = _.extend({}, defaultAttributes);
-
-            $.each(feature.getProperties(), function (key, value) {
-                if (key === schema.featureType.uniqueId || value === '' || value === null) {
-                    return;
-                }
-                if (schema.copy.overwriteValuesWithDefault) {
-                    newAttributes[key] = newAttributes[key] || value; // Keep default value when existing
-                } else {
-                    newAttributes[key] = value;
-                }
-
-
-            });
-
-            // TODO this works, but is potentially buggy: numbers need to be relative to current zoom
-            if (schema.copy.moveCopy) {
-                newFeature.getGeometry().translate(schema.copy.moveCopy.x, schema.copy.moveCopy.y);
-            }
-
-            var name = schema.featureType.name;
-            if (name) {
-                newFeature.set(name, "Copy of " + (feature.get(name) || '#'+feature.getId()));
-            }
-
-            schema.layer.getSource().addFeature(newFeature);
-
-            // Watch out - Name "Copy of ..." is not instantly stored
-            schema.layer.getSource().dispatchEvent({type: 'controlFactory.FeatureCopied', feature: newFeature});
-
+            return schema.popup.createFeatureEditDialog(feature, schema);
         },
-
 
         removeFeature: function (feature) {
             var schema = this;
@@ -538,28 +174,6 @@
             }
 
             return feature;
-        },
-
-
-
-        zoomToFeature: function (feature) {
-            var schema = this;
-            var widget = schema.widget;
-            var map = widget.map;
-
-            if (!feature) {
-                return;
-            }
-
-            var olMap = widget.map;
-            var geometry = feature.getGeometry();
-
-            var extent = schema.layer.getSource().getExtent();
-            map.getView().fit(geometry.getExtent(), map.getSize());
-
-            if (schema.zoomScaleDenominator) {
-               $.notify("zoomScaleDenominator not implemented yet");
-            }
         },
 
 

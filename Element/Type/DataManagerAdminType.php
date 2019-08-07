@@ -39,7 +39,13 @@ class DataManagerAdminType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('schemes', new YAMLConfigurationType(),
+        $builder->
+            add('target', 'target_element', array(
+                'element_class' => 'Mapbender\\CoreBundle\\Element\\Map',
+                'application'   => $options['application'],
+                'property_path' => '[target]',
+                'required'      => false))
+            ->add('schemes', new YAMLConfigurationType(),
             array('required' => false, 'attr' => array('class' => 'code-yaml')));
     }
 }
