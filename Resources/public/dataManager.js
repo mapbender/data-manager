@@ -35,8 +35,6 @@
 
         widget.disabled = true;
 
-
-
         Mapbender.elementRegistry.waitReady(widget.target).then( function() {
             widget.setup($element,$title,$selector);
         });
@@ -109,6 +107,8 @@
 
     Mapbender.DataManager.prototype = {
 
+        TYPE: "DataManager",
+
         createScheme_: function(rawScheme) {
             return new Mapbender.DataManager.Scheme(rawScheme,this);
         },
@@ -171,29 +171,13 @@
 
 
 
-        // recalculateLayerVisibility_: function(activateWidget) {
-        //     var widget = this;
-        //
-        //     $.each(widget.schemes,function(schemaName,schema){
-        //         if (activateWidget) {
-        //             if (schema === widget.getCurrentSchema() || schema.displayPermanent) {
-        //                 schema.layer.setVisible(true);
-        //             }
-        //         } else {
-        //             if (!widget.displayOnInactive) {
-        //                 schema.layer.setVisible(false);
-        //             }
-        //         }
-        //     });
-        //
-        // },
+
 
         activate: function () {
             var widget = this;
             if (!widget.isEnabled()) {
                 widget.enable();
                 widget.getCurrentSchema().activateSchema(true);
-                //widget.recalculateLayerVisibility_(true);
             }
         },
 

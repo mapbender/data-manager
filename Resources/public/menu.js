@@ -30,7 +30,17 @@
 
     Mapbender.DataManager.Menu.prototype = {
 
-        registerResulTableEvents: function(resultTable) {
+        registerResultTableEvents: function(resultTable) {
+            var menu = this;
+            var schema = menu.schema;
+            var map = schema.widget.map;
+
+            map.on("DataManager.FeatureLoaded", function (event) {
+                var feature = event.feature;
+
+                resultTable.addRow(feature);
+
+            });
 
         },
 
@@ -164,7 +174,7 @@
 
             resultTable.initializeResultTableEvents(schema.highlightControl);
 
-            menu.registerEvents(resultTable);
+            menu.registerResultTableEvents(resultTable);
 
             frame.append($table);
 

@@ -5,15 +5,13 @@
      *
      * @param {Object} rawScheme
      * @param widget
-     * @param {number} index
      * @constructor
      */
 
-    Mapbender.DataManager.Scheme = function (rawScheme, widget, index) {
+    Mapbender.DataManager.Scheme = function (rawScheme, widget) {
 
         var schema = this;
 
-        this.index = index;
         this.widget = widget;
 
 
@@ -27,17 +25,19 @@
          */
         this.allowOpenEditDialog = false;
 
+
         $.extend(schema, rawScheme);
 
         schema.createPopupConfiguration_();
 
-        schema.createMenu_();
+        if (schema.widget.TYPE == "DataManager") {
+            schema.getData();
+        }
 
     };
 
 
     Mapbender.DataManager.Scheme.prototype = {
-
 
 
 
@@ -48,60 +48,67 @@
         },
 
 
-
-        createMenu_: function () {
+        createMenu: function ($element) {
             var schema = this;
-            var widget = schema.widget;
-            var element = $(widget.element);
-
             schema.menu = new Mapbender.DataManager.Menu(schema);
-
-            element.append(schema.menu.frame);
+            schema.menu.appendTo($element);
         },
-
 
         activateSchema: function (wholeWidget) {
 
             var schema = this;
 
             var widget = schema.widget;
-            var frame = schema.menu.frame;
 
-            widget.getCurrentSchema = function () {
-                return schema;
-            };
-
-            frame.show();
+            schema.menu.show();
 
             widget.map.dispatchEvent({ type: 'DataManager.activateSchema', schema: schema});
-
-            schema.getData();
-
         },
+
 
         deactivateSchema: function (wholeWidget) {
 
             var schema = this;
             var widget = schema.widget;
-            var frame = schema.menu.frame;
 
-            frame.hide();
+            schema.menu.hide();
 
             if (widget.currentPopup) {
                 widget.currentPopup.popupDialog('close');
             }
 
-            widget.map.dispatchEvent({ type: 'Digitizer.deactivateSchema', schema: schema});
+            widget.map.dispatchEvent({ type: 'DataManager.deactivateSchema', schema: schema});
 
         },
+
+
+        openFeatureEditDialog: function (feature) {
+            var schema = this;
+            return schema.popup.createFeatureEditDialog(feature, schema);
+        },
+
+
+        // introduceFeature: function (feature) {
+        //
+        //     var schema = this;
+        //     feature.mbOrigin = 'digitizer';
+        //
+        //     feature.setStyle(schema.styles.default);
+        //
+        //     feature.on('Digitizer.HoverFeature', function (event) {
+        //
+        //         if (!feature.hidden) {
+        //             feature.setStyle(event.hover ? schema.styles.select : feature.temporaryStyle || schema.styles.default);
+        //         }
+        //
+        //     });
+        //
+        // },
 
         getData: function (extent, resolution, projection) {
 
             var schema = this;
             var widget = schema.widget;
-
-            // // This is necessary to enable cache deletion in currentExtentSearch when zooming In
-            // schema.layer.getSource().resolution = resolution;
 
             var request = {
                 srid: widget.getProjectionCode(),
@@ -123,7 +130,7 @@
                 return;
             }
 
-            if (featureCollection.features && featureCollection.features.length === parseInt(schema.maxResults)) {
+            if (featureCollection.features && featureCollection.features.length > parseInt(schema.maxResults)) {
                 Mapbender.info("It is requested more than the maximal available number of results.\n ( > " + schema.maxResults + " results. )");
             }
 
@@ -134,20 +141,70 @@
                 features: featureCollection.features
             });
 
-            newFeatures.forEach(function (feature) {
+           schema.integrateFeatures(newFeatures);
+
+        },
+
+        integrateFeatures: function(features) {
+            var schema = this;
+            features.forEach(function (feature) {
                 schema.widget.map.dispatchEvent({type: "DataManager.FeatureLoaded", feature: feature});
             });
-
-
         },
 
 
+        // copyFeature: function (feature) {
+        //     var schema = this;
+        //     var layer = schema.layer;
+        //     var newFeature = feature.clone();
+        //
+        //     var defaultAttributes = schema.copy.data || {};
+        //
+        //     /** Copy prevention is disabled - no code in Configuration**/
+        //         // var allowCopy = true;
+        //         //
+        //         //
+        //         // _.each(schema.evaluatedHooksForCopyPrevention, function (allowCopyForFeature) {
+        //         //     allowCopy = allowCopy && (allowCopyForFeature(feature));
+        //         // });
+        //         //
+        //         // if (!allowCopy) {
+        //         //     $.notify(Mapbender.DataManager.Translator.translate('feature.clone.on.error'));
+        //         //     return;
+        //         // }
+        //
+        //     var newAttributes = _.extend({}, defaultAttributes);
+        //
+        //     $.each(feature.getProperties(), function (key, value) {
+        //         if (key === schema.featureType.uniqueId || value === '' || value === null) {
+        //             return;
+        //         }
+        //         if (schema.copy.overwriteValuesWithDefault) {
+        //             newAttributes[key] = newAttributes[key] || value; // Keep default value when existing
+        //         } else {
+        //             newAttributes[key] = value;
+        //         }
+        //
+        //
+        //     });
+        //
+        //     // TODO this works, but is potentially buggy: numbers need to be relative to current zoom
+        //     if (schema.copy.moveCopy) {
+        //         newFeature.getGeometry().translate(schema.copy.moveCopy.x, schema.copy.moveCopy.y);
+        //     }
+        //
+        //     var name = schema.featureType.name;
+        //     if (name) {
+        //         newFeature.set(name, "Copy of " + (feature.get(name) || '#'+feature.getId()));
+        //     }
+        //
+        //     schema.layer.getSource().addFeature(newFeature);
+        //
+        //     // Watch out - Name "Copy of ..." is not instantly stored
+        //     schema.layer.getSource().dispatchEvent({type: 'controlFactory.FeatureCopied', feature: newFeature});
+        //
+        // },
 
-
-        openFeatureEditDialog: function (feature) {
-            var schema = this;
-            return schema.popup.createFeatureEditDialog(feature, schema);
-        },
 
         removeFeature: function (feature) {
             var schema = this;
@@ -155,9 +212,9 @@
 
             var limitedFeature = {};
             limitedFeature[schema.featureType.uniqueId] = feature.getId();
-            if (!feature.getId()) {
-                schema.layer.getSource().removeFeature(feature);
-            } else {
+            // if (!feature.getId()) {
+            //     schema.layer.getSource().removeFeature(feature);
+            // } else {
                 Mapbender.confirmDialog({
                     html: Mapbender.DataManager.Translator.translate("feature.remove.from.database"),
 
@@ -165,44 +222,25 @@
                         widget.query('delete', {
                             schema: schema.schemaName,
                             feature: limitedFeature,
-                        }).done(function (fid) {
-                            schema.layer.getSource().removeFeature(feature);
-                            $.notify(Mapbender.DataManager.Translator.translate('feature.remove.successfully'), 'info');
                         });
+                        // .done(function (fid) {
+                        //     schema.layer.getSource().removeFeature(feature);
+                        //     $.notify(Mapbender.DataManager.Translator.translate('feature.remove.successfully'), 'info');
+                        // });
                     }
                 });
-            }
+            //}
 
             return feature;
         },
+
 
 
         saveFeature: function (feature, formData) {
             var schema = this;
             var widget = schema.widget;
 
-            var createNewFeatureWithDBFeature = function (feature, response) {
 
-                var features = response.features;
-
-                if (features.length === 0) {
-                    console.warn("No Feature returned from DB Operation");
-                    schema.layer.getSource().removeFeature(feature);
-                    return null;
-                } else if (features.length > 1) {
-                    console.warn("More than 1 Feature returned from DB Operation");
-                }
-
-                var geoJsonReader = new ol.format.GeoJSON();
-
-                var newFeatures = geoJsonReader.readFeaturesFromObject(response);
-                var newFeature = _.first(newFeatures);
-
-                schema.introduceFeature(newFeature);
-
-                return newFeature;
-
-            };
 
             var request = {
                 id: feature.getId(),
@@ -231,18 +269,19 @@
                 } else {
 
 
-                    var newFeature = createNewFeatureWithDBFeature(feature, response);
-
-                    if (newFeature == null) {
-                        console.warn("Creation of new Feature failed");
-                        return;
-                    }
-
-                    schema.layer.getSource().removeFeature(feature);
-                    schema.layer.getSource().addFeature(newFeature);
-
-
-                    feature.dispatchEvent({type: 'Digitizer.ModifyFeature', allowSaving: false});
+                     // TODO hier beachten
+                    // var newFeature = createNewFeatureWithDBFeature(feature, response);
+                    //
+                    // if (newFeature == null) {
+                    //     console.warn("Creation of new Feature failed");
+                    //     return;
+                    // }
+                    //
+                    // schema.layer.getSource().removeFeature(feature);
+                    // schema.layer.getSource().addFeature(newFeature);
+                    //
+                    //
+                    // feature.dispatchEvent({type: 'Digitizer.ModifyFeature', allowSaving: false});
 
                     $.notify(Mapbender.DataManager.Translator.translate("feature.save.successfully"), 'info');
 
