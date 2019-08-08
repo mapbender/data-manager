@@ -106,6 +106,9 @@ class DataManagerElement extends BaseElement
         return array(
             'css' => array(
                 '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
+
+                '../../vendor/mapbender/vis-ui.js/src/styles/base.css',
+                '../../vendor/mapbender/vis-ui.js/src/styles/modal.scss',
             ),
             'js'  => array(
                 '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
@@ -115,6 +118,17 @@ class DataManagerElement extends BaseElement
                 '@MapbenderDataManagerBundle/Resources/public/queryEngine.js',
                 '@MapbenderDataManagerBundle/Resources/public/schema.js',
                 '@MapbenderDataManagerBundle/Resources/public/translator.js',
+
+                '../../vendor/mapbender/vis-ui.js/src/js/elements/confirm.dialog.js',
+                '../../vendor/mapbender/vis-ui.js/src/js/elements/data.result-table.js',
+                '../../vendor/mapbender/vis-ui.js/src/js/elements/date.selector.js',
+                '../../vendor/mapbender/vis-ui.js/src/js/elements/popup.dialog.js',
+                '../../vendor/mapbender/vis-ui.js/src/js/elements/tab.navigator.js',
+                '../../vendor/mapbender/vis-ui.js/src/js/utils/DataUtil.js',
+                '../../vendor/mapbender/vis-ui.js/src/js/utils/fn.formData.js',
+                '../../vendor/mapbender/vis-ui.js/src/js/utils/StringHelper.js',
+                '../../vendor/mapbender/vis-ui.js/src/js/jquery.form.generator.js',
+                '../../vendor/mapbender/vis-ui.js/src/js/loader.js',
             ),
             'trans' => array(
                 'MapbenderDataManagerBundle:Element:datamanager.json.twig',

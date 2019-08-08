@@ -10,7 +10,8 @@
     "require": {
         "php": ">=5.3.3",
         "blueimp/jquery-file-upload": "9.*",
-        "mapbender/data-source": "0.x"
+        "mapbender/data-source": "0.x",
+        "mapbender/vis-ui.js": "dev-ol4"
     },
     "config": {
         "bin-dir": "bin"
