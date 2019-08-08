@@ -17,8 +17,6 @@
     };
 
     Mapbender.DataManager.PopupConfiguration.prototype = {
-        remoteData: false,
-
 
         checkForDeprecatedUsageOfButtons_: function () {
             var configuration = this;
@@ -28,28 +26,11 @@
         },
 
         createButtons_: function () {
+
             var popupConfiguration = this;
             var schema = popupConfiguration.schema;
 
             var buttons = {};
-            if (schema.printable) {
-                buttons.printButton = {
-                    title: 'feature.print',
-                    event: 'Print'
-                };
-            }
-            if (schema.copy && schema.copy.enable) {
-                buttons.copyButton = {
-                    title: 'feature.clone.title',
-                    event: 'Copy'
-                };
-            }
-            if (schema.allowCustomStyle) {
-                buttons.styleButton = {
-                    title: 'feature.style.change',
-                    event: 'Style'
-                };
-            }
 
             if (schema.allowEditData) {
                 buttons.saveButton = {
@@ -93,6 +74,46 @@
             return new FeatureEditDialog(feature, schema)
         },
 
+        createEventListeners: function(dialog) {
+
+            var eventListeners = {
+
+                'Digitizer.FeatureEditDialog.Save' : function(event) {
+                    var formData = dialog.$popup.formData();
+
+
+                    //
+                    // // TODO this is not nice. Find a better solution
+                    // var errorInputs = $(".has-error", dialog.$popup);
+                    // if (errorInputs.length > 0) {
+                    //     console.warn("Error", errorInputs);
+                    //     return;
+                    // }
+
+                    dialog.$popup.disableForm();
+
+                    schema.saveFeature(feature, formData).then(function (response) {
+
+                        if (response.hasOwnProperty('errors')) {
+                            dialog.$popup.enableForm();
+                            return;
+                        }
+                        dialog.$popup.popupDialog('close');
+                    });
+
+                },
+                'Digitizer.FeatureEditDialog.Delete' : function(event) {
+                    schema.removeFeature(feature);
+                },
+                'Digitizer.FeatureEditDialog.Cancel' : function(event) {
+                    dialog.$popup.popupDialog('close');
+                },
+
+            };
+
+            return eventListeners;
+        },
+
     };
 
 
@@ -108,49 +129,7 @@
         configuration.initButtons(feature);
 
 
-        var eventListeners = {
-
-            'Digitizer.FeatureEditDialog.Print' : function(event) {
-
-            },
-            'Digitizer.FeatureEditDialog.Copy' : function(event) {
-                schema.copyFeature(feature);
-            },
-            'Digitizer.FeatureEditDialog.Style' : function(event) {
-                schema.openChangeStyleDialog(feature);
-            },
-            'Digitizer.FeatureEditDialog.Save' : function(event) {
-                var formData = dialog.$popup.formData();
-
-
-                //
-                // // TODO this is not nice. Find a better solution
-                // var errorInputs = $(".has-error", dialog.$popup);
-                // if (errorInputs.length > 0) {
-                //     console.warn("Error", errorInputs);
-                //     return;
-                // }
-
-                dialog.$popup.disableForm();
-
-                schema.saveFeature(feature, formData).then(function (response) {
-
-                    if (response.hasOwnProperty('errors')) {
-                        dialog.$popup.enableForm();
-                        return;
-                    }
-                    dialog.$popup.popupDialog('close');
-                });
-
-            },
-            'Digitizer.FeatureEditDialog.Delete' : function(event) {
-                schema.removeFeature(feature);
-            },
-            'Digitizer.FeatureEditDialog.Cancel' : function(event) {
-                dialog.$popup.popupDialog('close');
-            },
-
-        };
+        var eventListeners = configuration.createEventListeners();
 
         $.each(eventListeners,function(type,listener){
             feature.on(type,listener);
