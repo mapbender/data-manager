@@ -76,11 +76,15 @@
 
         createEventListeners: function(dialog) {
 
+            var configuration = this;
+            var schema = configuration.schema;
+
+            var feature = dialog.$popup.data("feature");
+
             var eventListeners = {
 
                 'DataManager.FeatureEditDialog.Save' : function(event) {
                     var formData = dialog.$popup.formData();
-
 
                     //
                     // // TODO this is not nice. Find a better solution
@@ -124,12 +128,15 @@
         var widget = schema.widget;
         var $popup = dialog.$popup = $("<div/>");
 
+        $popup.data('feature', feature);
+
+
         var configuration = schema.popup.clone();
 
         configuration.initButtons(feature);
 
 
-        var eventListeners = configuration.createEventListeners();
+        var eventListeners = configuration.createEventListeners(dialog);
 
         $.each(eventListeners,function(type,listener){
             feature.on(type,listener);
@@ -146,9 +153,6 @@
 
 
         widget.currentPopup = $popup;
-
-
-        $popup.data('feature', feature);
 
         $popup.generateElements({children: schema.formItems});
 
