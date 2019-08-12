@@ -42,6 +42,11 @@
 
             });
 
+            map.on("DataManager.FeatureRemoved", function (event) {
+                var feature = event.feature;
+                resultTable.deleteRow(feature);
+            });
+
         },
 
         generateResultDataTableButtons: function () {

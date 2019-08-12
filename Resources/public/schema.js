@@ -1,4 +1,4 @@
-(function () {
+(function ($) {
     "use strict";
 
     /**
@@ -38,9 +38,6 @@
 
 
     Mapbender.DataManager.Scheme.prototype = {
-
-
-
 
         createPopupConfiguration_: function () {
             var schema = this;
@@ -138,59 +135,6 @@
         },
 
 
-        // copyFeature: function (feature) {
-        //     var schema = this;
-        //     var layer = schema.layer;
-        //     var newFeature = feature.clone();
-        //
-        //     var defaultAttributes = schema.copy.data || {};
-        //
-        //     /** Copy prevention is disabled - no code in Configuration**/
-        //         // var allowCopy = true;
-        //         //
-        //         //
-        //         // _.each(schema.evaluatedHooksForCopyPrevention, function (allowCopyForFeature) {
-        //         //     allowCopy = allowCopy && (allowCopyForFeature(feature));
-        //         // });
-        //         //
-        //         // if (!allowCopy) {
-        //         //     $.notify(Mapbender.DataManager.Translator.translate('feature.clone.on.error'));
-        //         //     return;
-        //         // }
-        //
-        //     var newAttributes = _.extend({}, defaultAttributes);
-        //
-        //     $.each(feature.getProperties(), function (key, value) {
-        //         if (key === schema.featureType.uniqueId || value === '' || value === null) {
-        //             return;
-        //         }
-        //         if (schema.copy.overwriteValuesWithDefault) {
-        //             newAttributes[key] = newAttributes[key] || value; // Keep default value when existing
-        //         } else {
-        //             newAttributes[key] = value;
-        //         }
-        //
-        //
-        //     });
-        //
-        //     // TODO this works, but is potentially buggy: numbers need to be relative to current zoom
-        //     if (schema.copy.moveCopy) {
-        //         newFeature.getGeometry().translate(schema.copy.moveCopy.x, schema.copy.moveCopy.y);
-        //     }
-        //
-        //     var name = schema.featureType.name;
-        //     if (name) {
-        //         newFeature.set(name, "Copy of " + (feature.get(name) || '#'+feature.getId()));
-        //     }
-        //
-        //     schema.layer.getSource().addFeature(newFeature);
-        //
-        //     // Watch out - Name "Copy of ..." is not instantly stored
-        //     schema.layer.getSource().dispatchEvent({type: 'controlFactory.FeatureCopied', feature: newFeature});
-        //
-        // },
-
-
         removeFeature: function (feature) {
             var schema = this;
             var widget = schema.widget;
@@ -200,6 +144,7 @@
             // if (!feature.getId()) {
             //     schema.layer.getSource().removeFeature(feature);
             // } else {
+                console.trace();
                 Mapbender.confirmDialog({
                     html: Mapbender.DataManager.Translator.translate("feature.remove.from.database"),
 
@@ -207,11 +152,11 @@
                         widget.query('delete', {
                             schema: schema.schemaName,
                             feature: limitedFeature,
+                        })
+                        .done(function (fid) {
+                            widget.map.dispatchEvent({type: "DataManager.FeatureRemoved", feature: feature});
+                            $.notify(Mapbender.DataManager.Translator.translate('feature.remove.successfully'), 'info');
                         });
-                        // .done(function (fid) {
-                        //     schema.layer.getSource().removeFeature(feature);
-                        //     $.notify(Mapbender.DataManager.Translator.translate('feature.remove.successfully'), 'info');
-                        // });
                     }
                 });
             //}
@@ -284,4 +229,4 @@
     };
 
 
-})();
+})(jQuery);
