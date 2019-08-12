@@ -9,7 +9,7 @@
         };
 
         /**
-         * Digitizer API connection query
+         * DataManager API connection query
          *
          * @param uri suffix
          * @param request query

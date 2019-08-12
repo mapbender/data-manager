@@ -9,8 +9,6 @@ use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Component\FeatureType;
 use Mapbender\DataSourceBundle\Element\BaseElement;
 use Mapbender\DataSourceBundle\Entity\Feature;
-use Mapbender\DigitizerBundle\Component\Uploader;
-use Mapbender\DigitizerBundle\Entity\Condition;
 use RuntimeException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -105,10 +103,7 @@ class DataManagerElement extends BaseElement
     {
         return array(
             'css' => array(
-                '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
-
-                '../../vendor/mapbender/vis-ui.js/src/styles/base.css',
-                '../../vendor/mapbender/vis-ui.js/src/styles/modal.scss',
+                '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss'
             ),
             'js'  => array(
                 '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',

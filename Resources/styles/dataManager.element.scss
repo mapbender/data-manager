@@ -1,149 +1,223 @@
+.mb-element-data-manager {
 
+    padding: 0;
 
-.mb-element-data-manager.modal-body {
-  > .frame{
+    > .title {
+        margin-bottom: 9px;
+        text-shadow: 0px 1px 0px #fff;
+    }
 
-    > .toolbar {
-      margin-top: 8px;
-      button.btn{
-        font-size: 0;
-        line-height: 12px;
-        &:before{
-          font-size: 12px;
-          vertical-align: middle;
+    > select {
+        background-color: #fff;
+        padding: 4px;
+        width: 100%;
+        display: block;
+
+        option {
+            font-weight: bold;
         }
-      }
     }
 
 
+    .mapbender-element-result-table {
 
-    .form-group > button.btn {
-        &:first-child{
-          margin-left: 15px;
-        }
-        &:last-child{
-          margin-right: 15px;
-        }
-    }
-    [class^="fa-"]:before, [class*=" fa-"]:before {
-      display: inline-block;
-      font: normal normal normal 14px/1 FontAwesome;
-      font-size: inherit;
-      text-rendering: auto;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+        margin-top: 10px;
 
-    > .mapbender-element-result-table {
+        tr {
 
-      > .dataTables_wrapper {
-        > .dataTables_filter > label {
-          width: 100%;
-          line-height: 14px;
-          > input[type="search"] {
-            display: block;
-            width: 100%;
-            margin-bottom: 8px;
-            border: 1px solid #c0c0c0;
-            color: #555;
-            font-weight: normal;
-            height: 29px;
-            padding: 2px 24px 2px 7px;
-            line-height: 1.42857143;
-          }
-        }
-        tr[role='row'] > td > div.button-navigation {
-          > button {
-            &.fa-remove {
+            line-height: 10px;
+
+            &.odd, &.even {
+                &.hover td {
+                    background-color: #F7F79A;
+                }
+
+                &:hover td {
+                    background-color: #F7F79A;
+                }
             }
-            &:before {
-              font-family: mapbender-icons;
+
+            td {
+                word-break: keep-all !important;
+                overflow: hidden;
+                white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+                white-space: -webkit-pre-wrap; /*Chrome & Safari */
+                white-space: -pre-wrap; /* Opera 4-6 */
+                white-space: -o-pre-wrap; /* Opera 7 */
+                white-space: pre-wrap; /* css-3 */
+                word-wrap: break-word; /* Internet Explorer 5.5+ */
+
+                button:disabled {
+                    opacity: 0.5;
+                }
+
+
             }
-          }
         }
-      }
+
+        > .dataTables_wrapper {
+            > .dataTables_filter {
+                > label {
+                    width: 100%;
+                    line-height: 14px;
+
+                    > input[type="search"] {
+                        display: block;
+                        width: 100%;
+                        margin-bottom: 8px;
+                        border: 1px solid rgb(169, 169, 169);
+                        color: #555;
+                        font-size: 14px;
+                        font-weight: normal;
+                        height: 29px;
+                        padding: 2px 24px 2px 7px;
+                        line-height: 1.42857143;
+                    }
+                }
+            }
+
+            .no-footer {
+                overflow: hidden;
+            }
+
+        }
+
     }
-  }
+
+    .form-group {
+        button {
+            // TODO: remove it after fixed in vis-ui.js
+            width: auto;
+            display: inline-block;
+            vertical-align: middle;
+            margin-bottom: 7px;
+            position: relative;
+            height: 24px;
+            margin-left: 5px;
+
+        }
+    }
+
+    &.popup-dialog {
+        > fieldset.form-group {
+            margin-left: -5px;
+            margin-right: 10px;
+            margin-top: 0px;
+        }
+
+        > label,
+        > form,
+        > .form-group {
+            margin: 5px 10px 0;
+
+            &:last-child {
+                margin-bottom: 10px;
+            }
+        }
+    }
+
+    div.notifyjs-container > div.notifyjs-bootstrap-base > span {
+        display: block;
+        width: auto;
+        white-space: pre;
+    }
+
+    .image-container {
+        position: relative;
+        overflow: hidden;
+
+        > div.sub-container {
+            display: table-cell;
+            vertical-align: middle;
+        }
+    }
+
+    .file-container {
+
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #00ccaa;
+            float: none;
+            transition: none;
+            padding: 0;
+            margin: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .fileinput-button {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+
+            > input {
+                position: absolute;
+                top: 0;
+                right: 0;
+                margin: 0;
+                opacity: 0;
+                -ms-filter: 'alpha(opacity=0)';
+                font-size: 200px;
+                direction: ltr;
+                cursor: pointer;
+
+                &:focus, &hover {
+                    box-shadow: inset 0 1px 1px transparent, 0 0 4px #000 !important;
+                }
+
+            }
+        }
+    }
+
+    button {
+
+        border: 1px solid #ccc !important;
+
+        &:focus {
+            outline: thin dotted !important;
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+        }
+    }
+
+
+
 }
 
-// Pop-up dialogs
-.ui-dialog {
 
-  > .data-manager-edit-data {
-    > .form-group, > form {
-      margin: 5px 10px;
-    }
-  }
+/** Q&D Fixes **/
 
-  > .data-manager-results {
-  }
 
-  a.infoText {
-    display: block;
-    position: absolute;
-    bottom: -1px;
-    right: 0px;
-    font-size: 0;
-    color: #9999A9;
-    opacity: 0.6;
-    cursor: default;
-    text-decoration: none;
+.ui-dialog-buttonset {
+    > button {
+        margin-top: 5px;
+    }
+}
 
-    &:hover{
-      opacity: 1;
-    }
 
-    &:after {
-      display: inline-block;
-      font-family: FontAwesome;
-      content: "\f05a";
-      font-size:14px;
-      line-height: 30px;
-      vertical-align: middle;
-      margin-right: 7px;
-    }
-  }
 
-  .has-title {
-    > a.infoText {
-      display: inline-block;
-      position: absolute;
-      bottom: inherit;
-      right: inherit;
-      &:after{
-        line-height: inherit;
-        vertical-align: top;
-        margin-left: 3px;
-        margin-top: 1px;
-      }
-    }
-  }
 
-  .select-container {
-    > a.infoText {
-      bottom: inherit;
-      right: 15px;
-    }
-    &.has-title {
-      > a.infoText {
-        right: auto;
-      }
-    }
-  }
-  &.textarea-container {
-    > a.infoText {
-      bottom: inherit;
-    }
-  }
+.confirm-dialog {
+    text-align: center;
+}
 
-  .checkbox{
-    > a.infoText {
-      display: inline-block;
-      position: absolute;
-      bottom: inherit;
-      right: inherit;
-      margin-top: -4px;
-      z-index: 1;
+
+li.select2-search--inline {
+    width: 100%;
+
+    input {
+        width: 100% !important;
     }
-  }
+}
+
+
+/* Fixes for IE < 8 */
+@media screen {
+    .fileinput-button > input {
+        filter: alpha(opacity=0);
+        font-size: 100%;
+        height: 100%;
+    }
 }

@@ -39,10 +39,6 @@
             widget.setup($element,$title,$selector);
         });
 
-        // Mapbender.elementRegistry.waitCreated('.mb-element-printclient').then(function (printClient) {
-        //     widget.printClient = printClient;
-        //     $.extend(widget.printClient, Mapbender.Digitizer.printPlugin);
-        // });
     };
 
     Mapbender.DataManager.createSpinner_ = function ($spinner) {
@@ -189,16 +185,7 @@
         },
 
 
-        // // TODO muss repariert werden
-        // refreshConnectedDigitizerFeatures: function (featureTypeName) {
-        //     var widget = this;
-        //     $(".mb-element-digitizer").not(".mb-element-data-manager").each(function (index, element) {
-        //         var schemes = widget.schemes;
-        //         schemes[featureTypeName] && schemes[featureTypeName].layer && schemes[featureTypeName].layer.getData();
-        //     })
-        //
-        //
-        // },
+
     }
 
 

@@ -88,22 +88,7 @@
         },
 
 
-        // introduceFeature: function (feature) {
-        //
-        //     var schema = this;
-        //     feature.mbOrigin = 'digitizer';
-        //
-        //     feature.setStyle(schema.styles.default);
-        //
-        //     feature.on('Digitizer.HoverFeature', function (event) {
-        //
-        //         if (!feature.hidden) {
-        //             feature.setStyle(event.hover ? schema.styles.select : feature.temporaryStyle || schema.styles.default);
-        //         }
-        //
-        //     });
-        //
-        // },
+
 
         getData: function (extent, resolution, projection) {
 

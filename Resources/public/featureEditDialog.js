@@ -65,7 +65,7 @@
             $.each(configuration.buttons, function (name, button) {
                 button.text = button.title = Mapbender.DataManager.Translator.translate(button.title);
                 button.click = function (event) {
-                    feature.dispatchEvent({type: 'Digitizer.FeatureEditDialog.' + button.event});
+                    feature.dispatchEvent({type: 'DataManager.FeatureEditDialog.' + button.event});
                 }
             });
         },
@@ -78,7 +78,7 @@
 
             var eventListeners = {
 
-                'Digitizer.FeatureEditDialog.Save' : function(event) {
+                'DataManager.FeatureEditDialog.Save' : function(event) {
                     var formData = dialog.$popup.formData();
 
 
@@ -102,10 +102,10 @@
                     });
 
                 },
-                'Digitizer.FeatureEditDialog.Delete' : function(event) {
+                'DataManager.FeatureEditDialog.Delete' : function(event) {
                     schema.removeFeature(feature);
                 },
-                'Digitizer.FeatureEditDialog.Cancel' : function(event) {
+                'DataManager.FeatureEditDialog.Cancel' : function(event) {
                     dialog.$popup.popupDialog('close');
                 },
 
