@@ -5,6 +5,8 @@
         var popupConfiguration = this;
         popupConfiguration.schema = schema;
 
+        this.PREFIX = "DataManager";
+
         $.extend(popupConfiguration, configuration);
 
         popupConfiguration.checkForDeprecatedUsageOfButtons_();
@@ -65,7 +67,7 @@
             $.each(configuration.buttons, function (name, button) {
                 button.text = button.title = Mapbender.DataManager.Translator.translate(button.title);
                 button.click = function (event) {
-                    feature.dispatchEvent({type: 'DataManager.FeatureEditDialog.' + button.event});
+                    feature.dispatchEvent({type: configuration.PREFIX+'.FeatureEditDialog.' + button.event});
                 }
             });
         },
@@ -86,14 +88,6 @@
                 'DataManager.FeatureEditDialog.Save' : function(event) {
                     var formData = dialog.$popup.formData();
 
-                    //
-                    // // TODO this is not nice. Find a better solution
-                    // var errorInputs = $(".has-error", dialog.$popup);
-                    // if (errorInputs.length > 0) {
-                    //     console.warn("Error", errorInputs);
-                    //     return;
-                    // }
-
                     dialog.$popup.disableForm();
 
                     schema.saveFeature(feature, formData).then(function (response) {
@@ -110,8 +104,9 @@
                     schema.removeFeature(feature);
                 },
                 'DataManager.FeatureEditDialog.Cancel' : function(event) {
+
                     dialog.$popup.popupDialog('close');
-                },
+                }
 
             };
 
@@ -121,6 +116,13 @@
     };
 
 
+    /**
+     *
+     * @param {ol.Feature} feature
+     * @param {Mapbender.Digitizer.Scheme} schema
+     * @returns {FeatureEditDialog}
+     * @constructor
+     */
     var FeatureEditDialog = function (feature, schema) {
 
         var dialog = this;
