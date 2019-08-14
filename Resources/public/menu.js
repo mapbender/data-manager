@@ -115,7 +115,7 @@
                             });
                         };
 
-                        var data = feature.get(columnId);
+                        var data = feature.get('data').get(columnId);
                         if (typeof (data) == 'string') {
                             data = escapeHtml(data);
                         }

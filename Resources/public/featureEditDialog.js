@@ -165,7 +165,7 @@
 
         /** This is evil, but filling of input fields currently relies on that (see select field) **/
         setTimeout(function () {
-            $popup.formData(feature.getProperties());
+            $popup.formData(feature.get('data'));
         }, 0);
 
 

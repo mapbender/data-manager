@@ -59,7 +59,7 @@
 
             schema.menu.show();
 
-            widget.map.dispatchEvent({ type: 'DataManager.activateSchema', schema: schema});
+            widget.map.dispatchEvent({type: 'DataManager.activateSchema', schema: schema});
         },
 
 
@@ -74,7 +74,7 @@
                 widget.currentPopup.popupDialog('close');
             }
 
-            widget.map.dispatchEvent({ type: 'DataManager.deactivateSchema', schema: schema});
+            widget.map.dispatchEvent({type: 'DataManager.deactivateSchema', schema: schema});
 
         },
 
@@ -83,8 +83,6 @@
             var schema = this;
             return schema.popup.createFeatureEditDialog(feature, schema);
         },
-
-
 
 
         getData: function (extent, resolution, projection) {
@@ -117,17 +115,18 @@
             }
 
 
-            var geoJsonReader = new ol.format.GeoJSON();
+            var geoJsonReader = new ol.format.GeoJSONWithSeperateData();
+
             var newFeatures = geoJsonReader.readFeaturesFromObject({
                 type: "FeatureCollection",
                 features: featureCollection.features
             });
 
-           schema.integrateFeatures(newFeatures);
+            schema.integrateFeatures(newFeatures);
 
         },
 
-        integrateFeatures: function(features) {
+        integrateFeatures: function (features) {
             var schema = this;
             features.forEach(function (feature) {
                 schema.widget.map.dispatchEvent({type: "DataManager.FeatureLoaded", feature: feature});
@@ -144,32 +143,30 @@
             // if (!feature.getId()) {
             //     schema.layer.getSource().removeFeature(feature);
             // } else {
-                console.trace();
-                Mapbender.confirmDialog({
-                    html: Mapbender.DataManager.Translator.translate("feature.remove.from.database"),
+            console.trace();
+            Mapbender.confirmDialog({
+                html: Mapbender.DataManager.Translator.translate("feature.remove.from.database"),
 
-                    onSuccess: function () {
-                        widget.query('delete', {
-                            schema: schema.schemaName,
-                            feature: limitedFeature,
-                        })
+                onSuccess: function () {
+                    widget.query('delete', {
+                        schema: schema.schemaName,
+                        feature: limitedFeature,
+                    })
                         .done(function (fid) {
                             widget.map.dispatchEvent({type: "DataManager.FeatureRemoved", feature: feature});
                             $.notify(Mapbender.DataManager.Translator.translate('feature.remove.successfully'), 'info');
                         });
-                    }
-                });
+                }
+            });
             //}
 
             return feature;
         },
 
 
-
         saveFeature: function (feature, formData) {
             var schema = this;
             var widget = schema.widget;
-
 
 
             var request = {
@@ -199,7 +196,7 @@
                 } else {
 
 
-                     // TODO hier beachten
+                    // TODO hier beachten
                     // var newFeature = createNewFeatureWithDBFeature(feature, response);
                     //
                     // if (newFeature == null) {
