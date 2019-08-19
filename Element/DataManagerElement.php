@@ -192,37 +192,6 @@ class DataManagerElement extends BaseElement
         return $featureType;
     }
 
-
-    /**
-     * Prepare request feautre data by the form definition
-     *
-     * @param $feature
-     * @param $formItems
-     * @return array
-     */
-    protected function prepareQueriedFeatureData($feature, $formItems)
-    {
-        foreach ($formItems as $key => $formItem) {
-            if (isset($formItem['children'])) {
-                $feature = array_merge($feature, $this->prepareQueriedFeatureData($feature, $formItem['children']));
-            } elseif (isset($formItem['type']) && isset($formItem['name'])) {
-                switch ($formItem['type']) {
-                    case 'select':
-                        if (isset($formItem['multiple'])) {
-                            $separator = isset($formItem['separator']) ? $formItem['separator'] : ',';
-                            if (is_array($feature["properties"][$formItem['name']])) {
-                                $feature["properties"][$formItem['name']] = implode($separator, $feature["properties"][$formItem['name']]);
-                            }
-                        }
-                        break;
-                }
-            }
-        }
-        return $feature;
-    }
-
-
-
     /**
      * Eval code string
      *
@@ -449,22 +418,18 @@ class DataManagerElement extends BaseElement
         // save collection
         if (isset($request['features']) && is_array($request['features'])) {
             foreach ($request['features'] as $feature) {
-                /**
-                 * @var $feature Feature
-                 */
-                $featureData = $this->prepareQueriedFeatureData($feature, $schema['formItems']);
 
                 foreach ($featureType->getFileInfo() as $fileConfig) {
-                    if (!isset($fileConfig['field']) || !isset($featureData["properties"][$fileConfig['field']])) {
+                    if (!isset($fileConfig['field']) || !isset($feature["properties"][$fileConfig['field']])) {
                         continue;
                     }
                     $url = $featureType->getFileUrl($fileConfig['field']);
-                    $requestUrl = $featureData["properties"][$fileConfig['field']];
+                    $requestUrl = $feature["properties"][$fileConfig['field']];
                     $newUrl = str_replace($url . "/", "", $requestUrl);
-                    $featureData["properties"][$fileConfig['field']] = $newUrl;
+                    $feature["properties"][$fileConfig['field']] = $newUrl;
                 }
 
-                $feature = $featureType->save($featureData);
+                $feature = $featureType->save($feature);
                 $results = array_merge($featureType->search(array(
                     'srid' => $feature->getSrid(),
                     'where' => $connection->quoteIdentifier($featureType->getUniqueId()) . '=' . $connection->quote($feature->getId()))));
