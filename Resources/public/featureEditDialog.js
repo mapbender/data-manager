@@ -67,7 +67,7 @@
             $.each(configuration.buttons, function (name, button) {
                 button.text = button.title = Mapbender.DataManager.Translator.translate(button.title);
                 button.click = function (event) {
-                    feature.dispatchEvent({type: configuration.PREFIX+'.FeatureEditDialog.' + button.event});
+                    feature.dispatchEvent({type: configuration.PREFIX + '.FeatureEditDialog.' + button.event});
                 }
             });
         },
@@ -76,42 +76,47 @@
             return new FeatureEditDialog(feature, schema)
         },
 
-        createEventListeners: function(dialog) {
+        createEventListeners: function (dialog) {
 
             var configuration = this;
             var schema = configuration.schema;
 
             var feature = dialog.$popup.data("feature");
 
-            var eventListeners = {
+            var eventListeners = {};
 
-                'DataManager.FeatureEditDialog.Save' : function(event) {
-                    var formData = dialog.$popup.formData();
+            eventListeners[configuration.PREFIX + '.FeatureEditDialog.Save'] = function (event) {
+                var formData = dialog.$popup.formData();
 
-                    dialog.$popup.disableForm();
-
-                    schema.saveFeature(feature, formData).then(function (response) {
-
-                        if (response.hasOwnProperty('errors')) {
-                            dialog.$popup.enableForm();
-                            return;
-                        }
-                        dialog.$popup.popupDialog('close');
-                    });
-
-                },
-                'DataManager.FeatureEditDialog.Delete' : function(event) {
-                    schema.removeFeature(feature);
-                },
-                'DataManager.FeatureEditDialog.Cancel' : function(event) {
-
-                    dialog.$popup.popupDialog('close');
+                if (formData.defectiveInputs().length > 0) {
+                    console.warn("Error", formData.defectiveInputs());
+                    return;
                 }
+
+                dialog.$popup.disableForm();
+
+                schema.saveFeature(feature, formData).then(function (response) {
+
+                    if (response.hasOwnProperty('errors')) {
+                        dialog.$popup.enableForm();
+                        return;
+                    }
+                    dialog.$popup.popupDialog('close');
+                });
 
             };
 
+            eventListeners[configuration.PREFIX + '.FeatureEditDialog.Delete'] = function (event) {
+                schema.removeFeature(feature);
+            };
+            eventListeners[configuration.PREFIX + '.FeatureEditDialog.Cancel'] = function (event) {
+
+                dialog.$popup.popupDialog('close');
+            };
+
+
             return eventListeners;
-        },
+        }
 
     };
 
@@ -140,18 +145,16 @@
 
         var eventListeners = configuration.createEventListeners(dialog);
 
-        $.each(eventListeners,function(type,listener){
-            feature.on(type,listener);
+        $.each(eventListeners, function (type, listener) {
+            feature.on(type, listener);
         });
 
         $popup.bind('popupdialogclose', function () {
 
-            $.each(eventListeners,function(type,listener){
-                feature.un(type,listener);
+            $.each(eventListeners, function (type, listener) {
+                feature.un(type, listener);
             });
         });
-
-
 
 
         widget.currentPopup = $popup;
@@ -160,7 +163,6 @@
 
 
         $popup.popupDialog(configuration);
-
 
 
         /** This is evil, but filling of input fields currently relies on that (see select field) **/
