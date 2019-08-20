@@ -3,30 +3,54 @@
 
     /**
      *
-     * @param {Object} rawScheme
+     * @param {Object} options
      * @param widget
      * @constructor
      */
 
-    Mapbender.DataManager.Scheme = function (rawScheme, widget) {
+    Mapbender.DataManager.Scheme = function (options, widget) {
 
         var schema = this;
 
-        this.widget = widget;
+        schema.widget = widget;
+
+        schema.featureType = options.featureType;
+
+        if (!schema.featureType) {
+            throw new Error("No Feature Type specified in Configuration of scheme")
+        }
+
+        schema.schemaName = options.schemaName;
+        if (!schema.featureType) {
+            throw new Error("No proper Schema Name specified in Configuration of scheme")
+        }
+
+        schema.label = options.label;
+
+        schema.popup = options.popup || { title: schema.schemaName, width: '500px' };
+
+        schema.tableFields = options.tableFields || schema.createDefaultTableFields_();
+
+        schema.formItems = options.formItems || {};
+
+        schema.allowEditData = options.allowEditData || false;
+
+        schema.allowSave = options.allowSave || false;
+
+        schema.allowOpenEditDialog = options.allowOpenEditDialog || false;
+
+        schema.allowDelete = options.allowDelete || false;
+
+        schema.hideSearchField = options.hideSearchField || false;
+
+        schema.pageLength = options.pageLength || 10;
+
+        schema.inlineSearch = options.inlineSearch || false;
+
+        schema.tableTranslation = options.tableTranslation || undefined;
 
 
-        /**
-         * @type {boolean}
-         */
-        this.allowEditData = false;
 
-        /**
-         * @type {boolean}
-         */
-        this.allowOpenEditDialog = false;
-
-
-        $.extend(schema, rawScheme);
 
         schema.createPopupConfiguration_();
 
@@ -38,6 +62,18 @@
 
 
     Mapbender.DataManager.Scheme.prototype = {
+
+        createDefaultTableFields_: function () {
+            var schema = this;
+            var tableFields = {};
+
+            tableFields[schema.featureType.uniqueId] = {label: 'Nr.', width: '20%'};
+            if (schema.featureType.name) {
+                tableFields[schema.featureType.name] = {label: 'Name', width: '80%'};
+            }
+            return tableFields;
+
+        },
 
         createPopupConfiguration_: function () {
             var schema = this;

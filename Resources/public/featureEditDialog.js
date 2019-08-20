@@ -34,7 +34,7 @@
 
             var buttons = {};
 
-            if (schema.allowEditData) {
+            if (schema.allowEditData && schema.allowSave) {
                 buttons.saveButton = {
                     title: 'feature.save.title',
                     event: 'Save',
@@ -46,12 +46,12 @@
                     event: 'Delete',
                 };
             }
-            if (schema.allowCancelButton) {
-                buttons.cancelButton = {
-                    title: 'cancel',
-                    event: 'Cancel',
-                };
-            }
+
+            buttons.cancelButton = {
+                title: 'cancel',
+                event: 'Cancel',
+            };
+
 
             return buttons;
 

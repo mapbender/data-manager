@@ -123,19 +123,8 @@
                     };
                 };
 
-                var getDefaultTableFields = function () {
-                    var tableFields = this;
 
-                    tableFields[schema.featureType.uniqueId] = {label: 'Nr.', width: '20%'};
-                    if (schema.featureType.name) {
-                        tableFields[schema.featureType.name] = {label: 'Name', width: '80%'};
-                    }
-                    return tableFields;
-
-                };
-
-
-                $.each(schema.tableFields || getDefaultTableFields(), function (columnId, fieldSettings) {
+                $.each(schema.tableFields, function (columnId, fieldSettings) {
                     fieldSettings.title = fieldSettings.label;
                     fieldSettings.data = fieldSettings.data || createResultTableDataFunction(columnId, fieldSettings);
                     columns.push(fieldSettings);
