@@ -105,8 +105,8 @@
 
         TYPE: "DataManager",
 
-        createScheme_: function(rawScheme) {
-            return new Mapbender.DataManager.Scheme(rawScheme,this);
+        createScheme_: function(options) {
+            return new Mapbender.DataManager.Scheme(options,this);
         },
 
         setup: function ($element,$title,$selector) {
@@ -116,9 +116,9 @@
 
             var rawSchemes = widget.schemes;
             widget.schemes = {};
-            $.each(rawSchemes, function (schemaName,rawScheme) {
-                rawScheme.schemaName = schemaName;
-                var schema = widget.schemes[schemaName] = widget.createScheme_(rawScheme);
+            $.each(rawSchemes, function (schemaName,options) {
+                options.schemaName = schemaName;
+                var schema = widget.schemes[schemaName] = widget.createScheme_(options);
                 schema.createMenu($element);
             });
             Object.freeze(widget.schemes);

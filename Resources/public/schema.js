@@ -77,7 +77,7 @@
 
         createPopupConfiguration_: function () {
             var schema = this;
-            schema.popup = new Mapbender.DataManager.PopupConfiguration(schema.popup, schema);
+            schema.popupConfiguration = new Mapbender.DataManager.PopupConfiguration(schema.popup, schema);
         },
 
 
@@ -117,7 +117,7 @@
 
         openFeatureEditDialog: function (feature) {
             var schema = this;
-            return schema.popup.createFeatureEditDialog(feature, schema);
+            return schema.popupConfiguration.createFeatureEditDialog(feature, schema);
         },
 
 

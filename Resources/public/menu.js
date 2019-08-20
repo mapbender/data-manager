@@ -55,7 +55,7 @@
 
             var buttons = [];
 
-            if (schema.allowEditData) {
+            if (schema.allowEditData || schema.allowOpenEditDialog) {
                 buttons.push({
                     title: Mapbender.DataManager.Translator.translate('feature.edit'),
                     className: 'edit',
@@ -166,7 +166,7 @@
 
             resultTable.initializeColumnTitles();
 
-            resultTable.initializeResultTableEvents(schema.highlightControl);
+            resultTable.initializeResultTableEvents();
 
             menu.registerResultTableEvents(resultTable);
 
@@ -177,8 +177,7 @@
             }
 
 
-
-        },
+        }
 
 
     };

@@ -73,7 +73,9 @@
         },
 
         createFeatureEditDialog: function (feature, schema) {
-            return new FeatureEditDialog(feature, schema)
+            var configuration = this;
+
+            return new FeatureEditDialog(feature, schema,configuration.clone())
         },
 
         createEventListeners: function (dialog) {
@@ -125,10 +127,11 @@
      *
      * @param {ol.Feature} feature
      * @param {Mapbender.Digitizer.Scheme} schema
+     * @param {Mapbender.Digitizer.PopupConfiguration} configuration
      * @returns {FeatureEditDialog}
      * @constructor
      */
-    var FeatureEditDialog = function (feature, schema) {
+    var FeatureEditDialog = function (feature, schema,configuration) {
 
         var dialog = this;
 
@@ -136,9 +139,6 @@
         var $popup = dialog.$popup = $("<div/>");
 
         $popup.data('feature', feature);
-
-
-        var configuration = schema.popup.clone();
 
         configuration.initButtons(feature);
 
