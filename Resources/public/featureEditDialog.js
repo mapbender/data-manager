@@ -149,6 +149,7 @@
             feature.on(type, listener);
         });
 
+        widget.currentPopup && widget.currentPopup.popupDialog('close');
 
         widget.currentPopup = $popup;
 
