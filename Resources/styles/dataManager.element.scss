@@ -18,6 +18,9 @@
         }
     }
 
+    button:disabled {
+        opacity: 0.5;
+    }
 
     .mapbender-element-result-table {
 
@@ -46,11 +49,6 @@
                 white-space: -o-pre-wrap; /* Opera 7 */
                 white-space: pre-wrap; /* css-3 */
                 word-wrap: break-word; /* Internet Explorer 5.5+ */
-
-                button:disabled {
-                    opacity: 0.5;
-                }
-
 
             }
         }

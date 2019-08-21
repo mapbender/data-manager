@@ -30,7 +30,7 @@
 
     Mapbender.DataManager.Menu.prototype = {
 
-        registerResultTableEvents: function(resultTable) {
+        registerResultTableEvents: function(resultTable,frame) {
             var menu = this;
             var schema = menu.schema;
             var map = schema.widget.map;
@@ -200,7 +200,7 @@
                 }
             });
 
-            menu.registerResultTableEvents(resultTable);
+            menu.registerResultTableEvents(resultTable,frame);
 
             frame.append($table);
 
