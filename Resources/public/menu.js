@@ -40,12 +40,26 @@
 
                 resultTable.addRow(feature);
 
+                feature.on('DataManager.HoverFeature', function (event) {
+
+                    resultTable.hoverInResultTable(feature, true);
+
+                });
+
+                feature.on('DataManager.UnhoverFeature', function (event) {
+
+                    resultTable.hoverInResultTable(feature, false);
+
+                })
+
             });
 
             map.on("DataManager.FeatureRemoved", function (event) {
                 var feature = event.feature;
                 resultTable.deleteRow(feature);
             });
+
+;
 
         },
 
@@ -88,6 +102,7 @@
         generateDataTable_: function (frame) {
             var menu = this;
             var schema = menu.schema;
+            var widget = schema.widget;
 
             var resultTable;
 
@@ -166,7 +181,24 @@
 
             resultTable.initializeColumnTitles();
 
-            resultTable.initializeResultTableEvents();
+            resultTable.element.delegate("tbody > tr", 'mouseenter', function () {
+                var tr = this;
+                var row = resultTable.getApi().row(tr);
+                var feature = row.data();
+                if (feature) {
+                    feature.dispatchEvent({type: widget.TYPE+'.HoverFeature'});
+                }
+
+            });
+
+            resultTable.element.delegate("tbody > tr", 'mouseleave', function () {
+                var tr = this;
+                var row = resultTable.getApi().row(tr);
+                var feature = row.data();
+                if (feature) {
+                    feature.dispatchEvent({type: widget.TYPE+'.UnhoverFeature'});
+                }
+            });
 
             menu.registerResultTableEvents(resultTable);
 

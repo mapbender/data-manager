@@ -149,13 +149,6 @@
             feature.on(type, listener);
         });
 
-        $popup.bind('popupdialogclose', function () {
-
-            $.each(eventListeners, function (type, listener) {
-                feature.un(type, listener);
-            });
-        });
-
 
         widget.currentPopup = $popup;
 
@@ -170,6 +163,16 @@
             $popup.formData(feature.get('data'));
         }, 0);
 
+        $popup.bind('popupdialogclose', function () {
+
+            $.each(eventListeners, function (type, listener) {
+                feature.un(type, listener);
+            });
+        });
+
+        $popup.parent().bind("mouseenter",function(){
+            feature.dispatchEvent({type: 'Digitizer.UnhoverFeature'});
+        });
 
         return dialog;
 

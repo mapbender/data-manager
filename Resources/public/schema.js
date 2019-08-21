@@ -117,7 +117,8 @@
 
         openFeatureEditDialog: function (feature) {
             var schema = this;
-            return schema.popupConfiguration.createFeatureEditDialog(feature, schema);
+            var dialog = schema.popupConfiguration.createFeatureEditDialog(feature, schema);
+            return dialog;
         },
 
 
@@ -179,7 +180,6 @@
             // if (!feature.getId()) {
             //     schema.layer.getSource().removeFeature(feature);
             // } else {
-            console.trace();
             Mapbender.confirmDialog({
                 html: Mapbender.DataManager.Translator.translate("feature.remove.from.database"),
 
