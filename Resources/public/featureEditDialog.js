@@ -112,8 +112,7 @@
                 schema.removeFeature(feature);
             };
             eventListeners[configuration.PREFIX + '.FeatureEditDialog.Cancel'] = function (event) {
-
-                dialog.$popup.popupDialog('instance').close();
+                dialog.$popup.popupDialog('instance').cancel();
             };
 
 
