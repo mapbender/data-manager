@@ -103,7 +103,7 @@
                         dialog.$popup.enableForm();
                         return;
                     }
-                    dialog.$popup.popupDialog('close');
+                    dialog.$popup.popupDialog('instance').close();
                 });
 
             };
@@ -113,7 +113,7 @@
             };
             eventListeners[configuration.PREFIX + '.FeatureEditDialog.Cancel'] = function (event) {
 
-                dialog.$popup.popupDialog('close');
+                dialog.$popup.popupDialog('instance').close();
             };
 
 
@@ -165,14 +165,13 @@
         }, 0);
 
         $popup.bind('popupdialogclose', function () {
-
-            $.each(eventListeners, function (type, listener) {
+             $.each(eventListeners, function (type, listener) {
                 feature.un(type, listener);
             });
         });
 
         $popup.parent().bind("mouseenter",function(){
-            feature.dispatchEvent({type: 'Digitizer.UnhoverFeature'});
+            feature.dispatchEvent({type: widget.TYPE+'.UnhoverFeature'});
         });
 
         return dialog;
