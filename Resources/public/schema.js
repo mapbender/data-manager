@@ -14,10 +14,19 @@
 
         schema.widget = widget;
 
-        schema.featureType = options.featureType;
+        schema.featureType = options.featureType || {
+            connection: null,
+            table: null,
+            uniqueId: null,
+            geomType: null,
+            geomField: null,
+            name: null,
+            styleField: null,
+            srid: 4326
+        };
 
-        if (!schema.featureType) {
-            throw new Error("No Feature Type specified in Configuration of scheme")
+        if (!schema.featureType.connection || !schema.featureType.table, !schema.featureType.geomType) {
+            throw new Error("Feature Type not correctly specified in Configuration of scheme")
         }
 
         schema.schemaName = options.schemaName;
@@ -27,7 +36,7 @@
 
         schema.label = options.label;
 
-        schema.popup = options.popup || { title: schema.schemaName, width: '500px' };
+        schema.popup = options.popup || {title: schema.schemaName, width: '500px'};
 
         schema.tableFields = options.tableFields || schema.createDefaultTableFields_();
 
@@ -48,8 +57,6 @@
         schema.inlineSearch = options.inlineSearch || false;
 
         schema.tableTranslation = options.tableTranslation || undefined;
-
-
 
 
         schema.createPopupConfiguration_();
