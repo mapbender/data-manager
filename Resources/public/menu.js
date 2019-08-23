@@ -12,23 +12,35 @@
 
         frame.hide();
 
-        menu.show = function() {
-            frame.show();
-        };
-
-        menu.hide = function() {
-            frame.hide();
-        };
-
         menu.appendTo = function($element) {
             $element.append(frame);
         };
 
+        menu.registerEvents_(frame);
 
     };
 
 
     Mapbender.DataManager.Menu.prototype = {
+
+        registerEvents_: function(frame) {
+            var menu = this;
+            var schema = menu.schema;
+            var widget = schema.widget;
+            var map = widget.map;
+
+            map.on(widget.TYPE+".activateSchema", function (event) {
+                if (event.schema == schema) {
+                    frame.show();
+                }
+            });
+
+            map.on(widget.TYPE+".deactivateSchema", function (event) {
+                if (event.schema == schema) {
+                    frame.hide();
+                }
+            });
+        },
 
         registerResultTableEvents: function(resultTable,frame) {
             var menu = this;

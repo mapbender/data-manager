@@ -94,30 +94,26 @@
             schema.menu.appendTo($element);
         },
 
-        activateSchema: function (wholeWidget) {
+        activateSchema: function () {
 
             var schema = this;
 
             var widget = schema.widget;
 
-            schema.menu.show();
-
-            widget.map.dispatchEvent({type: 'DataManager.activateSchema', schema: schema});
+            widget.map.dispatchEvent({type: widget.TYPE+'.activateSchema', schema: schema});
         },
 
 
-        deactivateSchema: function (wholeWidget) {
+        deactivateSchema: function () {
 
             var schema = this;
             var widget = schema.widget;
-
-            schema.menu.hide();
 
             if (widget.currentPopup) {
                 widget.currentPopup.popupDialog('close');
             }
 
-            widget.map.dispatchEvent({type: 'DataManager.deactivateSchema', schema: schema});
+            widget.map.dispatchEvent({type: widget.TYPE+'.deactivateSchema', schema: schema});
 
         },
 
