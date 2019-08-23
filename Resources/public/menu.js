@@ -12,7 +12,7 @@
 
         frame.hide();
 
-        menu.appendTo = function($element) {
+        menu.appendTo = function ($element) {
             $element.append(frame);
         };
 
@@ -23,46 +23,57 @@
 
     Mapbender.DataManager.Menu.prototype = {
 
-        registerEvents_: function(frame) {
+        registerEvents_: function (frame) {
             var menu = this;
             var schema = menu.schema;
             var widget = schema.widget;
             var map = widget.map;
 
-            map.on(widget.TYPE+".activateSchema", function (event) {
+            map.on(widget.TYPE + ".activateSchema", function (event) {
                 if (event.schema == schema) {
                     frame.show();
                 }
             });
 
-            map.on(widget.TYPE+".deactivateSchema", function (event) {
+            map.on(widget.TYPE + ".deactivateSchema", function (event) {
                 if (event.schema == schema) {
                     frame.hide();
                 }
             });
         },
 
-        registerResultTableEvents: function(resultTable,frame) {
+        registerResultTableEvents: function (resultTable, frame) {
             var menu = this;
             var schema = menu.schema;
             var map = schema.widget.map;
 
-            map.on("DataManager.FeatureLoaded", function (event) {
-                var feature = event.feature;
+            map.on("DataManager.FeaturesLoaded", function (event) {
+                var features = event.feature;
 
-                resultTable.addRow(feature);
+                if (event.schema == schema) {
 
-                feature.on('DataManager.HoverFeature', function (event) {
 
-                    resultTable.hoverInResultTable(feature, true);
+                    features.forEach(function (feature) {
 
-                });
 
-                feature.on('DataManager.UnhoverFeature', function (event) {
+                        feature.on('DataManager.HoverFeature', function (event) {
 
-                    resultTable.hoverInResultTable(feature, false);
+                            resultTable.hoverInResultTable(feature, true);
 
-                })
+                        });
+
+                        feature.on('DataManager.UnhoverFeature', function (event) {
+
+                            resultTable.hoverInResultTable(feature, false);
+
+                        });
+
+                    });
+
+                    resultTable.getApi().clear();
+                    resultTable.getApi().rows.add(features);
+                    resultTable.getApi().draw();
+                }
 
             });
 
@@ -71,7 +82,7 @@
                 resultTable.deleteRow(feature);
             });
 
-;
+            ;
 
         },
 
@@ -117,7 +128,6 @@
             var widget = schema.widget;
 
             var resultTable;
-
 
 
             var generateResultDataTableColumns = function () {
@@ -198,7 +208,7 @@
                 var row = resultTable.getApi().row(tr);
                 var feature = row.data();
                 if (feature) {
-                    feature.dispatchEvent({type: widget.TYPE+'.HoverFeature'});
+                    feature.dispatchEvent({type: widget.TYPE + '.HoverFeature'});
                 }
 
             });
@@ -208,11 +218,11 @@
                 var row = resultTable.getApi().row(tr);
                 var feature = row.data();
                 if (feature) {
-                    feature.dispatchEvent({type: widget.TYPE+'.UnhoverFeature'});
+                    feature.dispatchEvent({type: widget.TYPE + '.UnhoverFeature'});
                 }
             });
 
-            menu.registerResultTableEvents(resultTable,frame);
+            menu.registerResultTableEvents(resultTable, frame);
 
             frame.append($table);
 

@@ -164,13 +164,15 @@
 
             schema.integrateFeatures(newFeatures);
 
+
         },
 
         integrateFeatures: function (features) {
             var schema = this;
-            features.forEach(function (feature) {
-                schema.widget.map.dispatchEvent({type: "DataManager.FeatureLoaded", feature: feature});
-            });
+
+            // TODO find a scheme-specific, more appropriate element to store triggers than map
+            schema.widget.map.dispatchEvent({type: schema.widget.type+".FeaturesLoaded", schema: schema, features: features});
+
         },
 
 
