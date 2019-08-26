@@ -8,7 +8,7 @@
         menu.schema = schema;
         var frame = $("<div />").addClass('frame');
 
-        menu.generateDataTable_(frame);
+        menu.generateResultTable_(frame);
 
         frame.hide();
 
@@ -121,7 +121,7 @@
 
         },
 
-        generateDataTable_: function (frame) {
+        generateResultTable_: function (frame) {
             var menu = this;
             var schema = menu.schema;
             var widget = schema.widget;
@@ -191,7 +191,7 @@
             };
 
             if (schema.view && schema.view.settings) {
-                _.extend(resultTableSettings, schema.view.settings);
+                Object.assign({},schema.view.settings,resultTableSettings)
             }
 
             var $div = $("<div/>");
