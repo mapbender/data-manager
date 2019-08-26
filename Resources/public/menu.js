@@ -27,15 +27,14 @@
             var menu = this;
             var schema = menu.schema;
             var widget = schema.widget;
-            var map = widget.map;
 
-            map.on(widget.TYPE + ".activateSchema", function (event) {
+            $(widget).on(widget.TYPE + ".activateSchema", function (event) {
                 if (event.schema == schema) {
                     frame.show();
                 }
             });
 
-            map.on(widget.TYPE + ".deactivateSchema", function (event) {
+            $(schema).on(widget.TYPE + ".deactivateSchema", function (event) {
                 if (event.schema == schema) {
                     frame.hide();
                 }

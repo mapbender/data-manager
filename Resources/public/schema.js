@@ -97,10 +97,9 @@
         activateSchema: function () {
 
             var schema = this;
-
             var widget = schema.widget;
 
-            widget.map.dispatchEvent({type: widget.TYPE+'.activateSchema', schema: schema});
+            $(widget).trigger({type: widget.TYPE+'.activateSchema', schema: schema});
         },
 
 
@@ -113,7 +112,7 @@
                 widget.currentPopup.popupDialog('close');
             }
 
-            widget.map.dispatchEvent({type: widget.TYPE+'.deactivateSchema', schema: schema});
+            $(widget).trigger({type: widget.TYPE+'.deactivateSchema', schema: schema});
 
         },
 
@@ -171,7 +170,7 @@
             var schema = this;
 
             // TODO find a scheme-specific, more appropriate element to store triggers than map
-            schema.widget.map.dispatchEvent({type: schema.widget.type+".FeaturesLoaded", schema: schema, features: features});
+           $(schema).trigger({type: schema.widget.type+".FeaturesLoaded", features: features});
 
         },
 
@@ -194,7 +193,7 @@
                         feature: limitedFeature,
                     })
                         .done(function (fid) {
-                            widget.map.dispatchEvent({type: "DataManager.FeatureRemoved", feature: feature});
+                            $(schema).trigger({type: "DataManager.FeatureRemoved", feature: feature});
                             $.notify(Mapbender.DataManager.Translator.translate('feature.remove.successfully'), 'info');
                         });
                 }
