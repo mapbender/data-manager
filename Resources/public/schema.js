@@ -36,6 +36,8 @@
 
         schema.label = options.label;
 
+        schema.view = options.view = { settings: { }};
+
         schema.popup = options.popup || {title: schema.schemaName, width: '500px'};
 
         schema.tableFields = options.tableFields || schema.createDefaultTableFields_();
