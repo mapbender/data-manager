@@ -191,7 +191,7 @@
             };
 
             if (schema.view && schema.view.settings) {
-                Object.assign({},schema.view.settings,resultTableSettings)
+                resultTableSettings = Object.assign({},resultTableSettings,schema.view.settings);
             }
 
             var $div = $("<div/>");
