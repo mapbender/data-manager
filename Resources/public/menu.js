@@ -47,7 +47,7 @@
             var map = schema.widget.map;
 
             map.on("DataManager.FeaturesLoaded", function (event) {
-                var features = event.feature;
+                var features = event.features;
 
                 if (event.schema == schema) {
 
@@ -69,9 +69,8 @@
 
                     });
 
-                    resultTable.getApi().clear();
-                    resultTable.getApi().rows.add(features);
-                    resultTable.getApi().draw();
+                    resultTable.redraw(features);
+
                 }
 
             });
