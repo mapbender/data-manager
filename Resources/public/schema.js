@@ -52,7 +52,7 @@
 
         schema.allowDelete = options.allowDelete || false;
 
-        schema.hideSearchField = options.hideSearchField || false;
+        schema.inlineSearch = options.inlineSearch || true;
 
         schema.pageLength = options.pageLength || 10;
 
