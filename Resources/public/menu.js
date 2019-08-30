@@ -34,7 +34,7 @@
                 }
             });
 
-            $(schema).on(widget.TYPE + ".deactivateSchema", function (event) {
+            $(widget).on(widget.TYPE + ".deactivateSchema", function (event) {
                 if (event.schema == schema) {
                     frame.hide();
                 }

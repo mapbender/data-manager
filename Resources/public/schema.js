@@ -96,7 +96,7 @@
             schema.menu.appendTo($element);
         },
 
-        activateSchema: function () {
+        activateSchema: function (wholeWidget) {
 
             var schema = this;
             var widget = schema.widget;
@@ -105,7 +105,7 @@
         },
 
 
-        deactivateSchema: function () {
+        deactivateSchema: function (wholeWidget) {
 
             var schema = this;
             var widget = schema.widget;

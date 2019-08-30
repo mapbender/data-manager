@@ -173,14 +173,14 @@
             var widget = this;
             if (!widget.isEnabled()) {
                 widget.enable();
-                widget.getCurrentSchema().activateSchema();
+                widget.getCurrentSchema().activateSchema(true);
             }
         },
 
         deactivate: function () {
             var widget = this;
             widget.disable();
-            widget.getCurrentSchema().deactivateSchema();
+            widget.getCurrentSchema().deactivateSchema(true);
             //widget.recalculateLayerVisibility_(false);
         },
 
