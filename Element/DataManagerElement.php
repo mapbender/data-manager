@@ -31,7 +31,7 @@ class DataManagerElement extends BaseElement
     const ERROR_ACCESS_DENIED = "1";
 
     /** @var int Default maximal search results number */
-    protected $maxResults = 5000;
+    protected $maxResults = 20000;
 
     /**
      * @inheritdoc

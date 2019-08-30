@@ -151,11 +151,6 @@
                 return;
             }
 
-            if (featureCollection.features && featureCollection.features.length > parseInt(schema.maxResults)) {
-                Mapbender.info("It is requested more than the maximal available number of results.\n ( > " + schema.maxResults + " results. )");
-            }
-
-
             var geoJsonReader = new ol.format.GeoJSONWithSeperateData();
 
             var newFeatures = geoJsonReader.readFeaturesFromObject({
