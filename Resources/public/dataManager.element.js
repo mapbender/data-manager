@@ -296,7 +296,8 @@
                                 var digitizer = Mapbender.elementRegistry.listWidgets()['mapbenderMbDigitizer'];
                                 if (digitizer) {
                                     $.each(digitizer.schemes,function(schemaName,scheme){
-                                        scheme.getData();
+                                        scheme.lastRequest = null; // force reload
+                                        scheme.getData({ reloadNew: true });
                                     });
                                 }
 
