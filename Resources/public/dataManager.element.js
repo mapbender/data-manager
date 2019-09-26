@@ -646,7 +646,7 @@
                 console.log(errorMessage, xhr);
             });
         },
-        
+
         withSchema: function(schemaName, callback) {
             var widget = this;
             var schema = widget.options.schemes[schemaName];
@@ -655,7 +655,7 @@
             // the one passed to the _openEditPopup function)
             var prevSettings = widget.currentSettings;
             var prevActiveSchema = widget.activeSchema;
-            dataManager.activeSchema = widget.currentSettings = schema;
+            widget.activeSchema = widget.currentSettings = schema;
 
             widget._getData(schema).then(function () {
                 callback(schema);
