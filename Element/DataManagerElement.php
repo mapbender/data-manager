@@ -195,7 +195,7 @@ class DataManagerElement extends BaseElement
                     );
                 }
 
-                $results["dataItem"] = $dataItem->toArray();
+                $results["dataItem"] = $result->toArray();
                 //} catch (DBALException $e) {
                 //    $message = $debugMode ? $e->getMessage() : "Feature can't be saved. Maybe something is wrong configured or your database isn't available?\n" .
                 //        "For more information have a look at the webserver log file. \n Error code: " . $e->getCode();

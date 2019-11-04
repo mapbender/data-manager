@@ -468,7 +468,8 @@
                                 widget.currentPopup.popupDialog('close');
                                 widget.currentPopup = null;
                                 $.notify(translate("save.successfully"), 'info');
-                                $(widget.element).trigger('data.manager.item.saved',{ item : dataItem, uniqueIdKey : uniqueIdKey, scheme : schema.schemaName})
+                                $(widget.element).trigger('data.manager.item.saved',{ item : dataItem, uniqueIdKey : uniqueIdKey, scheme : schema.schemaName});
+                                $(dialog).trigger('data.manager.item.saved',{ item : dataItem });
                             }).done(function(){
                                 form.enableForm();
                             });
@@ -503,6 +504,7 @@
             }
 
             DataUtil.eachItem(widget.currentSettings.formItems, function(item) {
+
                 if(item.type == "file") {
                     item.uploadHanderUrl = widget.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + dataItem.fid + "&field=" + item.name;
                     if(item.hasOwnProperty("name") && dataItem.data.hasOwnProperty(item.name) && dataItem.data[item.name]) {
@@ -612,9 +614,12 @@
          * @version 0.2
          * @returns {*}
          */
-        removeData: function(dataItem) {
+        removeData: function(dataItem, callback) {
+
             var widget = this;
             var schema = widget.findSchemaByDataItem(dataItem);
+
+
             if(schema.isNew(dataItem)) {
                 schema.remove(dataItem);
             } else {
@@ -626,6 +631,7 @@
                             id:     dataItem[schema.getStoreIdKey()]
                         }).done(function(fid) {
                             schema.remove(dataItem);
+                            callback && callback(dataItem);
                         });
                     }
                 });
@@ -679,7 +685,12 @@
                 widget.currentSettings = prevSettings;
                 widget.activeSchema = prevActiveSchema;
             });
+        },
+
+        getSchemaByName: function(name) {
+          return this.options.schemes[name] || null;
         }
+
     });
 
 })(jQuery);
