@@ -283,6 +283,7 @@
                 var table = schema.table = $("<div/>").resultTable(resultTableSettings).data('settings', resultTableSettings);
                 schema.schemaName = schemaName;
 
+                $(widget).on()
                 var toolBarButtons = [];
                 if(schema.allowRefresh) {
                     toolBarButtons.push({
@@ -290,6 +291,20 @@
                         title:    translate("create"),
                         cssClass: "fa-refresh",
                         click:    function(e) {
+
+                            var refreshDigitizer = function() {
+                                var digitizer = Mapbender.elementRegistry.listWidgets()['mapbenderMbDigitizer'];
+                                if (digitizer) {
+                                    $.each(digitizer.schemes,function(schemaName,scheme){
+                                        scheme.lastRequest = null; // force reload
+                                        scheme.getData({ reloadNew: true });
+                                    });
+                                }
+
+                                $.each(Mapbender.Model.map.olMap.layers.filter(function(layer) { return layer.mbConfig && layer.mbConfig.type === "wms"; }), function(id,layer)  {
+                                    layer.redraw(true);
+                                });
+                            };
                             var schema = $(this).closest(".frame").data("schema");
                             if(widget.currentPopup) {
                                 confirmDialog({
@@ -298,10 +313,12 @@
                                         widget.currentPopup.popupDialog('close');
                                         widget.currentPopup = null;
                                         widget._getData(schema);
+                                        refreshDigitizer();
                                     }
                                 });
                             } else {
                                 widget._getData(schema);
+                                refreshDigitizer();
                             }
                             e.preventDefault();
                             return false;
@@ -451,7 +468,8 @@
                                 widget.currentPopup.popupDialog('close');
                                 widget.currentPopup = null;
                                 $.notify(translate("save.successfully"), 'info');
-                                $(widget.element).trigger('data.manager.item.saved',{ item : dataItem, uniqueIdKey : uniqueIdKey, scheme : schema.schemaName})
+                                $(widget.element).trigger('data.manager.item.saved',{ item : dataItem, uniqueIdKey : uniqueIdKey, scheme : schema.schemaName});
+                                $(dialog).trigger('data.manager.item.saved',{ item : dataItem });
                             }).done(function(){
                                 form.enableForm();
                             });
@@ -486,6 +504,7 @@
             }
 
             DataUtil.eachItem(widget.currentSettings.formItems, function(item) {
+
                 if(item.type == "file") {
                     item.uploadHanderUrl = widget.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + dataItem.fid + "&field=" + item.name;
                     if(item.hasOwnProperty("name") && dataItem.data.hasOwnProperty(item.name) && dataItem.data[item.name]) {
@@ -595,9 +614,12 @@
          * @version 0.2
          * @returns {*}
          */
-        removeData: function(dataItem) {
+        removeData: function(dataItem, callback) {
+
             var widget = this;
             var schema = widget.findSchemaByDataItem(dataItem);
+
+
             if(schema.isNew(dataItem)) {
                 schema.remove(dataItem);
             } else {
@@ -609,6 +631,7 @@
                             id:     dataItem[schema.getStoreIdKey()]
                         }).done(function(fid) {
                             schema.remove(dataItem);
+                            callback && callback(dataItem);
                         });
                     }
                 });
@@ -662,7 +685,12 @@
                 widget.currentSettings = prevSettings;
                 widget.activeSchema = prevActiveSchema;
             });
+        },
+
+        getSchemaByName: function(name) {
+          return this.options.schemes[name] || null;
         }
+
     });
 
 })(jQuery);
