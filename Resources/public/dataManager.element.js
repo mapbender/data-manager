@@ -128,18 +128,6 @@
 
             }
         },
-        toolsets: {
-            point: [
-                {type: 'drawPoint'},
-            ],
-            line: [
-                {type: 'removeSelected'}
-                //{type: 'removeAll'}
-            ],
-            polygon: [
-                {type: 'removeAll'}
-            ]
-        },
         currentSettings: null,
         featureEditDialogWidth: "423px",
 
@@ -283,7 +271,6 @@
                 var table = schema.table = $("<div/>").resultTable(resultTableSettings).data('settings', resultTableSettings);
                 schema.schemaName = schemaName;
 
-                $(widget).on()
                 var toolBarButtons = [];
                 if(schema.allowRefresh) {
                     toolBarButtons.push({
