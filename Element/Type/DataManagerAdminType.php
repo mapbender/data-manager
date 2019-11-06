@@ -40,6 +40,13 @@ class DataManagerAdminType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('schemes', new YAMLConfigurationType(),
-            array('required' => false, 'attr' => array('class' => 'code-yaml')));
+            array('required' => false, 'attr' => array('class' => 'code-yaml')))
+            ->add('dataManager', 'Mapbender\\CoreBundle\\Element\Type\\TargetElementType',
+                array(
+                    'element_class' => 'Mapbender\\DataManagerBundle\\Element\\DataManagerElement',
+                    'application'   => $options['application'],
+                    'property_path' => '[dataManager]',
+                    'label' => 'mb.digitizer.connectedDataManager',
+                    'required'      => false));;
     }
 }

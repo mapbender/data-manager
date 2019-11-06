@@ -160,6 +160,13 @@
                 translateObject(options.tableTranslation);
             }
 
+            var dataManagerId = widget.options.dataManager;
+            if (dataManagerId) {
+                Mapbender.elementRegistry.waitReady(dataManagerId).then(function (dataManager) {
+                    widget.dataManager = dataManager;
+                });
+            }
+
             // build select options
             _.each(options.schemes, function(schema, schemaName) {
                 var buttons = [];
@@ -413,6 +420,7 @@
                 widget.currentPopup = null;
             }
 
+
             if(schema.allowEdit){
                 var saveButton = {
                     text:  translate("save"),
@@ -490,54 +498,6 @@
                 schema.elementsTranslated = true;
             }
 
-            DataUtil.eachItem(widget.currentSettings.formItems, function(item) {
-
-                if(item.type == "file") {
-                    item.uploadHanderUrl = widget.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + dataItem.fid + "&field=" + item.name;
-                    if(item.hasOwnProperty("name") && dataItem.data.hasOwnProperty(item.name) && dataItem.data[item.name]) {
-                        item.dbSrc = dataItem.data[item.name];
-                        if(schema.featureType.files) {
-                            $.each(schema.featureType.files, function(k, fileInfo) {
-                                if(fileInfo.field && fileInfo.field == item.name) {
-                                    if(fileInfo.formats) {
-                                        item.accept = fileInfo.formats;
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                }
-
-                if(item.type == 'image') {
-
-                    if(!item.origSrc) {
-                        item.origSrc = item.src;
-                    }
-
-                    if(item.hasOwnProperty("name") && dataItem.data.hasOwnProperty(item.name) && dataItem.data[item.name]) {
-                        item.dbSrc = dataItem.data[item.name];
-                        if(schema.featureType.files) {
-                            $.each(schema.featureType.files, function(k, fileInfo) {
-                                if(fileInfo.field && fileInfo.field == item.name) {
-
-                                    if(fileInfo.uri) {
-                                        item.dbSrc = fileInfo.uri + "/" + item.dbSrc;
-                                    } else {
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                    var src = item.dbSrc ? item.dbSrc : item.origSrc;
-                    if(item.relative) {
-                        item.src = src.match(/^(http[s]?\:|\/{2})/) ? src : Mapbender.configuration.application.urls.asset + src;
-                    } else {
-                        item.src = src;
-                    }
-                }
-            });
             if(schema.popup.buttons ){
                 buttons =_.union(schema.popup.buttons , buttons);
             }
@@ -548,7 +508,9 @@
 
             popupConfig.buttons = buttons;
 
-            dialog.generateElements({children: widget.currentSettings.formItems});
+            var processedFormItems = this.processFormItems(dataItem,widget.currentSettings.formItems);
+
+            dialog.generateElements({children: processedFormItems});
             dialog.popupDialog(popupConfig);
             dialog.addClass("data-manager-edit-data");
             widget.currentPopup = dialog;
@@ -556,6 +518,33 @@
             setTimeout(function() {
                 dialog.formData(dataItem);
             }, 30);
+
+
+            var initResultTables = function(feature) {
+
+                var tables = dialog.find(".mapbender-element-result-table");
+                $.each(tables, function (i, table) {
+
+                    var formItem = $(table).data('item');
+
+                    if (formItem.dataManagerLink) {
+                        var schemaName = formItem.dataManagerLink.schema;
+                        var fieldName = formItem.dataManagerLink.fieldName;
+                        var dm = widget.getConnectedDataManager();
+                        dm.withSchema(schemaName, function (schema) {
+                            var tableApi = $(table).resultTable('getApi');
+                            tableApi.clear();
+                            tableApi.rows.add(schema.dataItems.filter(function (dataItem) {
+                                return dataItem[fieldName] == feature[fieldName];
+                            }));
+                            tableApi.draw();
+                        });
+                    }
+
+                });
+            };
+
+            initResultTables(dataItem);
 
             return dialog;
         },
@@ -676,7 +665,209 @@
 
         getSchemaByName: function(name) {
           return this.options.schemes[name] || null;
-        }
+        },
+
+
+        processFormItem: function (feature, item) {
+
+            var widget = this;
+            var schema = widget.currentSettings;
+
+            if (item.type === "resultTable" && item.editable && !item.isProcessed) {
+                var onCreateClick;
+                var onEditClick;
+                var onRemoveClick;
+
+                if (item.hasOwnProperty('dataManagerLink')) {
+                    var fieldName = item.dataManagerLink.fieldName;
+                    var schemaName = item.dataManagerLink.schema;
+
+                    var getRowId = function(tableApi,rowData) {
+                        var rowId = null;
+
+                        tableApi.rows(function(idx,data) {
+                            if (data == rowData) {
+                                rowId = idx;
+                            }
+                        });
+
+                        if (rowId == null) {
+                            throw new Error();
+                        }
+                        return rowId;
+                    };
+
+
+                    onCreateClick = function (e) {
+                        e.preventDefault && e.preventDefault();
+                        var table = $(this).siblings(".mapbender-element-result-table");
+                        var tableApi = table.resultTable('getApi');
+
+
+                        var dm = widget.getConnectedDataManager();
+                        var dataItem = dm.getSchemaByName(schemaName).create();
+                        dataItem[fieldName] = feature.fid;
+                        var dialog = dm._openEditDialog(dataItem);
+                        dialog.parentTable = table;
+                        $(dialog).find("select[name=" + fieldName + "]").attr("disabled", "true");
+                        $(dialog).bind('data.manager.item.saved', function (event, data) {
+                            tableApi.rows.add([data.item]);
+                            tableApi.draw();
+                            dm._getData();
+
+                        });
+
+                        return false;
+                    };
+
+                    onEditClick = function (rowData, button, e) {
+                        e.defaultPrevented && e.defaultPrevented();
+                        e.preventDefault && e.preventDefault();
+                        var table = button.parents('.mapbender-element-result-table');
+                        var tableApi = table.resultTable('getApi');
+
+
+                        var dm = widget.getConnectedDataManager();
+                        var dialog = dm._openEditDialog(rowData);
+                        dialog.parentTable = table;
+
+                        var rowId = getRowId(tableApi,rowData);
+
+                        $(dialog).find("select[name=" + fieldName + "]").attr("disabled", "true");
+                        $(dialog).bind('data.manager.item.saved', function (event, data) {
+                            tableApi.row(rowId).data(data.item);
+                            tableApi.draw();
+                            dm._getData();
+
+                        });
+
+                        return false;
+                    };
+
+
+                    onRemoveClick = function (rowData, button, e) {
+                        e.defaultPrevented && e.defaultPrevented();
+                        e.preventDefault && e.preventDefault();
+                        var table = button.parents('.mapbender-element-result-table');
+                        var tableApi = table.resultTable('getApi');
+
+
+                        var rowId = getRowId(tableApi,rowData);
+
+                        var dm = widget.getConnectedDataManager();
+
+                        dm.removeData(rowData, function () {
+                            tableApi.row(rowId).remove();
+                            tableApi.draw();
+                            dm._getData();
+
+
+                        });
+
+                        return false;
+
+
+                    }
+
+                }
+
+                var cloneItem = $.extend({}, item);
+                cloneItem.isProcessed = true;
+                item.type = "container";
+                var button = {
+                    type: "button",
+                    title: "",
+                    hover: Mapbender.DigitizerTranslator.translate('feature.create'),
+                    cssClass: "icon-create",
+                    click: onCreateClick
+                };
+
+                item.children = [button, cloneItem];
+
+                var buttons = [];
+
+                buttons.push({
+                    title: Mapbender.DigitizerTranslator.translate('feature.edit'),
+                    className: 'edit',
+                    onClick: onEditClick
+                });
+
+                buttons.push({
+                    title: Mapbender.DigitizerTranslator.translate('feature.remove.title'),
+                    className: 'remove',
+                    onClick: onRemoveClick
+                });
+
+                cloneItem.buttons = buttons;
+
+            }
+
+            if (item.type === "file") {
+                item.uploadHanderUrl = widget.elementUrl + "file/upload?schema=" + schema.schemaName + "&fid=" + feature.fid + "&field=" + item.name;
+                if (item.hasOwnProperty("name") && feature.data.hasOwnProperty(item.name) && feature.data[item.name]) {
+                    item.dbSrc = feature.data[item.name];
+                    if (schema.dataStore.files) {
+                        $.each(schema.dataStore.files, function (k, fileInfo) {
+                            if (fileInfo.field && fileInfo.field === item.name) {
+                                if (fileInfo.formats) {
+                                    item.accept = fileInfo.formats;
+                                }
+                            }
+                        });
+                    }
+                }
+
+            }
+
+            if (item.type === 'image') {
+
+                if (!item.origSrc) {
+                    item.origSrc = item.src;
+                }
+
+                if (item.hasOwnProperty("name") && feature.data.hasOwnProperty(item.name) && feature.data[item.name]) {
+                    item.dbSrc = feature.data[item.name];
+                    if (schema.dataStore.files) {
+                        $.each(schema.dataStore.files, function (k, fileInfo) {
+                            if (fileInfo.field && fileInfo.field == item.name) {
+
+                                if (fileInfo.uri) {
+                                    item.dbSrc = fileInfo.uri + "/" + item.dbSrc;
+                                } else {
+                                    item.dbSrc = widget.options.fileUri + "/" + schema.dataStore.table + "/" + item.name + "/" + item.dbSrc;
+                                }
+                            }
+                        });
+                    }
+                }
+
+                var src = item.dbSrc ? item.dbSrc : item.origSrc;
+                if (!item.hasOwnProperty('relative') && !item.relative) {
+                    item.src = src;
+                } else {
+                    item.src = Mapbender.configuration.application.urls.asset + src;
+                }
+            }
+        },
+
+
+        processFormItems: function (feature, formItems) {
+            var widget = this;
+            DataUtil.eachItem(formItems, function (item) {
+                widget.processFormItem(feature, item);
+            });
+
+            return formItems;
+        },
+
+
+        getConnectedDataManager: function() {
+            var widget = this;
+            if (!widget.dataManager) {
+                throw new Error("Data Manager is not activated");
+            }
+            return widget.dataManager;
+        },
 
     });
 

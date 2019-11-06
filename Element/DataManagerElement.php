@@ -1,4 +1,5 @@
 <?php
+
 namespace Mapbender\DataManagerBundle\Element;
 
 use Mapbender\CoreBundle\Component\Application;
@@ -92,7 +93,7 @@ class DataManagerElement extends BaseElement
             'css' => array(
                 '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
             ),
-            'js'  => array(
+            'js' => array(
                 '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
             ),
             'trans' => array(
@@ -109,16 +110,16 @@ class DataManagerElement extends BaseElement
      */
     public function getConfiguration()
     {
-        $configuration            = parent::getConfiguration();
-        $configuration['debug']   = isset($configuration['debug']) ? $configuration['debug'] : false;
+        $configuration = parent::getConfiguration();
+        $configuration['debug'] = isset($configuration['debug']) ? $configuration['debug'] : false;
         $configuration['fileUri'] = $this->container->getParameter("mapbender.uploads_dir") . "/data-store";
 
         if (isset($configuration["schemes"]) && is_array($configuration["schemes"])) {
             foreach ($configuration["schemes"] as $key => &$scheme) {
                 if (is_string($scheme['dataStore'])) {
-                    $storeId                   = $scheme['dataStore'];
-                    $dataStore                 = $this->container->getParameter('dataStores');
-                    $scheme['dataStore']       = $dataStore[ $storeId ];
+                    $storeId = $scheme['dataStore'];
+                    $dataStore = $this->container->getParameter('dataStores');
+                    $scheme['dataStore'] = $dataStore[$storeId];
                     $scheme['dataStore']["id"] = $storeId;
                     //$dataStore = new DataStore($this->container, $configuration['source']);
                 }
@@ -136,16 +137,16 @@ class DataManagerElement extends BaseElement
     public function httpAction($action)
     {
         /** @var $requestService Request */
-        $configuration   = $this->getConfiguration();
-        $requestService  = $this->container->get('request');
-        $request         = json_decode($requestService->getContent(), true);
-        $schemas         = $configuration["schemes"];
-        $debugMode       = $configuration['debug'] || $this->container->get('kernel')->getEnvironment() == "dev";
-        $schemaName      = isset($request["schema"]) ? $request["schema"] : $requestService->get("schema");
+        $configuration = $this->getConfiguration();
+        $requestService = $this->container->get('request');
+        $request = json_decode($requestService->getContent(), true);
+        $schemas = $configuration["schemes"];
+        $debugMode = $configuration['debug'] || $this->container->get('kernel')->getEnvironment() == "dev";
+        $schemaName = isset($request["schema"]) ? $request["schema"] : $requestService->get("schema");
         $defaultCriteria = array('returnType' => 'FeatureCollection',
-                                 'maxResults' => 2500);
-        $schema          = $schemas[ $schemaName ];
-        $schemaConfig    = new DataManagerSchema($schemas[ $schemaName ]);
+            'maxResults' => 2500);
+        $schema = $schemas[$schemaName];
+        $schemaConfig = new DataManagerSchema($schemas[$schemaName]);
 
 
         if (is_array($schemaConfig->dataStore)) {
@@ -158,44 +159,44 @@ class DataManagerElement extends BaseElement
 
         switch ($action) {
             case 'select':
-                foreach ($dataStore->search(array_merge($defaultCriteria, $request)) as $dataItem){
+                foreach ($dataStore->search(array_merge($defaultCriteria, $request)) as $dataItem) {
                     $results[] = $dataItem->toArray();
                 }
                 break;
 
             case 'save':
                 //try {
-                if(!$schemaConfig->allowEdit){
+                if (!$schemaConfig->allowEdit) {
                     $results["errors"] = array(
                         array(
                             'message' => "It is not allowed to edit this data",
-                            'code'    => self::ERROR_ACCESS_DENIED
+                            'code' => self::ERROR_ACCESS_DENIED
                         )
                     );
                 }
 
                 $uniqueIdKey = $dataStore->getDriver()->getUniqueId();
-                if(empty($request['dataItem'][ $uniqueIdKey ])){
-                    unset($request['dataItem'][ $uniqueIdKey ]);
+                if (empty($request['dataItem'][$uniqueIdKey])) {
+                    unset($request['dataItem'][$uniqueIdKey]);
                 }
 
                 $dataItem = $dataStore->create($request['dataItem']);
-                $result   = $dataStore->save($dataItem);
+                $result = $dataStore->save($dataItem);
                 if (!is_object($result) && isset($result["exception"])
                     && is_object($result["exception"])
                     && $result["exception"] instanceof \Exception
                 ) {
                     /** @var \Exception $exception */
-                    $exception         = $result["exception"];
+                    $exception = $result["exception"];
                     $results["errors"] = array(
                         array(
                             'message' => $exception->getMessage(),
-                            'code'    => $exception->getCode()
+                            'code' => $exception->getCode()
                         )
                     );
+                } else {
+                    $results["dataItem"] = $result->toArray();
                 }
-
-                $results["dataItem"] = $result->toArray();
                 //} catch (DBALException $e) {
                 //    $message = $debugMode ? $e->getMessage() : "Feature can't be saved. Maybe something is wrong configured or your database isn't available?\n" .
                 //        "For more information have a look at the webserver log file. \n Error code: " . $e->getCode();
@@ -212,37 +213,37 @@ class DataManagerElement extends BaseElement
                     $results["errors"] = array(
                         array(
                             'message' => "It is not allowed to edit this data",
-                            'code'    => self::ERROR_ACCESS_DENIED
+                            'code' => self::ERROR_ACCESS_DENIED
                         )
                     );
                 }
-                $id      = intval($request['id']);
+                $id = intval($request['id']);
                 $results = $dataStore->remove($id);
                 break;
 
             case 'file-upload':
-                if(!$schemaConfig->allowEdit){
+                if (!$schemaConfig->allowEdit) {
                     $results["errors"] = array(
                         array(
                             'message' => "It is not allowed to edit this data",
-                            'code'    => self::ERROR_ACCESS_DENIED
+                            'code' => self::ERROR_ACCESS_DENIED
                         )
                     );
                 }
-                $fieldName                  = $requestService->get('field');
-                $urlParameters              = array('schema' => $schemaName,
-                                                    'fid'    => $requestService->get('fid'),
-                                                    'field'  => $fieldName);
-                $serverUrl                  = preg_replace('/\\?.+$/', "", $_SERVER["REQUEST_URI"]) . "?" . http_build_query($urlParameters);
-                $uploadDir                  = $dataStore->getFilePath($fieldName);
-                $uploadUrl                  = $dataStore->getFileUrl($fieldName) . "/";
+                $fieldName = $requestService->get('field');
+                $urlParameters = array('schema' => $schemaName,
+                    'fid' => $requestService->get('fid'),
+                    'field' => $fieldName);
+                $serverUrl = preg_replace('/\\?.+$/', "", $_SERVER["REQUEST_URI"]) . "?" . http_build_query($urlParameters);
+                $uploadDir = $dataStore->getFilePath($fieldName);
+                $uploadUrl = $dataStore->getFileUrl($fieldName) . "/";
                 $urlParameters['uploadUrl'] = $uploadUrl;
-                $uploadHandler              = new Uploader(array(
-                    'upload_dir'                   => $uploadDir . "/",
-                    'script_url'                   => $serverUrl,
-                    'upload_url'                   => $uploadUrl,
-                    'accept_file_types'            => '/\.(gif|jpe?g|png)$/i',
-                    'print_response'               => false,
+                $uploadHandler = new Uploader(array(
+                    'upload_dir' => $uploadDir . "/",
+                    'script_url' => $serverUrl,
+                    'upload_url' => $uploadUrl,
+                    'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
+                    'print_response' => false,
                     'access_control_allow_methods' => array(
                         'OPTIONS',
                         'HEAD',
@@ -253,7 +254,7 @@ class DataManagerElement extends BaseElement
                         //                        'DELETE'
                     ),
                 ));
-                $results                    = array_merge($uploadHandler->get_response(), $urlParameters);
+                $results = array_merge($uploadHandler->get_response(), $urlParameters);
 
                 break;
 
