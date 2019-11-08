@@ -2,12 +2,9 @@
 
 namespace Mapbender\DataManagerBundle\Element;
 
-use Mapbender\CoreBundle\Component\Application;
-use Mapbender\CoreBundle\Entity\Element;
 use Mapbender\DataManagerBundle\Entity\DataManagerSchema;
 use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Element\BaseElement;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -45,14 +42,6 @@ class DataManagerElement extends BaseElement
     public function getWidgetName()
     {
         return 'mapbender.mbDataManager';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getClassTags()
-    {
-        return array();
     }
 
     /**
@@ -230,6 +219,7 @@ class DataManagerElement extends BaseElement
                         )
                     );
                 }
+                // @todo: this is pretty much an exact copy of the same code in digitizer 1.1. Fold copy&paste.
                 $fieldName = $requestService->get('field');
                 $urlParameters = array('schema' => $schemaName,
                     'fid' => $requestService->get('fid'),
