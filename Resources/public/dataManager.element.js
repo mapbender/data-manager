@@ -508,7 +508,9 @@
 
             popupConfig.buttons = buttons;
 
-            var processedFormItems = this.processFormItems(dataItem,widget.currentSettings.formItems);
+            var formItems = JSON.parse(JSON.stringify(widget.currentSettings.formItems)); // Deep clone hack!
+
+            var processedFormItems = this.processFormItems(dataItem,formItems);
 
             dialog.generateElements({children: processedFormItems});
             dialog.popupDialog(popupConfig);
@@ -531,6 +533,9 @@
                         var schemaName = formItem.dataManagerLink.schema;
                         var fieldName = formItem.dataManagerLink.fieldName;
                         var dm = widget.getConnectedDataManager();
+                        if (!dataItem[fieldName]) {
+                            $(table).siblings(".button").attr("disabled","disabled");
+                        }
                         dm.withSchema(schemaName, function (schema) {
                             var tableApi = $(table).resultTable('getApi');
                             tableApi.clear();
@@ -670,10 +675,12 @@
 
         processFormItem: function (feature, item) {
 
+
             var widget = this;
             var schema = widget.currentSettings;
 
             if (item.type === "resultTable" && item.editable && !item.isProcessed) {
+
                 var onCreateClick;
                 var onEditClick;
                 var onRemoveClick;
@@ -706,7 +713,7 @@
 
                         var dm = widget.getConnectedDataManager();
                         var dataItem = dm.getSchemaByName(schemaName).create();
-                        dataItem[fieldName] = feature.fid;
+                        dataItem[fieldName] = feature[fieldName];
                         var dialog = dm._openEditDialog(dataItem);
                         dialog.parentTable = table;
                         $(dialog).find("select[name=" + fieldName + "]").attr("disabled", "true");
