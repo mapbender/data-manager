@@ -561,6 +561,7 @@
          */
         _getData: function(schema) {
             var widget = this;
+            schema = schema || widget.currentSettings;
             return widget.query('select', {
                 maxResults: schema.maxResults,
                 schema:     schema.schemaName
