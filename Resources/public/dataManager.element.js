@@ -175,7 +175,7 @@
                             }
                             dataItem[column.data] = '';
                         });
-                        dataItem.schema = schema;
+
                         data && _.extend(dataItem, data);
                         schema.dataItems.push(dataItem);
                         schema.newItems.push(dataItem);
@@ -379,7 +379,7 @@
          */
         _openEditDialog: function(dataItem) {
             var widget = this;
-            var schema = dataItem.schema;
+            var schema = widget.findSchemaByDataItem(dataItem);
             var buttons = [];
 
             if(widget.currentPopup) {
@@ -542,11 +542,26 @@
                 schema:     schema.schemaName
             }).done(function(dataItems) {
                 schema.dataItems = dataItems;
-                dataItems.forEach(function(dataItem) {
-                   dataItem.schema = schema;
-                });
                 widget.reloadData(schema);
             });
+        },
+
+        /**
+         * Find schema definition by dataItem
+         *
+         * @param dataItem
+         */
+        findSchemaByDataItem: function(dataItem) {
+            var widget = this;
+            var options = widget.options;
+            var r;
+            _.each(options.schemes, function(schema) {
+                if(_.indexOf(schema.dataItems, dataItem) > -1) {
+                    r = schema;
+                    return;
+                }
+            });
+            return r;
         },
 
         /**
@@ -559,7 +574,9 @@
         removeData: function(dataItem, callback) {
 
             var widget = this;
-            var schema = dataItem.schema;
+            var schema = widget.findSchemaByDataItem(dataItem);
+
+
             if(schema.isNew(dataItem)) {
                 schema.remove(dataItem);
             } else {
