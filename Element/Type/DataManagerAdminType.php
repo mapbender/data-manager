@@ -2,10 +2,9 @@
 
 namespace Mapbender\DataManagerBundle\Element\Type;
 
-use Mapbender\ManagerBundle\Form\Type\YAMLConfigurationType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class DataManagerAdminType
@@ -19,15 +18,7 @@ class DataManagerAdminType extends AbstractType
     /**
      * @inheritdoc
      */
-    public function getName()
-    {
-        return 'dataManager';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
             'application' => null
@@ -39,14 +30,19 @@ class DataManagerAdminType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('schemes', new YAMLConfigurationType(),
-            array('required' => false, 'attr' => array('class' => 'code-yaml')))
-            ->add('dataManager', 'Mapbender\\CoreBundle\\Element\Type\\TargetElementType',
-                array(
-                    'element_class' => 'Mapbender\\DataManagerBundle\\Element\\DataManagerElement',
-                    'application'   => $options['application'],
-                    'property_path' => '[dataManager]',
-                    'label' => 'mb.digitizer.connectedDataManager',
-                    'required'      => false));;
+        $builder
+            ->add('schemes', 'Mapbender\ManagerBundle\Form\Type\YAMLConfigurationType', array(
+                'required' => false,
+                'attr' => array(
+                    'class' => 'code-yaml',
+                ),
+            ))
+            ->add('dataManager', 'Mapbender\\CoreBundle\\Element\Type\\TargetElementType', array(
+                'element_class' => 'Mapbender\\DataManagerBundle\\Element\\DataManagerElement',
+                'application'   => $options['application'],
+                'label' => 'mb.digitizer.connectedDataManager',
+                'required' => false,
+            ))
+        ;
     }
 }
