@@ -425,10 +425,13 @@
                                 widget.currentPopup.popupDialog('close');
                                 widget.currentPopup = null;
                                 $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
-                                $(widget.element).trigger('data.manager.item.saved',{ item : dataItem, uniqueIdKey : uniqueIdKey, scheme : schema.schemaName});
-                            }).always(function(){
-                                form.enableForm();
-                            });
+                                $(widget.element).trigger('data.manager.item.saved',{
+                                    item: dataItem,
+                                    uniqueIdKey: uniqueIdKey,
+                                    scheme: schema.schemaName,
+                                    originator: widget
+                                });
+                            })
                         }
                     }
                 };
