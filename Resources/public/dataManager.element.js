@@ -276,10 +276,6 @@
                                         scheme.getData();
                                     });
                                 }
-
-                                $.each(Mapbender.Model.map.olMap.layers.filter(function(layer) { return layer.mbConfig && layer.mbConfig.type === "wms"; }), function(id,layer)  {
-                                    layer.redraw(true);
-                                });
                             };
                             var schema = $(this).closest(".frame").data("schema");
                             if(widget.currentPopup) {
