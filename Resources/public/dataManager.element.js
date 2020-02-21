@@ -268,15 +268,6 @@
                         title: Mapbender.trans('mb.data.store.create'),
                         cssClass: "fa-refresh",
                         click:    function(e) {
-
-                            var refreshDigitizer = function() {
-                                var digitizer = Mapbender.elementRegistry.listWidgets()['mapbenderMbDigitizer'];
-                                if (digitizer) {
-                                    $.each(digitizer.schemes,function(schemaName,scheme){
-                                        scheme.getData();
-                                    });
-                                }
-                            };
                             var schema = $(this).closest(".frame").data("schema");
                             if(widget.currentPopup) {
                                 confirmDialog({
@@ -285,12 +276,10 @@
                                         widget.currentPopup.popupDialog('close');
                                         widget.currentPopup = null;
                                         widget._getData(schema);
-                                        refreshDigitizer();
                                     }
                                 });
                             } else {
                                 widget._getData(schema);
-                                refreshDigitizer();
                             }
                             e.preventDefault();
                             return false;
@@ -620,7 +609,7 @@
                 console.log(errorMessage, xhr);
             });
         },
-
+        
         withSchema: function(schemaName, callback) {
             var widget = this;
             var schema = widget.options.schemes[schemaName];
