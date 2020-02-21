@@ -63,8 +63,3 @@ schemes:
         processing: true
         searching: true
 ```
-
-
-## Contributing
-
-Please read official [contibuting documentation](https://github.com/mapbender/mapbender-starter/blob/feature/contributing-doc/CONTRIBUTING.md#modules)
