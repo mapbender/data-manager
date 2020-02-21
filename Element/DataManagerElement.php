@@ -44,7 +44,10 @@ class DataManagerElement extends BaseElement
      */
     public static function getDefaultConfiguration()
     {
-        return array();
+        return array(
+            'schemes' => null,
+            'dataManager' => null,
+        );
     }
 
     /**
