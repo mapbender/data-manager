@@ -142,8 +142,6 @@ class DataManagerElement extends BaseElement
         $requestData = json_decode($request->getContent(), true);
         $schemas = $configuration["schemes"];
         $schemaName = isset($requestData["schema"]) ? $requestData["schema"] : $request->get("schema");
-        $defaultCriteria = array('returnType' => 'FeatureCollection',
-            'maxResults' => 2500);
         $schemaConfig = new DataManagerSchema($schemas[$schemaName]);
 
 
@@ -153,15 +151,17 @@ class DataManagerElement extends BaseElement
             throw new \Exception("DataStore setup is not correct");
         }
 
-        $results = array();
-
         switch ($action) {
             case 'select':
+                $results = array();
+                $defaultCriteria = array(
+                    'returnType' => 'FeatureCollection',
+                    'maxResults' => 2500,
+                );
                 foreach ($dataStore->search(array_merge($defaultCriteria, $requestData)) as $dataItem) {
                     $results[] = $dataItem->toArray();
                 }
-                break;
-
+                return new JsonResponse($results);
             case 'save':
                 if (!$schemaConfig->allowEdit) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
@@ -173,18 +173,15 @@ class DataManagerElement extends BaseElement
                 }
 
                 $dataItem = $dataStore->create($requestData['dataItem']);
-                $result = $dataStore->save($dataItem);
-                $results["dataItem"] = $result->toArray();
-                break;
-
+                return new JsonResponse(array(
+                    'dataItem' => $dataStore->save($dataItem)->toArray(),
+                ));
             case 'delete':
                 if (!$schemaConfig->allowEdit) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 $id = intval($requestData['id']);
-                $results = $dataStore->remove($id);
-                break;
-
+                return new JsonResponse($dataStore->remove($id));
             case 'file-upload':
                 if (!$schemaConfig->allowEdit) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
@@ -214,15 +211,10 @@ class DataManagerElement extends BaseElement
                         //                        'DELETE'
                     ),
                 ));
-                $results = array_merge($uploadHandler->get_response(), $urlParameters);
-
-                break;
+                return new JsonResponse(array_merge($uploadHandler->get_response(), $urlParameters));
 
             default:
                 return new JsonResponse(array('message' => 'Unsupported action ' . $action), JsonResponse::HTTP_BAD_REQUEST);
         }
-
-        return new JsonResponse($results);
-
     }
 }
