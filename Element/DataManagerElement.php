@@ -130,11 +130,9 @@ class DataManagerElement extends BaseElement
         $requestService = $this->container->get('request');
         $request = json_decode($requestService->getContent(), true);
         $schemas = $configuration["schemes"];
-        $debugMode = $configuration['debug'] || $this->container->get('kernel')->getEnvironment() == "dev";
         $schemaName = isset($request["schema"]) ? $request["schema"] : $requestService->get("schema");
         $defaultCriteria = array('returnType' => 'FeatureCollection',
             'maxResults' => 2500);
-        $schema = $schemas[$schemaName];
         $schemaConfig = new DataManagerSchema($schemas[$schemaName]);
 
 
@@ -171,29 +169,7 @@ class DataManagerElement extends BaseElement
 
                 $dataItem = $dataStore->create($request['dataItem']);
                 $result = $dataStore->save($dataItem);
-                if (!is_object($result) && isset($result["exception"])
-                    && is_object($result["exception"])
-                    && $result["exception"] instanceof \Exception
-                ) {
-                    /** @var \Exception $exception */
-                    $exception = $result["exception"];
-                    $results["errors"] = array(
-                        array(
-                            'message' => $exception->getMessage(),
-                            'code' => $exception->getCode()
-                        )
-                    );
-                } else {
-                    $results["dataItem"] = $result->toArray();
-                }
-                //} catch (DBALException $e) {
-                //    $message = $debugMode ? $e->getMessage() : "Feature can't be saved. Maybe something is wrong configured or your database isn't available?\n" .
-                //        "For more information have a look at the webserver log file. \n Error code: " . $e->getCode();
-                //    $results = array('errors' => array(
-                //        array('message' => $message, 'code' => $e->getCode())
-                //    ));
-                //}
-
+                $results["dataItem"] = $result->toArray();
                 break;
 
             case 'delete':
