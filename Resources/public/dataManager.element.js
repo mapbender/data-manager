@@ -370,7 +370,14 @@
 
             onSelectorChange();
         },
-
+        /**
+         * @todo Digitizer: use .featureType attribute instead of .dataStore (otherwise equivalent)
+         * @param {Object} schema
+         * @private
+         */
+        _getDataStoreFromSchema: function(schema) {
+            return schema.dataStore;
+        },
         /**
          * Open edit feature dialog
          *
@@ -381,6 +388,7 @@
             var widget = this;
             var schema = widget.findSchemaByDataItem(dataItem);
             var buttons = [];
+            var dataStore = this._getDataStoreFromSchema(schema);
 
             if(widget.currentPopup) {
                 widget.currentPopup.popupDialog('close');
@@ -398,7 +406,7 @@
 
                         if(!hasErrors) {
 
-                            var uniqueIdKey = schema.dataStore.uniqueId;
+                            var uniqueIdKey = dataStore.uniqueId;
                             var isNew = !dataItem.hasOwnProperty(uniqueIdKey) && !!dataItem[uniqueIdKey];
 
                             if(!isNew) {
@@ -467,8 +475,8 @@
                     item.uploadHanderUrl = widget.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + dataItem.fid + "&field=" + item.name;
                     if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
                         item.dbSrc = dataItem[item.name];
-                        if(schema.featureType.files) {
-                            $.each(schema.featureType.files, function(k, fileInfo) {
+                        if (dataStore.files) {
+                            $.each(dataStore.files, function(k, fileInfo) {
                                 if(fileInfo.field && fileInfo.field == item.name) {
                                     if(fileInfo.formats) {
                                         item.accept = fileInfo.formats;
@@ -488,8 +496,8 @@
 
                     if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
                         item.dbSrc = dataItem[item.name];
-                        if(schema.featureType.files) {
-                            $.each(schema.featureType.files, function(k, fileInfo) {
+                        if(dataStore.files) {
+                            $.each(dataStore.files, function(k, fileInfo) {
                                 if(fileInfo.field && fileInfo.field == item.name) {
 
                                     if(fileInfo.uri) {
