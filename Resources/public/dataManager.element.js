@@ -622,23 +622,6 @@
                 $.notify(errorMessage + JSON.stringify(xhr.responseText));
                 console.log(errorMessage, xhr);
             });
-        },
-        
-        withSchema: function(schemaName, callback) {
-            var widget = this;
-            var schema = widget.options.schemes[schemaName];
-            // FIXME: following lines are a hack to get dataManager to open the correct popup
-            // (it does open the popup for the scheme provided in currentSettings, not
-            // the one passed to the _openEditPopup function)
-            var prevSettings = widget.currentSettings;
-            var prevActiveSchema = widget.activeSchema;
-            widget.activeSchema = widget.currentSettings = schema;
-
-            widget._getData(schema).then(function () {
-                callback(schema);
-                widget.currentSettings = prevSettings;
-                widget.activeSchema = prevActiveSchema;
-            });
         }
     });
 
