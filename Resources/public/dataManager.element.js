@@ -17,7 +17,6 @@
         return Mapbender.trans(key);
     }
 
-
     /**
      * Translate object
      *
@@ -147,8 +146,6 @@
             var options = widget.options;
             var hasOnlyOneScheme = widget.hasOnlyOneScheme = _.size(options.schemes) === 1;
             widget.elementUrl = Mapbender.configuration.application.urls.element + '/' + element.attr('id') + '/';
-
-            Mapbender.DigitizerTranslator = Mapbender.DigitizerTranslator || { translate: translate };
 
             if(hasOnlyOneScheme) {
                 var title = _.propertyOf(_.first(_.toArray(options.schemes)))("title");
