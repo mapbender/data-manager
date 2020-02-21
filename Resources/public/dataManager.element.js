@@ -273,8 +273,7 @@
                                 var digitizer = Mapbender.elementRegistry.listWidgets()['mapbenderMbDigitizer'];
                                 if (digitizer) {
                                     $.each(digitizer.schemes,function(schemaName,scheme){
-                                        scheme.lastRequest = null; // force reload
-                                        scheme.getData({ reloadNew: true });
+                                        scheme.getData();
                                     });
                                 }
 
