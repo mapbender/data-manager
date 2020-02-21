@@ -8,16 +8,6 @@
     var translationReg = /^trans:\w+\.(\w|-|\.{1}\w+)+\w+$/;
 
     /**
-     * Translate digitizer keywords
-     * @param title
-     * @returns {*}
-     */
-    function translate(title, withoutSuffix) {
-        var key = withoutSuffix ? title : "mb.data.store." + title;
-        return Mapbender.trans(key);
-    }
-
-    /**
      * Translate object
      *
      * @param items
@@ -27,7 +17,7 @@
         for (var k in items) {
             var item = items[k];
             if(typeof item === "string" && item.match(translationReg)) {
-                items[k] = translate(item.split(':')[1], true);
+                items[k] = Mapbender.trans(item.split(':')[1]);
             } else if(typeof item === "object") {
                 translateObject(item);
             }
@@ -49,7 +39,7 @@
                 translateStructure(items[k]);
             } else {
                 if(typeof items[k] == "string" && items[k].match(translationReg)) {
-                    items[k] = translate(items[k].split(':')[1], true);
+                    items[k] = Mapbender.trans(items[k].split(':')[1]);
                 }
             }
         }
@@ -210,7 +200,7 @@
                             schema:  this,
                             feature: dataItem
                         });
-                        $.notify(translate('remove.successfully'), 'info')
+                        $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info')
                     },
                     isNew:      function(dataItem) {
                         return _.contains(this.newItems, dataItem);
@@ -225,7 +215,7 @@
                 _.extend(schema, _.omit(options, _.keys(schema)));
 
                 buttons.push({
-                    title:     translate('edit'),
+                    title: Mapbender.trans('mb.data.store.edit'),
                     className: 'fa-edit',
                     onClick:   function(dataItem, ui) {
                         widget._openEditDialog(dataItem);
@@ -234,7 +224,7 @@
 
                 if(schema.allowDelete) {
                     buttons.push({
-                        title:     translate("remove"),
+                        title: Mapbender.trans('mb.data.store.remove'),
                         className: 'fa-times',
                         cssClass:  'critical',
                         onClick:   function(dataItem, ui) {
@@ -282,7 +272,7 @@
                 if(schema.allowRefresh) {
                     toolBarButtons.push({
                         type:     "button",
-                        title:    translate("create"),
+                        title: Mapbender.trans('mb.data.store.create'),
                         cssClass: "fa-refresh",
                         click:    function(e) {
 
@@ -302,7 +292,7 @@
                             var schema = $(this).closest(".frame").data("schema");
                             if(widget.currentPopup) {
                                 confirmDialog({
-                                    html:      translate("confirm.close.edit.form"),
+                                    html: Mapbender.trans('mb.data.store.confirm.close.edit.form'),
                                     onSuccess: function() {
                                         widget.currentPopup.popupDialog('close');
                                         widget.currentPopup = null;
@@ -323,7 +313,7 @@
                 if(schema.allowCreate) {
                     toolBarButtons.push({
                         type:     "button",
-                        title:    translate("create"),
+                        title: Mapbender.trans('mb.data.store.create'),
                         cssClass: "fa-plus",
                         click: function(e) {
                             var schema = $(this).closest(".frame").data("schema");
@@ -423,7 +413,7 @@
 
             if(schema.allowEdit){
                 var saveButton = {
-                    text:  translate("save"),
+                    text: Mapbender.trans('mb.data.store.save'),
                     click: function() {
                         var form = $(this).closest(".ui-dialog-content");
                         var formData = form.formData();
@@ -462,7 +452,7 @@
                                 schema.save(dataItem);
                                 widget.currentPopup.popupDialog('close');
                                 widget.currentPopup = null;
-                                $.notify(translate("save.successfully"), 'info');
+                                $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
                                 $(widget.element).trigger('data.manager.item.saved',{ item : dataItem, uniqueIdKey : uniqueIdKey, scheme : schema.schemaName});
                                 $(dialog).trigger('data.manager.item.saved',{ item : dataItem });
                             }).done(function(){
@@ -475,7 +465,7 @@
             }
             if(schema.allowDelete) {
                 buttons.push({
-                    text:  translate("remove"),
+                    text: Mapbender.trans('mb.data.store.remove'),
                     'class': 'critical',
                     click: function() {
                         widget.removeData(dataItem);
@@ -485,7 +475,7 @@
                 });
             }
             buttons.push({
-                text:  translate("cancel"),
+                text: Mapbender.trans('mb.data.store.cancel'),
                 click: function() {
                     widget.currentPopup.popupDialog('close');
                     widget.currentPopup = null;
@@ -502,7 +492,7 @@
                 buttons =_.union(schema.popup.buttons , buttons);
             }
             var popupConfig = _.extend({
-                title:   translate("edit.title"),
+                title: Mapbender.trans('mb.data.store.edit.title'),
                 width:   widget.featureEditDialogWidth,
             }, schema.popup);
 
@@ -589,7 +579,7 @@
                 schema.remove(dataItem);
             } else {
                 confirmDialog({
-                    html:      translate("remove.confirm.text"),
+                    html: Mapbender.trans('mb.data.store.remove.confirm.text'),
                     onSuccess: function() {
                         widget.query('delete', {
                             schema: schema.schemaName,
@@ -629,7 +619,7 @@
                 dataType:    "json",
                 data:        JSON.stringify(request)
             }).error(function(xhr) {
-                var errorMessage = translate('api.query.error-message');
+                var errorMessage = Mapbender.trans('mb.data.store.api.query.error-message');
                 $.notify(errorMessage + JSON.stringify(xhr.responseText));
                 console.log(errorMessage, xhr);
             });
@@ -768,7 +758,7 @@
                 var button = {
                     type: "button",
                     title: "",
-                    hover: Mapbender.DigitizerTranslator.translate('feature.create'),
+                    hover: Mapbender.trans('mb.digitizer.feature.create'),
                     cssClass: "icon-create",
                     click: onCreateClick
                 };
@@ -778,13 +768,13 @@
                 var buttons = [];
 
                 buttons.push({
-                    title: Mapbender.DigitizerTranslator.translate('feature.edit'),
+                    title: Mapbender.trans('mb.digitizer.feature.edit'),
                     className: 'edit',
                     onClick: onEditClick
                 });
 
                 buttons.push({
-                    title: Mapbender.DigitizerTranslator.translate('feature.remove.title'),
+                    title: Mapbender.trans('mb.digitizer.feature.remove.title'),
                     className: 'remove',
                     onClick: onRemoveClick
                 });
