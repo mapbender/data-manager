@@ -119,16 +119,29 @@ class DataManagerElement extends BaseElement
     }
 
     /**
-     * @inheritdoc
+     * Request handling adapter for old Mapbender < 3.0.8-beta1
+     * @param string $action ignored
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function httpAction($action)
     {
         /** @var $requestService Request */
+        $request = $this->container->get('request_stack')->getCurrentRequest();
+        return $this->handleHttpRequest($request);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function handleHttpRequest(Request $request)
+    {
+        $action = $request->attributes->get('action');
         $configuration = $this->getConfiguration();
-        $requestService = $this->container->get('request');
-        $request = json_decode($requestService->getContent(), true);
+        $requestData = json_decode($request->getContent(), true);
         $schemas = $configuration["schemes"];
-        $schemaName = isset($request["schema"]) ? $request["schema"] : $requestService->get("schema");
+        $schemaName = isset($requestData["schema"]) ? $requestData["schema"] : $request->get("schema");
         $defaultCriteria = array('returnType' => 'FeatureCollection',
             'maxResults' => 2500);
         $schemaConfig = new DataManagerSchema($schemas[$schemaName]);
@@ -144,7 +157,7 @@ class DataManagerElement extends BaseElement
 
         switch ($action) {
             case 'select':
-                foreach ($dataStore->search(array_merge($defaultCriteria, $request)) as $dataItem) {
+                foreach ($dataStore->search(array_merge($defaultCriteria, $requestData)) as $dataItem) {
                     $results[] = $dataItem->toArray();
                 }
                 break;
@@ -155,11 +168,11 @@ class DataManagerElement extends BaseElement
                 }
 
                 $uniqueIdKey = $dataStore->getDriver()->getUniqueId();
-                if (empty($request['dataItem'][$uniqueIdKey])) {
-                    unset($request['dataItem'][$uniqueIdKey]);
+                if (empty($requestData['dataItem'][$uniqueIdKey])) {
+                    unset($requestData['dataItem'][$uniqueIdKey]);
                 }
 
-                $dataItem = $dataStore->create($request['dataItem']);
+                $dataItem = $dataStore->create($requestData['dataItem']);
                 $result = $dataStore->save($dataItem);
                 $results["dataItem"] = $result->toArray();
                 break;
@@ -168,7 +181,7 @@ class DataManagerElement extends BaseElement
                 if (!$schemaConfig->allowEdit) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
-                $id = intval($request['id']);
+                $id = intval($requestData['id']);
                 $results = $dataStore->remove($id);
                 break;
 
@@ -177,9 +190,9 @@ class DataManagerElement extends BaseElement
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 // @todo: this is pretty much an exact copy of the same code in digitizer 1.1. Fold copy&paste.
-                $fieldName = $requestService->get('field');
+                $fieldName = $request->get('field');
                 $urlParameters = array('schema' => $schemaName,
-                    'fid' => $requestService->get('fid'),
+                    'fid' => $request->get('fid'),
                     'field' => $fieldName);
                 $serverUrl = preg_replace('/\\?.+$/', "", $_SERVER["REQUEST_URI"]) . "?" . http_build_query($urlParameters);
                 $uploadDir = $dataStore->getFilePath($fieldName);
