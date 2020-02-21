@@ -465,8 +465,8 @@
             DataUtil.eachItem(widget.currentSettings.formItems, function(item) {
                 if(item.type == "file") {
                     item.uploadHanderUrl = widget.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + dataItem.fid + "&field=" + item.name;
-                    if(item.hasOwnProperty("name") && dataItem.data.hasOwnProperty(item.name) && dataItem.data[item.name]) {
-                        item.dbSrc = dataItem.data[item.name];
+                    if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
+                        item.dbSrc = dataItem[item.name];
                         if(schema.featureType.files) {
                             $.each(schema.featureType.files, function(k, fileInfo) {
                                 if(fileInfo.field && fileInfo.field == item.name) {
@@ -486,8 +486,8 @@
                         item.origSrc = item.src;
                     }
 
-                    if(item.hasOwnProperty("name") && dataItem.data.hasOwnProperty(item.name) && dataItem.data[item.name]) {
-                        item.dbSrc = dataItem.data[item.name];
+                    if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
+                        item.dbSrc = dataItem[item.name];
                         if(schema.featureType.files) {
                             $.each(schema.featureType.files, function(k, fileInfo) {
                                 if(fileInfo.field && fileInfo.field == item.name) {
