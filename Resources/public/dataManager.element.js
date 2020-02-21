@@ -435,19 +435,15 @@
                             widget.query('save', {
                                 schema:   schema.schemaName,
                                 dataItem: formData
-                            }).done(function(response) {
-                                if(response.hasOwnProperty('errors')) {
-                                    form.enableForm();
-                                    $.each(response.errors, function(i, error) {
-                                        $.notify(error.message, {
-                                            title:     'API Error',
-                                            autoHide:  false,
-                                            className: 'error'
-                                        });
-                                        console.error(error.message);
-                                    });
-                                    return;
-                                }
+                            }).fail(function(jqXHR, textStatus, errorThrown) {
+                                var message = (jqXHR.responseJSON || {}).message || 'API error';
+                                $.notify(message, {
+                                    title:     'API Error',
+                                    autoHide:  false,
+                                    className: 'error'
+                                });
+                                console.error(message, textStatus, errorThrown, jqXHR);
+                            }, function(response) {
                                 _.extend(dataItem, response.dataItem);
                                 schema.save(dataItem);
                                 widget.currentPopup.popupDialog('close');
@@ -455,7 +451,7 @@
                                 $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
                                 $(widget.element).trigger('data.manager.item.saved',{ item : dataItem, uniqueIdKey : uniqueIdKey, scheme : schema.schemaName});
                                 $(dialog).trigger('data.manager.item.saved',{ item : dataItem });
-                            }).done(function(){
+                            }).always(function(){
                                 form.enableForm();
                             });
                         }

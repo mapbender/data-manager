@@ -16,11 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 class DataManagerElement extends BaseElement
 {
     /**
-     * User access denied
-     */
-    const ERROR_ACCESS_DENIED = "1";
-
-    /**
      * @inheritdoc
      */
     public static function getClassTitle()
@@ -152,14 +147,8 @@ class DataManagerElement extends BaseElement
                 break;
 
             case 'save':
-                //try {
                 if (!$schemaConfig->allowEdit) {
-                    $results["errors"] = array(
-                        array(
-                            'message' => "It is not allowed to edit this data",
-                            'code' => self::ERROR_ACCESS_DENIED
-                        )
-                    );
+                    return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
 
                 $uniqueIdKey = $dataStore->getDriver()->getUniqueId();
@@ -173,14 +162,8 @@ class DataManagerElement extends BaseElement
                 break;
 
             case 'delete':
-                //try {
                 if (!$schemaConfig->allowEdit) {
-                    $results["errors"] = array(
-                        array(
-                            'message' => "It is not allowed to edit this data",
-                            'code' => self::ERROR_ACCESS_DENIED
-                        )
-                    );
+                    return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 $id = intval($request['id']);
                 $results = $dataStore->remove($id);
@@ -188,12 +171,7 @@ class DataManagerElement extends BaseElement
 
             case 'file-upload':
                 if (!$schemaConfig->allowEdit) {
-                    $results["errors"] = array(
-                        array(
-                            'message' => "It is not allowed to edit this data",
-                            'code' => self::ERROR_ACCESS_DENIED
-                        )
-                    );
+                    return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 // @todo: this is pretty much an exact copy of the same code in digitizer 1.1. Fold copy&paste.
                 $fieldName = $requestService->get('field');
@@ -225,11 +203,7 @@ class DataManagerElement extends BaseElement
                 break;
 
             default:
-                $results = array(
-                    array('errors' => array(
-                        array('message' => $action . " not defined!")
-                    ))
-                );
+                return new JsonResponse(array('message' => 'Unsupported action ' . $action), JsonResponse::HTTP_BAD_REQUEST);
         }
 
         return new JsonResponse($results);
