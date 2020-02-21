@@ -2,7 +2,6 @@
 
 namespace Mapbender\DataManagerBundle\Element;
 
-use Mapbender\DataManagerBundle\Entity\DataManagerSchema;
 use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Element\BaseElement;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -97,8 +96,7 @@ class DataManagerElement extends BaseElement
      */
     public function getConfiguration()
     {
-        $configuration = parent::getConfiguration();
-        $configuration['debug'] = isset($configuration['debug']) ? $configuration['debug'] : false;
+        $configuration = $this->entity->getConfiguration();
         $configuration['fileUri'] = $this->container->getParameter("mapbender.uploads_dir") . "/data-store";
 
         if (isset($configuration["schemes"]) && is_array($configuration["schemes"])) {
@@ -108,7 +106,6 @@ class DataManagerElement extends BaseElement
                     $dataStore = $this->container->getParameter('dataStores');
                     $scheme['dataStore'] = $dataStore[$storeId];
                     $scheme['dataStore']["id"] = $storeId;
-                    //$dataStore = new DataStore($this->container, $configuration['source']);
                 }
                 if (isset($scheme['formItems'])) {
                     $scheme['formItems'] = $this->prepareItems($scheme['formItems']);
@@ -142,11 +139,13 @@ class DataManagerElement extends BaseElement
         $requestData = json_decode($request->getContent(), true);
         $schemas = $configuration["schemes"];
         $schemaName = isset($requestData["schema"]) ? $requestData["schema"] : $request->get("schema");
-        $schemaConfig = new DataManagerSchema($schemas[$schemaName]);
+        $schemaConfigDefaults = array(
+            'allowEdit' => false,
+        );
+        $schemaConfig = array_replace($schemaConfigDefaults, $schemas[$schemaName]);
 
-
-        if (is_array($schemaConfig->dataStore)) {
-            $dataStore = new DataStore($this->container, $schemaConfig->dataStore);
+        if (!empty($schemas[$schemaName]['dataStore'])) {
+            $dataStore = new DataStore($this->container, $schemas[$schemaName]['dataStore']);
         } else {
             throw new \Exception("DataStore setup is not correct");
         }
@@ -163,7 +162,7 @@ class DataManagerElement extends BaseElement
                 }
                 return new JsonResponse($results);
             case 'save':
-                if (!$schemaConfig->allowEdit) {
+                if (!$schemaConfig['allowEdit']) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
 
@@ -177,13 +176,13 @@ class DataManagerElement extends BaseElement
                     'dataItem' => $dataStore->save($dataItem)->toArray(),
                 ));
             case 'delete':
-                if (!$schemaConfig->allowEdit) {
+                if (!$schemaConfig['allowEdit']) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 $id = intval($requestData['id']);
                 return new JsonResponse($dataStore->remove($id));
             case 'file-upload':
-                if (!$schemaConfig->allowEdit) {
+                if (!$schemaConfig['allowEdit']) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 // @todo: this is pretty much an exact copy of the same code in digitizer 1.1. Fold copy&paste.
