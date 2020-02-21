@@ -1,17 +1,14 @@
 mb.data.store:
   cancel: Cancel
   create: Create
-  edit:
-    edit: Edit
-    title: Data
+  edit: Edit
+  edit.title: Data
   feature:
     remove: Remove
-  remove:
-    remove: Remove
-    successfully: 'Removed successfully!'
-    confirm:
-      text: 'Remove data?'
-  save:
-    save: save
-    successfully: 'Save successfully!'
-api.query.error-message: Error
+  remove: Remove
+  remove.successfully: 'Removed successfully!'
+  remove.confirm:
+    text: 'Remove data?'
+  save: Save
+  save.successfully: 'Save successfully!'
+  api.query.error-message: Error

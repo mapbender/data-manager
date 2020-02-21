@@ -2,16 +2,13 @@ mb.data.store:
   cancel: Отменить
   create: Создать
   edit: Редактировать
-  edit:
-    title: 'Редактирование данных'
+  edit.title: 'Редактирование данных'
   feature:
     remove: Удалить
   remove: Удалить
-  remove:
-    successfully: 'Данные удалены'
-    confirm:
-      text: 'Подведите удаление'
+  remove.successfully: 'Данные удалены'
+  remove.confirm:
+    text: 'Подведите удаление'
   save: Сохранить
-  save:
-    successfully: 'Данные сохранены'
-api.query.error-message: Ошибка
+  save.successfully: 'Данные сохранены'
+  api.query.error-message: Ошибка
