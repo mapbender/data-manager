@@ -37,12 +37,6 @@ class DataManagerAdminType extends AbstractType
                     'class' => 'code-yaml',
                 ),
             ))
-            ->add('dataManager', 'Mapbender\\CoreBundle\\Element\Type\\TargetElementType', array(
-                'element_class' => 'Mapbender\\DataManagerBundle\\Element\\DataManagerElement',
-                'application'   => $options['application'],
-                'label' => 'mb.digitizer.connectedDataManager',
-                'required' => false,
-            ))
         ;
     }
 }

@@ -45,7 +45,6 @@ class DataManagerElement extends BaseElement
     {
         return array(
             'schemes' => null,
-            'dataManager' => null,
         );
     }
 
