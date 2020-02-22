@@ -211,7 +211,7 @@
                     title: Mapbender.trans('mb.data.store.edit'),
                     className: 'fa-edit',
                     onClick:   function(dataItem, ui) {
-                        widget._openEditDialog(dataItem);
+                        widget._openEditDialog(schema, dataItem);
                     }
                 });
 
@@ -221,7 +221,7 @@
                         className: 'fa-times',
                         cssClass:  'critical',
                         onClick:   function(dataItem, ui) {
-                            widget.removeData(dataItem);
+                            widget.removeData(schema, dataItem);
                         }
                     });
                 }
@@ -294,7 +294,7 @@
                         cssClass: "fa-plus",
                         click: function(e) {
                             var schema = $(this).closest(".frame").data("schema");
-                            widget._openEditDialog(schema.create());
+                            widget._openEditDialog(schema, schema.create());
                             e.preventDefault();
                             return false;
                         }
@@ -381,12 +381,12 @@
         /**
          * Open edit feature dialog
          *
+         * @param {Object} schema
          * @param dataItem open layer feature
          * @private
          */
-        _openEditDialog: function(dataItem) {
+        _openEditDialog: function(schema, dataItem) {
             var widget = this;
-            var schema = widget.findSchemaByDataItem(dataItem);
             var buttons = [];
             var dataStore = this._getDataStoreFromSchema(schema);
 
@@ -450,7 +450,7 @@
                     text: Mapbender.trans('mb.data.store.remove'),
                     'class': 'critical',
                     click: function() {
-                        widget.removeData(dataItem);
+                        widget.removeData(schema, dataItem);
                         widget.currentPopup.popupDialog('close');
                         widget.currentPopup = null;
                     }
@@ -556,33 +556,15 @@
         },
 
         /**
-         * Find schema definition by dataItem
-         *
-         * @param dataItem
-         */
-        findSchemaByDataItem: function(dataItem) {
-            var widget = this;
-            var options = widget.options;
-            var r;
-            _.each(options.schemes, function(schema) {
-                if(_.indexOf(schema.dataItems, dataItem) > -1) {
-                    r = schema;
-                    return;
-                }
-            });
-            return r;
-        },
-
-        /**
          * Remove data item
          *
-         * @param dataItem
+         * @param {Object} schema
+         * @param {Object} dataItem
          * @version 0.2
          * @returns {*}
          */
-        removeData: function(dataItem) {
+        removeData: function(schema, dataItem) {
             var widget = this;
-            var schema = widget.findSchemaByDataItem(dataItem);
             if(schema.isNew(dataItem)) {
                 schema.remove(dataItem);
             } else {
