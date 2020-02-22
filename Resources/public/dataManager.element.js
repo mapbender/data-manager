@@ -1,31 +1,6 @@
 (function($) {
 
     /**
-     * Regular Expression to get checked if string should be translated
-     *
-     * @type {RegExp}
-     */
-    var translationReg = /^trans:\w+\.(\w|-|\.{1}\w+)+\w+$/;
-
-    /**
-     * Translate object
-     *
-     * @param items
-     * @returns object
-     */
-    function translateObject(items) {
-        for (var k in items) {
-            var item = items[k];
-            if(typeof item === "string" && item.match(translationReg)) {
-                items[k] = Mapbender.trans(item.split(':')[1]);
-            } else if(typeof item === "object") {
-                translateObject(item);
-            }
-        }
-        return item;
-    }
-
-    /**
      * @param options
      * @returns {*}
      */
@@ -127,10 +102,6 @@
                 element.append(selector);
             }
 
-            if(options.tableTranslation) {
-                translateObject(options.tableTranslation);
-            }
-
             // build select options
             _.each(options.schemes, function(schema, schemaName) {
                 var buttons = [];
@@ -229,15 +200,12 @@
                     ordering:     true,
                     paging:       true,
                     selectable:   false,
+                    oLanguage: options.tableTranslation || {},
                     autoWidth:    false
                 }, schema.table);
 
                 // Merge buttons
                 resultTableSettings.buttons = resultTableSettings.buttons ? _.flatten(buttons, resultTableSettings.buttons) : buttons;
-
-                if(options.tableTranslation) {
-                    resultTableSettings.oLanguage = options.tableTranslation;
-                }
 
                 var table = schema.table = $("<div/>").resultTable(resultTableSettings).data('settings', resultTableSettings);
                 schema.schemaName = schemaName;
