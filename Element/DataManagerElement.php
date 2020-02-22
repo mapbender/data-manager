@@ -125,16 +125,17 @@ class DataManagerElement extends BaseElement
     public function handleHttpRequest(Request $request)
     {
         $action = $request->attributes->get('action');
-        $configuration = $this->getConfiguration();
         $requestData = json_decode($request->getContent(), true);
-        $schemas = $configuration["schemes"];
         $schemaName = isset($requestData["schema"]) ? $requestData["schema"] : $request->get("schema");
-        $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $schemas[$schemaName]);
-
-        if (!empty($schemas[$schemaName]['dataStore'])) {
-            $dataStore = new DataStore($this->container, $schemas[$schemaName]['dataStore']);
-        } else {
+        // @todo: avoid full collateral formItem preparation overhead if all we need is a resolved dataStore config
+        $schemaConfig = $this->getSchemaConfig($schemaName, true);
+        if (!$schemaConfig) {
+            return new JsonResponse(array('message' => 'Unknown schema ' . print_r($schemaName)), JsonResponse::HTTP_NOT_FOUND);
+        } elseif (empty($schemaConfig['dataStore'])) {
             throw new \Exception("DataStore setup is not correct");
+        } else {
+            // @todo: use DataStoreService::dataStoreFactory (requires data-source >= 0.1.15)
+            $dataStore = new DataStore($this->container, $schemaConfig['dataStore']);
         }
 
         switch ($action) {
