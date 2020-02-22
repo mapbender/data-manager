@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class DataManagerElement extends BaseElement
 {
+    /** @var mixed[] lazy-initialized entries */
+    protected $schemaConfigs = array();
+
     /**
      * @inheritdoc
      */
@@ -98,20 +101,7 @@ class DataManagerElement extends BaseElement
     {
         $configuration = $this->entity->getConfiguration();
         $configuration['fileUri'] = $this->container->getParameter("mapbender.uploads_dir") . "/data-store";
-
-        if (isset($configuration["schemes"]) && is_array($configuration["schemes"])) {
-            foreach ($configuration["schemes"] as $key => &$scheme) {
-                if (is_string($scheme['dataStore'])) {
-                    $storeId = $scheme['dataStore'];
-                    $dataStore = $this->container->getParameter('dataStores');
-                    $scheme['dataStore'] = $dataStore[$storeId];
-                    $scheme['dataStore']["id"] = $storeId;
-                }
-                if (isset($scheme['formItems'])) {
-                    $scheme['formItems'] = $this->prepareItems($scheme['formItems']);
-                }
-            }
-        }
+        $configuration['schemes'] = $this->getSchemaConfigs();
         return $configuration;
     }
 
@@ -139,10 +129,7 @@ class DataManagerElement extends BaseElement
         $requestData = json_decode($request->getContent(), true);
         $schemas = $configuration["schemes"];
         $schemaName = isset($requestData["schema"]) ? $requestData["schema"] : $request->get("schema");
-        $schemaConfigDefaults = array(
-            'allowEdit' => false,
-        );
-        $schemaConfig = array_replace($schemaConfigDefaults, $schemas[$schemaName]);
+        $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $schemas[$schemaName]);
 
         if (!empty($schemas[$schemaName]['dataStore'])) {
             $dataStore = new DataStore($this->container, $schemas[$schemaName]['dataStore']);
@@ -191,6 +178,119 @@ class DataManagerElement extends BaseElement
         }
     }
 
+    /**
+     * Get a mapping of ALL schema configurations, transformed. Transformed means
+     * * formItems prepared
+     *
+     * @return mixed[] with schema names as string keys
+     */
+    protected function getSchemaConfigs()
+    {
+        $entityConfig = $this->entity->getConfiguration();
+        $schemaNames = array_keys($entityConfig['schemes'] ?: array());
+        $preparedConfigs = $this->schemaConfigs;
+        foreach (array_diff($schemaNames, array_keys($preparedConfigs)) as $missingSchemaName) {
+            // use get... instead of prepare... to buffer result for next time
+            $preparedConfigs[$missingSchemaName] = $this->getSchemaConfig($missingSchemaName, false);
+        }
+        return $preparedConfigs;
+    }
+
+    /**
+     * Get a single (default: transformed) schema configuration. Transformed means
+     * * formItems prepared
+     * * featureType string reference resolved to full featureType configuration + featureTypeName entry
+     *
+     * Pass $raw = true to skip prepareItems / featureType resolution
+     *
+     * @param string $schemaName
+     * @param bool $raw
+     * @return mixed[]|false
+     */
+    protected function getSchemaConfig($schemaName, $raw = false)
+    {
+        if (!array_key_exists($schemaName, $this->schemaConfigs)) {
+            $entityConfig = $this->entity->getConfiguration() + array(
+                'schemes' => array(),
+            );
+            if (empty($entityConfig['schemes'][$schemaName])) {
+                $schemaConfig = false;
+            } else {
+                $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $entityConfig['schemes'][$schemaName]);
+                if (!$raw) {
+                    $schemaConfig = $this->prepareSchemaConfig($schemaConfig);
+                }
+            }
+            if (!$raw || !$schemaConfig) {
+                // buffer for next invocation (including falsy value for missing schema)
+                $this->schemaConfigs[$schemaName] = $schemaConfig;
+            } elseif ($raw) {
+                return $schemaConfig;
+            }
+        }
+        // NOTE: this may return a prepared config with $raw = true, if it was already prepared fully. This should be
+        //       transparent to callers.
+        return $this->schemaConfigs[$schemaName];
+    }
+
+    /**
+     * @param mixed[] $rawConfig
+     * @return mixed[]
+     */
+    protected function prepareSchemaConfig($rawConfig)
+    {
+        $prepared = $rawConfig;
+        if (isset($rawConfig['formItems'])) {
+            $prepared['formItems'] = $this->prepareItems($rawConfig['formItems']);
+        }
+        if (isset($rawConfig['dataStore'])) {
+            $prepared['dataStore'] = $this->resolveDataStoreConfig($rawConfig['dataStore']);
+        }
+        return $prepared;
+    }
+
+    /**
+     * Should return default values for missing schema configs.
+     *
+     * @return mixed[]
+     */
+    protected function getSchemaConfigDefaults()
+    {
+        return array(
+            'allowEdit' => false,
+        );
+    }
+
+    /**
+     * @param string|array $value
+     * @return mixed[]
+     */
+    protected function resolveDataStoreConfig($value)
+    {
+        if ($value && is_array($value)) {
+            // Pre-unraveled configs cannot have a sensible id guaranteed
+            // @todo: figure out who wants this id anyway, remove if possible
+            return $value + array(
+                'id' => null,
+            );
+        } elseif ($value && is_string($value)) {
+            return $this->getDataStoreDefinition($value) + array(
+                'id' => $value,
+            );
+        } else {
+            throw new \RuntimeException("Invalid dataStore setting " . var_export($value, true));
+        }
+    }
+
+    /**
+     * @param string $storeId
+     * @return mixed
+     */
+    protected function getDataStoreDefinition($storeId)
+    {
+        $storeConfigs = $this->container->getParameter('dataStores');
+        return $storeConfigs[$storeId];
+    }
 
     /**
      * @param DataStore $store
