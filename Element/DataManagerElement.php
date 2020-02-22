@@ -7,6 +7,7 @@ use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Element\BaseElement;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class DataManagerElement
@@ -371,5 +372,25 @@ class DataManagerElement extends BaseElement
         unset($params['uploadUrl']);
         // really? $_SERVER?
         return preg_replace('/\\?.+$/', "", $_SERVER["REQUEST_URI"]) . "?" . http_build_query($params);
+    }
+
+    /**
+     * Override to support translated string scalars in form items.
+     *
+     * @param mixed[] $item
+     * @return mixed[]
+     */
+    protected function prepareItem($item)
+    {
+        $item = parent::prepareItem($item);
+        static $translator = null;      // optimize away service lookup over repeated invocations
+        foreach ($item as $key => $value) {
+            if (is_string($value) && preg_match('#^trans:\w+([\.\-]\w+)*$#', $value)) {
+                /** @var TranslatorInterface $translator */
+                $translator = $translator ?: $this->container->get('translator');
+                $item[$key] = $translator->trans(substr($value, /* strlen('trans:') */ 6));
+            }
+        }
+        return $item;
     }
 }

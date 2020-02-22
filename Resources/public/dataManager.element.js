@@ -26,25 +26,6 @@
     }
 
     /**
-     * Check and replace values recursive if they should be translated.
-     * For checking used "translationReg" variable
-     *
-     *
-     * @param items
-     */
-    function translateStructure(items) {
-        var isArray = items instanceof Array;
-        for (var k in items) {
-            if(isArray || k == "children") {
-                translateStructure(items[k]);
-            } else {
-                if(typeof items[k] == "string" && items[k].match(translationReg)) {
-                    items[k] = Mapbender.trans(items[k].split(':')[1]);
-                }
-            }
-        }
-    }
-    /**
      * @param options
      * @returns {*}
      */
@@ -464,11 +445,6 @@
                 }
             });
             var dialog = $("<div/>");
-
-            if(!schema.elementsTranslated) {
-                translateStructure(widget.currentSettings.formItems);
-                schema.elementsTranslated = true;
-            }
 
             DataUtil.eachItem(widget.currentSettings.formItems, function(item) {
                 if(item.type == "file") {
