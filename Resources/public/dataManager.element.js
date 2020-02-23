@@ -306,6 +306,61 @@
             return schema.dataStore;
         },
         /**
+         * @param {Object} schema
+         * @param {*} id
+         * @param {Object} dataItem
+         * @return {Promise}
+         * @private
+         */
+        _saveItem: function(schema, id, dataItem) {
+            var self = this;
+            // todo: never post object ids with object data; put the id in the url
+            return this.query('save', {
+                schema:   schema.schemaName,
+                dataItem: dataItem
+            }).then(function(response) {
+                _.extend(dataItem, response.dataItem);
+                schema.save(dataItem);
+                $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
+                self.element.trigger('data.manager.item.saved',{
+                    item: dataItem,
+                    uniqueIdKey: self._getDataStoreFromSchema(schema).uniqueId, // why?
+                    scheme: schema.schemaName,
+                    originator: self
+                });
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                var message = (jqXHR.responseJSON || {}).message || 'API error';
+                console.error(message, textStatus, errorThrown, jqXHR);
+                $.notify(message, {
+                    title:     'API Error',
+                    autoHide:  false,
+                    className: 'error'
+                });
+            });
+        },
+        /**
+         * @param {Object} schema
+         * @param {Object} dataItem
+         * @param {jQuery} $form
+         * @return {boolean|Promise}
+         * @private
+         */
+        _submitFormData: function(schema, dataItem, $form) {
+            var formData = $form.formData();
+            if (!$(".has-error", $form).length) {
+                var uniqueIdAttribute = this._getDataStoreFromSchema(schema).uniqueId;
+                var uniqueId = dataItem[uniqueIdAttribute] || null;
+                if (typeof formData[uniqueIdAttribute] !== 'undefined') {
+                    console.warn("Form contains an input field for the object id", schema);
+                }
+                delete formData[uniqueIdAttribute];
+                _.extend(dataItem, formData);
+                return this._saveItem(schema, uniqueId, dataItem);
+            } else {
+                return false;
+            }
+        },
+        /**
          * Open edit feature dialog
          *
          * @param {Object} schema
@@ -326,47 +381,18 @@
                 var saveButton = {
                     text: Mapbender.trans('mb.data.store.save'),
                     click: function() {
-                        var form = $(this).closest(".ui-dialog-content");
-                        var formData = form.formData();
-                        var errorInputs = $(".has-error", dialog);
-                        var hasErrors = errorInputs.size() > 0;
-
-                        if(!hasErrors) {
-
-                            var uniqueIdKey = dataStore.uniqueId;
-                            var isNew = !dataItem.hasOwnProperty(uniqueIdKey) && !!dataItem[uniqueIdKey];
-
-                            if(!isNew) {
-                                formData[uniqueIdKey] = dataItem[uniqueIdKey];
-                            }else{
-                                delete formData[uniqueIdKey];
-                            }
-
-                            form.disableForm();
-                            widget.query('save', {
-                                schema:   schema.schemaName,
-                                dataItem: formData
-                            }).fail(function(jqXHR, textStatus, errorThrown) {
-                                var message = (jqXHR.responseJSON || {}).message || 'API error';
-                                $.notify(message, {
-                                    title:     'API Error',
-                                    autoHide:  false,
-                                    className: 'error'
-                                });
-                                console.error(message, textStatus, errorThrown, jqXHR);
-                            }, function(response) {
-                                _.extend(dataItem, response.dataItem);
-                                schema.save(dataItem);
+                        var $form = $(this).closest('.ui-dialog-content');
+                        $form.disableForm();
+                        var saved = widget._submitFormData(schema, dataItem, $form);
+                        if (saved) {
+                            saved.always(function() {
+                                $form.enableForm();
+                            }).then(function() {
                                 widget.currentPopup.popupDialog('close');
                                 widget.currentPopup = null;
-                                $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
-                                $(widget.element).trigger('data.manager.item.saved',{
-                                    item: dataItem,
-                                    uniqueIdKey: uniqueIdKey,
-                                    scheme: schema.schemaName,
-                                    originator: widget
-                                });
-                            })
+                            });
+                        } else {
+                            $form.enableForm();
                         }
                     }
                 };
