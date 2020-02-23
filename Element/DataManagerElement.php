@@ -84,6 +84,8 @@ class DataManagerElement extends BaseElement
                 '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
             ),
             'js' => array(
+                '../../vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js',
+                '../../vendor/blueimp/jquery-file-upload/js/jquery.iframe-transport.js',
                 '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
             ),
             'trans' => array(
