@@ -50,29 +50,9 @@
         });
     }
 
-
-    /**
-     * Digitizing tool set
-     *
-     * @author Andriy Oblivantsev <eslider@gmail.com>
-     * @author Stefan Winkelmann <stefan.winkelmann@wheregroup.com>
-     *
-     * @copyright 20.04.2015 by WhereGroup GmbH & Co. KG
-     */
     $.widget("mapbender.mbDataManager", {
         options: {
-            allowCreate:     true,
-            allowEditData:   true,
-            allowDelete:     true,
-            maxResults:      5001,
-            oneInstanceEdit: true,
-            inlineSearch:    false,
-            useContextMenu:  false,
-            dataStore:       "default",
-            newItems:        [],
-            popup:          {
-
-            }
+            schemes: {}
         },
         currentSettings: null,
         featureEditDialogWidth: "423px",
@@ -114,6 +94,7 @@
                 _.extend(schema, {
                     schemaName: schemaName,
                     newItems:   [],
+                    popup: {},
                     frame:  frame,
                     create: function(data) {
                         var dataItem = {};
@@ -155,9 +136,6 @@
                         return dataStore.uniqueId ? dataStore.uniqueId : "id";
                     }
                 });
-
-                // Merge settings with default values from options there are not set by backend configuration
-                _.extend(schema, _.omit(options, _.keys(schema)));
 
                 buttons.push({
                     title: Mapbender.trans('mb.data.store.edit'),

@@ -101,7 +101,6 @@ class DataManagerElement extends BaseElement
     public function getConfiguration()
     {
         $configuration = $this->entity->getConfiguration();
-        $configuration['fileUri'] = $this->container->getParameter("mapbender.uploads_dir") . "/data-store";
         $configuration['schemes'] = $this->getSchemaConfigs();
         if (isset($configuration['tableTranslation'])) {
             if (!in_array('tableTranslation', array_keys($this->getDefaultConfiguration()))) {
@@ -151,7 +150,7 @@ class DataManagerElement extends BaseElement
                 $results = array();
                 $defaultCriteria = array(
                     'returnType' => 'FeatureCollection',
-                    'maxResults' => 2500,
+                    'maxResults' => $schemaConfig['maxResults'],
                 );
                 foreach ($dataStore->search(array_merge($defaultCriteria, $requestData)) as $dataItem) {
                     $results[] = $dataItem->toArray();
@@ -267,6 +266,10 @@ class DataManagerElement extends BaseElement
     {
         return array(
             'allowEdit' => false,
+            'fileUri' => $this->container->getParameter("mapbender.uploads_dir") . "/data-store",
+            'allowCreate' => true,
+            'allowDelete' => true,
+            'maxResults' => 5000,
         );
     }
 
