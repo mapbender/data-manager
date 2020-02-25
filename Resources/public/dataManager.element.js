@@ -92,6 +92,10 @@
             // build select options
             _.each(options.schemes, function(schema, schemaName) {
                 var option = $("<option/>");
+                option.val(schemaName).html(schema.label ? schema.label : schemaName);
+                option.data("schema", schema);
+                selector.append(option);
+
                 var frame = widget._renderSchemaFrame(schema);
 
                 // Improve schema with handling methods
@@ -141,8 +145,6 @@
                     }
                 });
 
-                option.val(schemaName).html(schema.label ? schema.label : schemaName);
-
                 var table = widget._renderTable(schema);
                 // @todo: eliminate total transmutation of original schema property .table
                 // @todo: table should be rendered by _renderSchemaFrame, we only need it here because to break schema.table
@@ -153,8 +155,6 @@
                 frame.css('display','none');
 
                 element.append(frame);
-                option.data("schema", schema);
-                selector.append(option);
             });
 
             selector.on('change', function() {
