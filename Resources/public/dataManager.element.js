@@ -101,24 +101,8 @@
                 // Improve schema with handling methods
                 _.extend(schema, {
                     schemaName: schemaName,
-                    newItems:   [],
                     popup: {},
                     frame:  frame,  // why?
-                    create: function() {
-                        var dataItem = {};
-                        var schema = this;
-                        _.each(widget._getTableDataAttributes(schema), function(columnName) {
-                            dataItem[columnName] = '';
-                        });
-
-                        schema.dataItems.push(dataItem);
-                        schema.newItems.push(dataItem);
-                        return dataItem;
-                    },
-                    save: function(dataItem) {
-                        this.newItems = _.without(this.newItems, dataItem);
-                        widget.reloadData(schema);
-                    },
                     remove:     function(dataItem) {
                         this.dataItems = _.without(this.dataItems, dataItem);
                         widget.reloadData(this);
@@ -127,13 +111,6 @@
                             feature: dataItem
                         });
                         $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info')
-                    },
-                    isNew:      function(dataItem) {
-                        return _.contains(this.newItems, dataItem);
-                    },
-                    getStoreIdKey: function() {
-                        var dataStore = this.dataStore;
-                        return dataStore.uniqueId ? dataStore.uniqueId : "id";
                     }
                 });
 
@@ -350,7 +327,7 @@
                     click: function(e) {
                         // @todo: we have the schema here, why use bound data?
                         var schema = $(this).closest(".frame").data("schema");
-                        self._openEditDialog(schema, schema.create());
+                        self._openEditDialog(schema, {});
                         e.preventDefault();
                         return false;
                     }
@@ -382,15 +359,18 @@
                 dataItem: dataItem
             }).then(function(response) {
                 _.extend(dataItem, response.dataItem);
-                schema.save(dataItem);
                 $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
+                if (!id) {
+                    schema.dataItems.push(dataItem);
+                }
+                self.reloadData(schema);
                 self.element.trigger('data.manager.item.saved',{
                     item: dataItem,
                     uniqueIdKey: self._getDataStoreFromSchema(schema).uniqueId, // why?
                     scheme: schema.schemaName,
                     originator: self
                 });
-            }).fail(function(jqXHR, textStatus, errorThrown) {
+            }, function(jqXHR, textStatus, errorThrown) {
                 var message = (jqXHR.responseJSON || {}).message || 'API error';
                 console.error(message, textStatus, errorThrown, jqXHR);
                 $.notify(message, {
@@ -402,22 +382,22 @@
         },
         /**
          * @param {Object} schema
-         * @param {Object} dataItem
          * @param {jQuery} $form
+         * @param {Object} [dataItem]
          * @return {boolean|Promise}
          * @private
          */
-        _submitFormData: function(schema, dataItem, $form) {
+        _submitFormData: function(schema, $form, dataItem) {
             var formData = $form.formData();
             if (!$(".has-error", $form).length) {
                 var uniqueIdAttribute = this._getDataStoreFromSchema(schema).uniqueId;
-                var uniqueId = dataItem[uniqueIdAttribute] || null;
+                var uniqueId = (dataItem && dataItem[uniqueIdAttribute]) || null;
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
                     console.warn("Form contains an input field for the object id", schema);
                 }
                 delete formData[uniqueIdAttribute];
                 _.extend(dataItem, formData);
-                return this._saveItem(schema, uniqueId, dataItem);
+                return this._saveItem(schema, uniqueId, formData);
             } else {
                 return false;
             }
@@ -445,16 +425,17 @@
                     click: function() {
                         var $form = $(this).closest('.ui-dialog-content');
                         $form.disableForm();
-                        var saved = widget._submitFormData(schema, dataItem, $form);
+                        var saved = widget._submitFormData(schema, $form, dataItem);
+                        var always_ = function() {
+                            $form.enableForm()
+                        };
                         if (saved) {
-                            saved.always(function() {
-                                $form.enableForm();
-                            }).then(function() {
+                            saved.then(function() {
                                 widget.currentPopup.popupDialog('close');
                                 widget.currentPopup = null;
-                            });
+                            }).always(always_);
                         } else {
-                            $form.enableForm();
+                            always_();
                         }
                     }
                 };
@@ -596,25 +577,22 @@
          */
         removeData: function(schema, dataItem) {
             var widget = this;
-            if(schema.isNew(dataItem)) {
-                schema.remove(dataItem);
-            } else {
-                confirmDialog({
-                    html: Mapbender.trans('mb.data.store.remove.confirm.text'),
-                    onSuccess: function() {
-                        widget.query('delete', {
-                            schema: schema.schemaName,
-                            id:     dataItem[schema.getStoreIdKey()]
-                        }).done(function(fid) {
-                            schema.remove(dataItem);
-                        });
-                    }
-                });
-            }
-
+            confirmDialog({
+                html: Mapbender.trans('mb.data.store.remove.confirm.text'),
+                onSuccess: function() {
+                    widget.query('delete', {
+                        schema: schema.schemaName,
+                        // @todo: this default should be server provided
+                        id: (widget._getDataStoreFromSchema(schema).uniqueId || 'id')
+                    }).done(function(fid) {
+                        schema.remove(dataItem);
+                    });
+                }
+            });
             return dataItem;
         },
 
+        /** @todo: rename; maybe redrawTable */
         reloadData: function(schema) {
             var $tableWrap = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', this.element);
             var tableApi = $tableWrap.resultTable('getApi');
