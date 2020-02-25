@@ -1,12 +1,15 @@
 (function($) {
 
     /**
-     * @param options
-     * @returns {*}
+     * @param {String} title
+     * @returns {Promise}
      */
-    confirmDialog = function (options) {
-        var dialog = $("<div class='confirm-dialog'>" + (options.hasOwnProperty('html') ? options.html : "") + "</div>").popupDialog({
-            title:       options.hasOwnProperty('title') ? options.title : "",
+    function confirmDialog(title) {
+        // @todo: bypass vis-ui / jquerydialogextend auto-monkey-patching
+        var $dialog =$('<div/>').addClass('confirm-dialog');
+        var deferred = $.Deferred();
+        $dialog.popupDialog({
+            title: title,
             maximizable: false,
             dblclick:    false,
             minimizable: false,
@@ -14,26 +17,24 @@
             collapsable: false,
             modal:       true,
             buttons:     [{
+                // @todo: translate
                 text:  "OK",
                 click: function(e) {
-                    if(!options.hasOwnProperty('onSuccess') || options.onSuccess(e) !== false) {
-                        dialog.popupDialog('close');
-                    }
-                    return false;
+                    $(this).popupDialog('close');
+                    deferred.resolveWith(true);
                 }
             }, {
+                // @todo: translate
                 text:    "Abbrechen",
                 'class': 'critical',
                 click:   function(e) {
-                    if(!options.hasOwnProperty('onCancel') || options.onCancel(e) !== false) {
-                        dialog.popupDialog('close');
-                    }
-                    return false;
+                    $(this).popupDialog('close');
+                    deferred.reject();
                 }
             }]
         });
-        return dialog;
-    };
+        return deferred;
+    }
 
     /**
      * Escape HTML chars
@@ -301,13 +302,10 @@
                         // @todo: we have the schema here, why use bound data?
                         var schema = $(this).closest(".frame").data("schema");
                         if(self.currentPopup) {
-                            confirmDialog({
-                                html: Mapbender.trans('mb.data.store.confirm.close.edit.form'),
-                                onSuccess: function() {
-                                    self.currentPopup.popupDialog('close');
-                                    self.currentPopup = null;
-                                    self._getData(schema);
-                                }
+                            confirmDialog(Mapbender.trans('mb.data.store.confirm.close.edit.form')).then(function() {
+                                self.currentPopup.popupDialog('close');
+                                self.currentPopup = null;
+                                self._getData(schema);
                             });
                         } else {
                             self._getData(schema);
@@ -573,24 +571,18 @@
          *
          * @param {Object} schema
          * @param {Object} dataItem
-         * @version 0.2
-         * @returns {*}
          */
         removeData: function(schema, dataItem) {
             var widget = this;
-            confirmDialog({
-                html: Mapbender.trans('mb.data.store.remove.confirm.text'),
-                onSuccess: function() {
-                    widget.query('delete', {
-                        schema: schema.schemaName,
-                        // @todo: this default should be server provided
-                        id: (widget._getDataStoreFromSchema(schema).uniqueId || 'id')
-                    }).done(function(fid) {
-                        schema.remove(dataItem);
-                    });
-                }
+            confirmDialog(Mapbender.trans('mb.data.store.remove.confirm.text')).then(function() {
+                widget.query('delete', {
+                    schema: schema.schemaName,
+                    // @todo: this default should be server provided
+                    id: (widget._getDataStoreFromSchema(schema).uniqueId || 'id')
+                }).done(function() {
+                    schema.remove(dataItem);
+                });
             });
-            return dataItem;
         },
 
         /** @todo: rename; maybe redrawTable */
