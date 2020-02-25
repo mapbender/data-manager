@@ -104,23 +104,15 @@
                     newItems:   [],
                     popup: {},
                     frame:  frame,  // why?
-                    create: function(data) {
+                    create: function() {
                         var dataItem = {};
                         var schema = this;
-                        var table = $(schema.table);
-
-                        // create data with empty fields to get table work
-                        _.each(table.data("settings").columns, function(column) {
-                            if(!column.data) {
-                                return;
-                            }
-                            dataItem[column.data] = '';
+                        _.each(widget._getTableDataAttributes(schema), function(columnName) {
+                            dataItem[columnName] = '';
                         });
 
-                        data && _.extend(dataItem, data);
                         schema.dataItems.push(dataItem);
                         schema.newItems.push(dataItem);
-                        widget.reloadData(schema);
                         return dataItem;
                     },
                     save: function(dataItem) {
@@ -147,8 +139,6 @@
 
                 var table = widget._renderTable(schema);
                 // @todo: eliminate total transmutation of original schema property .table
-                // @todo: table should be rendered by _renderSchemaFrame, we only need it here because to break schema.table
-                schema.table = table;
                 schema.schemaName = schemaName;
 
                 frame.append(table);
@@ -196,7 +186,7 @@
             var $select = $('select.selector', this.element);
             var option = $('option:selected', $select);
             var schema = option.data("schema");
-            var table = schema.table;
+            var table = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', this.element);
             var tableApi = table.resultTable('getApi');
 
             this._activateSchema(schema);
@@ -252,9 +242,19 @@
         },
         /**
          * @param {Object} schema
+         * @return {Array<String>}
+         */
+        _getTableDataAttributes: function(schema) {
+            return (schema.table.columns || []).map(function(columnConfig) {
+                return columnConfig.data;
+            });
+        },
+        /**
+         * @param {Object} schema
          * @return {Array<Object>}
          * @see https://datatables.net/reference/option/columns
          * @private
+         * @todo Digitizer: table configuration is structurally incompatible, placed in attribute tableFields
          */
         _buildTableColumnsOptions: function(schema) {
             return (schema.table.columns || []).map(function(fieldSettings) {
@@ -300,10 +300,9 @@
             }, schema.table);
             settings.buttons = this._buildTableRowButtons(schema);
             settings.columns = this._buildTableColumnsOptions(schema);
-            var $table = $("<div/>").resultTable(settings);
-            // @todo: eliminate 'settings' data binding requirement, only used to inspect columns in runtime-extended schema
-            $table.data('settings', settings);
-            return $table;
+            var $tableWrap = $("<div/>").resultTable(settings);
+            $tableWrap.attr('data-schema-name', schema.schemaName);
+            return $tableWrap;
         },
         /**
          * @param {Object} schema
@@ -596,7 +595,8 @@
         },
 
         reloadData: function(schema) {
-            var tableApi = schema.table.resultTable('getApi');
+            var $tableWrap = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', this.element);
+            var tableApi = $tableWrap.resultTable('getApi');
             tableApi.clear();
             tableApi.rows.add(schema.dataItems);
             tableApi.draw();
