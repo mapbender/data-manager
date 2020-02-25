@@ -228,7 +228,9 @@ class DataManagerElement extends BaseElement
             } else {
                 $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $entityConfig['schemes'][$schemaName]);
                 if (!$raw) {
-                    $schemaConfig = $this->prepareSchemaConfig($schemaConfig);
+                    $schemaConfig = array_replace($this->prepareSchemaConfig($schemaConfig), array(
+                        'schemaName' => $schemaName,
+                    ));
                 }
             }
             if (!$raw || !$schemaConfig) {

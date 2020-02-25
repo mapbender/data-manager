@@ -101,7 +101,6 @@
 
                 // Improve schema with handling methods
                 _.extend(schema, {
-                    schemaName: schemaName,
                     popup: {},
                     frame:  frame,  // why?
                     remove:     function(dataItem) {
@@ -117,7 +116,6 @@
 
                 var table = widget._renderTable(schema);
                 // @todo: table should be rendered by _renderSchemaFrame, we only need it here because to break schema.table
-                schema.schemaName = schemaName;
 
                 frame.append(table);
                 frame.css('display','none');
