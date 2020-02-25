@@ -84,7 +84,6 @@
 
             // build select options
             _.each(options.schemes, function(schema, schemaName) {
-                var buttons = [];
                 var option = $("<option/>");
                 var frame =  $("<div/>")
                     .addClass('frame')
@@ -137,25 +136,6 @@
                     }
                 });
 
-                buttons.push({
-                    title: Mapbender.trans('mb.data.store.edit'),
-                    className: 'fa-edit',
-                    onClick:   function(dataItem, ui) {
-                        widget._openEditDialog(schema, dataItem);
-                    }
-                });
-
-                if(schema.allowDelete) {
-                    buttons.push({
-                        title: Mapbender.trans('mb.data.store.remove'),
-                        className: 'fa-times',
-                        cssClass:  'critical',
-                        onClick:   function(dataItem, ui) {
-                            widget.removeData(schema, dataItem);
-                        }
-                    });
-                }
-
                 option.val(schemaName).html(schema.label ? schema.label : schemaName);
 
 
@@ -183,7 +163,7 @@
                 }, schema.table);
 
                 // Merge buttons
-                resultTableSettings.buttons = resultTableSettings.buttons ? _.flatten(buttons, resultTableSettings.buttons) : buttons;
+                resultTableSettings.buttons = widget._buildTableRowButtons(schema);
 
                 var table = schema.table = $("<div/>").resultTable(resultTableSettings).data('settings', resultTableSettings);
                 schema.schemaName = schemaName;
@@ -307,6 +287,36 @@
             });
 
             this._getData(schema);
+        },
+        _buildTableRowButtons: function(schema) {
+            var buttons = [];
+            var self = this;
+            // @todo: surely this requires checking schema.allowEdit
+            buttons.push({
+                title: Mapbender.trans('mb.data.store.edit'),
+                className: 'fa-edit',
+                onClick:   function(dataItem, ui) {
+                    self._openEditDialog(schema, dataItem);
+                }
+            });
+
+            if(schema.allowDelete) {
+                buttons.push({
+                    title: Mapbender.trans('mb.data.store.remove'),
+                    className: 'fa-times',
+                    cssClass:  'critical',
+                    onClick:   function(dataItem, ui) {
+                        self.removeData(schema, dataItem);
+                    }
+                });
+            }
+            if (schema.table.buttons) {
+                // why flatten...?
+                // how exactly can the table configuration define row buttons?
+                return _.flatten(buttons, schema.table.buttons);
+            } else {
+                return buttons;
+            }
         },
         /**
          * @param {Object} schema
