@@ -138,34 +138,9 @@
 
                 option.val(schemaName).html(schema.label ? schema.label : schemaName);
 
-
-                if(schema.table.columns) {
-                    $.each(schema.table.columns, function(fieldId, fieldSettings) {
-                        var fieldName = fieldSettings.data;
-                        fieldSettings.fieldName = fieldName;
-                        fieldSettings.data = function(row, type, val, meta) {
-                            return row.hasOwnProperty(fieldName) ? escapeHtml('' + row[fieldName]) : '';
-                        };
-                    });
-                }
-
-                var resultTableSettings = _.extend({
-                    lengthChange: false,
-                    pageLength:   20,
-                    searching:    true,
-                    info:         true,
-                    processing:   false,
-                    ordering:     true,
-                    paging:       true,
-                    selectable:   false,
-                    oLanguage: options.tableTranslation || {},
-                    autoWidth:    false
-                }, schema.table);
-
-                // Merge buttons
-                resultTableSettings.buttons = widget._buildTableRowButtons(schema);
-
-                var table = schema.table = $("<div/>").resultTable(resultTableSettings).data('settings', resultTableSettings);
+                var table = widget._renderTable(schema);
+                // @todo: eliminate total transmutation of original schema property .table
+                schema.table = table;
                 schema.schemaName = schemaName;
 
                 var toolBarButtons = [];
@@ -317,6 +292,48 @@
             } else {
                 return buttons;
             }
+        },
+        /**
+         * @param {Object} schema
+         * @return {Array<Object>}
+         * @see https://datatables.net/reference/option/columns
+         * @private
+         */
+        _buildTableColumnsOptions: function(schema) {
+            return (schema.table.columns || []).map(function(fieldSettings) {
+                return $.extend({}, fieldSettings, {
+                    fieldName: fieldSettings.data,  // why?
+                    // why? this is a .render customization, not a .data customization
+                    data: function(row, type, val, meta) {
+                        return row.hasOwnProperty(fieldSettings.data) ? escapeHtml('' + row[fieldSettings.data]) : '';
+                    }
+                });
+            });
+        },
+        /**
+         * @param {Object} schema
+         * @return {jQuery}
+         * @private
+         */
+        _renderTable: function(schema) {
+            var settings = _.extend({
+                lengthChange: false,
+                pageLength:   20,
+                searching:    true,
+                info:         true,
+                processing:   false,
+                ordering:     true,
+                paging:       true,
+                selectable:   false,
+                oLanguage: this.options.tableTranslation || {},
+                autoWidth:    false
+            }, schema.table);
+            settings.buttons = this._buildTableRowButtons(schema);
+            settings.columns = this._buildTableColumnsOptions(schema);
+            var $table = $("<div/>").resultTable(settings);
+            // @todo: eliminate 'settings' data binding requirement, only used to inspect columns in runtime-extended schema
+            $table.data('settings', settings);
+            return $table;
         },
         /**
          * @param {Object} schema
