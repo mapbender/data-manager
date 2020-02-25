@@ -345,17 +345,7 @@
                 dataItem: dataItem
             }).then(function(response) {
                 _.extend(dataItem, response.dataItem);
-                $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
-                if (!id) {
-                    schema.dataItems.push(dataItem);
-                }
-                self.reloadData(schema);
-                self.element.trigger('data.manager.item.saved',{
-                    item: dataItem,
-                    uniqueIdKey: self._getDataStoreFromSchema(schema).uniqueId, // why?
-                    scheme: schema.schemaName,
-                    originator: self
-                });
+                self._afterSave(schema, dataItem, id);
             }, function(jqXHR, textStatus, errorThrown) {
                 var message = (jqXHR.responseJSON || {}).message || 'API error';
                 console.error(message, textStatus, errorThrown, jqXHR);
@@ -364,6 +354,33 @@
                     autoHide:  false,
                     className: 'error'
                 });
+            });
+        },
+        /**
+         * @param {Object} schema
+         * @param {Object} dataItem
+         * @param {String|null} originalId
+         * @private
+         */
+        _afterSave: function(schema, dataItem, originalId) {
+            // @todo: this default should be server provided
+            var uniqueIdKey = this._getDataStoreFromSchema(schema).uniqueId || 'id';
+            var id = dataItem[uniqueIdKey];
+            if (!originalId) {
+                // new item
+                schema.dataItems.push(dataItem);
+            }
+            this.reloadData(schema);
+            $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
+            this.element.trigger('data.manager.item.saved', {
+                item: dataItem,
+                itemId: id,
+                originalId: originalId,     // may be null
+                uniqueIdKey: uniqueIdKey,
+                schema: schema,             // Object
+                schemaName: schema.schemaName,
+                scheme: schema.schemaName,  // ambiguous legacy alias for schemaName
+                originator: this            // sending widget instance
             });
         },
         /**
