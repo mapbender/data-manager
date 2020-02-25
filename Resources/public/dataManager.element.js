@@ -115,7 +115,7 @@
                 });
 
                 var table = widget._renderTable(schema);
-                // @todo: eliminate total transmutation of original schema property .table
+                // @todo: table should be rendered by _renderSchemaFrame, we only need it here because to break schema.table
                 schema.schemaName = schemaName;
 
                 frame.append(table);
@@ -146,8 +146,7 @@
                 this._deactivateSchema(this.currentSettings);
                 this.currentSettings = null;
             }
-            // @todo: decide on one property
-            this.activeSchema = this.currentSettings = schema;
+            this.currentSettings = schema;
             frame.css('display', 'block');
         },
         _deactivateSchema: function(schema) {
@@ -406,13 +405,12 @@
          * Open edit feature dialog
          *
          * @param {Object} schema
-         * @param dataItem open layer feature
+         * @param {Object} dataItem
          * @private
          */
         _openEditDialog: function(schema, dataItem) {
             var widget = this;
             var buttons = [];
-            var dataStore = this._getDataStoreFromSchema(schema);
 
             if(widget.currentPopup) {
                 widget.currentPopup.popupDialog('close');
@@ -508,9 +506,12 @@
             }
             switch (item.type) {
                 case 'file':
+                    // @todo: cannot upload file properly to new data item (no id to target); disable file inputs, or use proper forms
+                    // @todo: cannot use fid in DataManager (fid seems like a Digitizer-specific thing)
                     itemOut = itemOut || $.extend({}, item);
                     itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + dataItem.fid + "&field=" + item.name;
-                    if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
+                    // @todo: form inputs without a name attribute should be an error condition
+                    if (item.name && dataItem[item.name]) {
                         itemOut.dbSrc = dataItem[item.name];
                         // @todo: figure out who even populates this value (not data source, not data manager)
                         files = this._getDataStoreFromSchema(schema).files || [];
@@ -528,7 +529,7 @@
                     if(!item.origSrc) {
                         itemOut.origSrc = item.src; //why?
                     }
-                    if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
+                    if (item.hasOwnProperty("name") && dataItem[item.name]) {
                         itemOut.dbSrc = dataItem[item.name]; // why?
                         // @todo: figure out who even populates this value (not data source, not data manager)
                         files = this._getDataStoreFromSchema(schema).files || [];
