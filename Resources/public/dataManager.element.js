@@ -245,36 +245,12 @@
                 selector.append(option);
             });
 
-            function onSelectorChange() {
-                var option = selector.find(":selected");
-                var schema = option.data("schema");
-                var table = schema.table;
-                var tableApi = table.resultTable('getApi');
-
-                widget._activateSchema(schema);
-
-                table.off('mouseenter', 'mouseleave', 'click');
-                table.delegate("tbody > tr", 'mouseenter', function() {
-                    var tr = this;
-                    var row = tableApi.row(tr);
-                });
-                table.delegate("tbody > tr", 'mouseleave', function() {
-                    var tr = this;
-                    var row = tableApi.row(tr);
-                });
-                table.delegate("tbody > tr", 'click', function() {
-                    var tr = this;
-                    var row = tableApi.row(tr);
-                });
-
-                widget._getData(schema);
-            }
-
-            selector.on('change',onSelectorChange);
+            selector.on('change', function() {
+                widget._onSchemaSelectorChange();
+            });
 
             widget._trigger('ready');
-
-            onSelectorChange();
+            selector.trigger('change');
         },
         /**
          * @todo Digitizer: use .featureType attribute instead of .dataStore (otherwise equivalent)
@@ -303,6 +279,34 @@
                 this.currentPopup.popupDialog('close');
                 this.currentPopup = null;
             }
+        },
+        _onSchemaSelectorChange: function() {
+            var $select = $('select.selector', this.element);
+            var option = $('option:selected', $select);
+            var schema = option.data("schema");
+            var table = schema.table;
+            var tableApi = table.resultTable('getApi');
+
+            this._activateSchema(schema);
+
+            // why?
+            table.off('mouseenter', 'mouseleave', 'click');
+
+            // why?
+            table.delegate("tbody > tr", 'mouseenter', function() {
+                var tr = this;
+                var row = tableApi.row(tr);
+            });
+            table.delegate("tbody > tr", 'mouseleave', function() {
+                var tr = this;
+                var row = tableApi.row(tr);
+            });
+            table.delegate("tbody > tr", 'click', function() {
+                var tr = this;
+                var row = tableApi.row(tr);
+            });
+
+            this._getData(schema);
         },
         /**
          * @param {Object} schema
