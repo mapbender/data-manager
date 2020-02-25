@@ -85,16 +85,14 @@
             // build select options
             _.each(options.schemes, function(schema, schemaName) {
                 var option = $("<option/>");
-                var frame =  $("<div/>")
-                    .addClass('frame')
-                    .data("schema", schema);
+                var frame = widget._renderSchemaFrame(schema);
 
                 // Improve schema with handling methods
                 _.extend(schema, {
                     schemaName: schemaName,
                     newItems:   [],
                     popup: {},
-                    frame:  frame,
+                    frame:  frame,  // why?
                     create: function(data) {
                         var dataItem = {};
                         var schema = this;
@@ -140,56 +138,10 @@
 
                 var table = widget._renderTable(schema);
                 // @todo: eliminate total transmutation of original schema property .table
+                // @todo: table should be rendered by _renderSchemaFrame, we only need it here because to break schema.table
                 schema.table = table;
                 schema.schemaName = schemaName;
 
-                var toolBarButtons = [];
-                if(schema.allowRefresh) {
-                    toolBarButtons.push({
-                        type:     "button",
-                        title: Mapbender.trans('mb.data.store.create'),
-                        cssClass: "fa-refresh",
-                        click:    function(e) {
-                            var schema = $(this).closest(".frame").data("schema");
-                            if(widget.currentPopup) {
-                                confirmDialog({
-                                    html: Mapbender.trans('mb.data.store.confirm.close.edit.form'),
-                                    onSuccess: function() {
-                                        widget.currentPopup.popupDialog('close');
-                                        widget.currentPopup = null;
-                                        widget._getData(schema);
-                                    }
-                                });
-                            } else {
-                                widget._getData(schema);
-                            }
-                            e.preventDefault();
-                            return false;
-                        }
-                    });
-                }
-
-                if(schema.allowCreate) {
-                    toolBarButtons.push({
-                        type:     "button",
-                        title: Mapbender.trans('mb.data.store.create'),
-                        cssClass: "fa-plus",
-                        click: function(e) {
-                            var schema = $(this).closest(".frame").data("schema");
-                            widget._openEditDialog(schema, schema.create());
-                            e.preventDefault();
-                            return false;
-                        }
-                    })
-                }
-
-                frame.generateElements({
-                    children: [{
-                        type:     'fieldSet',
-                        children: toolBarButtons,
-                        cssClass: 'toolbar'
-                    }]
-                });
                 frame.append(table);
                 frames.push(frame);
 
@@ -347,6 +299,69 @@
             // @todo: eliminate 'settings' data binding requirement, only used to inspect columns in runtime-extended schema
             $table.data('settings', settings);
             return $table;
+        },
+        /**
+         * @param {Object} schema
+         * @return {jQuery}
+         * @private
+         */
+        _renderSchemaFrame: function(schema) {
+            var self = this;
+            var frame =  $("<div/>")
+                .addClass('frame')
+                .data("schema", schema)
+            ;
+            var toolBarButtons = [];
+            if(schema.allowRefresh) {       // how?
+                toolBarButtons.push({
+                    type:     "button",
+                    title: Mapbender.trans('mb.data.store.create'),
+                    cssClass: "fa-refresh",
+                    click:    function(e) {
+                        // @todo: we have the schema here, why use bound data?
+                        var schema = $(this).closest(".frame").data("schema");
+                        if(self.currentPopup) {
+                            confirmDialog({
+                                html: Mapbender.trans('mb.data.store.confirm.close.edit.form'),
+                                onSuccess: function() {
+                                    self.currentPopup.popupDialog('close');
+                                    self.currentPopup = null;
+                                    self._getData(schema);
+                                }
+                            });
+                        } else {
+                            self._getData(schema);
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+
+            if(schema.allowCreate) {
+                toolBarButtons.push({
+                    type:     "button",
+                    title: Mapbender.trans('mb.data.store.create'),
+                    cssClass: "fa-plus",
+                    click: function(e) {
+                        // @todo: we have the schema here, why use bound data?
+                        var schema = $(this).closest(".frame").data("schema");
+                        self._openEditDialog(schema, schema.create());
+                        e.preventDefault();
+                        return false;
+                    }
+                })
+            }
+
+            /** @todo: this is simple enough to do it without vis-ui */
+            frame.generateElements({
+                children: [{
+                    type:     'fieldSet',
+                    children: toolBarButtons,
+                    cssClass: 'toolbar'
+                }]
+            });
+            return frame;
         },
         /**
          * @param {Object} schema
