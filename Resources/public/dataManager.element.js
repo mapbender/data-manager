@@ -480,53 +480,6 @@
             });
             var dialog = $("<div/>");
 
-            DataUtil.eachItem(widget.currentSettings.formItems, function(item) {
-                if(item.type == "file") {
-                    item.uploadHanderUrl = widget.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + dataItem.fid + "&field=" + item.name;
-                    if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
-                        item.dbSrc = dataItem[item.name];
-                        if (dataStore.files) {
-                            $.each(dataStore.files, function(k, fileInfo) {
-                                if(fileInfo.field && fileInfo.field == item.name) {
-                                    if(fileInfo.formats) {
-                                        item.accept = fileInfo.formats;
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                }
-
-                if(item.type == 'image') {
-
-                    if(!item.origSrc) {
-                        item.origSrc = item.src;
-                    }
-
-                    if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
-                        item.dbSrc = dataItem[item.name];
-                        if(dataStore.files) {
-                            $.each(dataStore.files, function(k, fileInfo) {
-                                if(fileInfo.field && fileInfo.field == item.name) {
-
-                                    if(fileInfo.uri) {
-                                        item.dbSrc = fileInfo.uri + "/" + item.dbSrc;
-                                    } else {
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                    var src = item.dbSrc ? item.dbSrc : item.origSrc;
-                    if(item.relative) {
-                        item.src = src.match(/^(http[s]?\:|\/{2})/) ? src : Mapbender.configuration.application.urls.asset + src;
-                    } else {
-                        item.src = src;
-                    }
-                }
-            });
             if(schema.popup.buttons ){
                 buttons =_.union(schema.popup.buttons , buttons);
             }
@@ -537,7 +490,10 @@
 
             popupConfig.buttons = buttons;
 
-            dialog.generateElements({children: widget.currentSettings.formItems});
+            var formItems = widget.currentSettings.formItems.map(function(item) {
+                return widget._processFormItem(schema, item, dataItem);
+            });
+            dialog.generateElements({children: formItems});
             dialog.popupDialog(popupConfig);
             dialog.addClass("data-manager-edit-data");
             widget.currentPopup = dialog;
@@ -548,7 +504,72 @@
 
             return dialog;
         },
-
+        /**
+         * Preprocess form items from schema before passing off to vis-ui
+         * @param {Object} schema
+         * @param {Object} item
+         * @param {Object} dataItem
+         * @return {Object}
+         * @private
+         * @todo: this could also be a postprocess on the finished form
+         */
+        _processFormItem: function(schema, item, dataItem) {
+            // shallow copy only. Sub-attributes that need patching will be replaced recursively anyway.
+            var itemOut;
+            var self = this;
+            var files;
+            if (item.children && item.children.length) {
+                itemOut = $.extend({}, item, {
+                    children: item.children.map(function(ch) {
+                        return self._processFormItem(schema, ch, dataItem);
+                    })
+                });
+            }
+            switch (item.type) {
+                case 'file':
+                    itemOut = itemOut || $.extend({}, item);
+                    itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + dataItem.fid + "&field=" + item.name;
+                    if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
+                        itemOut.dbSrc = dataItem[item.name];
+                        // @todo: figure out who even populates this value (not data source, not data manager)
+                        files = this._getDataStoreFromSchema(schema).files || [];
+                        $.each(files, function(k, fileInfo) {
+                            if(fileInfo.field && fileInfo.field == item.name) {
+                                if(fileInfo.formats) {
+                                    itemOut.accept = fileInfo.formats;
+                                }
+                            }
+                        });
+                    }
+                    break;
+                case 'image':
+                    itemOut = itemOut || $.extend({}, item);
+                    if(!item.origSrc) {
+                        itemOut.origSrc = item.src; //why?
+                    }
+                    if(item.hasOwnProperty("name") && dataItem.hasOwnProperty(item.name) && dataItem[item.name]) {
+                        itemOut.dbSrc = dataItem[item.name]; // why?
+                        // @todo: figure out who even populates this value (not data source, not data manager)
+                        files = this._getDataStoreFromSchema(schema).files || [];
+                        $.each(files, function(k, fileInfo) {
+                            if(fileInfo.field && fileInfo.field == item.name) {
+                                if(fileInfo.uri) {
+                                    itemOut.dbSrc = fileInfo.uri + "/" + itemOut.dbSrc;
+                                }
+                            }
+                        });
+                    }
+                    var src = itemOut.dbSrc || itemOut.origSrc || item.src;
+                    if(item.relative) {
+                        // why do we support a distinct 'relative' image type if this means supporting both absolute and relative?
+                        itemOut.src = src.match(/^(http[s]?\:|\/{2})/) ? src : Mapbender.configuration.application.urls.asset + src;
+                    } else {
+                        itemOut.src = src;
+                    }
+                    break;
+            }
+            return itemOut || item;
+        },
         /**
          * Getdata
          *
