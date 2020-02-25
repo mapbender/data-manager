@@ -245,34 +245,13 @@
                 selector.append(option);
             });
 
-            function deactivateFrame(schema) {
-                var frame = schema.frame;
-                frame.css('display', 'none');
-                if(widget.currentPopup){
-                    widget.currentPopup.popupDialog('close');
-                    widget.currentPopup = null;
-
-                }
-                //tableApi.clear();
-            }
-
-            function activateFrame(schema) {
-                var frame = schema.frame;
-                widget.activeSchema = widget.currentSettings = schema;
-                frame.css('display', 'block');
-            }
-
             function onSelectorChange() {
                 var option = selector.find(":selected");
                 var schema = option.data("schema");
                 var table = schema.table;
                 var tableApi = table.resultTable('getApi');
 
-                if(widget.currentSettings) {
-                    deactivateFrame(widget.currentSettings);
-                }
-
-                activateFrame(schema);
+                widget._activateSchema(schema);
 
                 table.off('mouseenter', 'mouseleave', 'click');
                 table.delegate("tbody > tr", 'mouseenter', function() {
@@ -304,6 +283,26 @@
          */
         _getDataStoreFromSchema: function(schema) {
             return schema.dataStore;
+        },
+        _activateSchema: function(schema) {
+            // @todo: remove monkey-patched frame property on schema
+            var frame = schema.frame;
+            if (this.currentSettings) {
+                this._deactivateSchema(this.currentSettings);
+                this.currentSettings = null;
+            }
+            // @todo: decide on one property
+            this.activeSchema = this.currentSettings = schema;
+            frame.css('display', 'block');
+        },
+        _deactivateSchema: function(schema) {
+            // @todo: remove monkey-patched frame property on schema
+            var frame = schema.frame;
+            frame.css('display', 'none');
+            if (this.currentPopup){
+                this.currentPopup.popupDialog('close');
+                this.currentPopup = null;
+            }
         },
         /**
          * @param {Object} schema
