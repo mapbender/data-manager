@@ -303,9 +303,22 @@
             return (schema.table.columns || []).map(function(fieldSettings) {
                 return $.extend({}, fieldSettings, {
                     fieldName: fieldSettings.data,  // why?
-                    // why? this is a .render customization, not a .data customization
-                    data: function(row, type, val, meta) {
-                        return row.hasOwnProperty(fieldSettings.data) ? escapeHtml('' + row[fieldSettings.data]) : '';
+                    render: function(data, type, row, meta) {
+                        switch (type) {
+                            case 'sort':
+                            case 'type':
+                            default:
+                                return row[fieldSettings.data];
+                            case 'filter':
+                                return ('' + row[fieldSettings.data]) || undefined;
+                            case 'display':
+                                return escapeHtml('' + row[fieldSettings.data]);
+                        }
+                        if (typeof this[fieldSettings.data] !== 'undefined') {
+                            return escapeHtml('' + this[fieldSettings.data]);
+                        } else {
+                            return '';
+                        }
                     }
                 });
             });
