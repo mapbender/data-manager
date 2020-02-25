@@ -102,16 +102,7 @@
                 // Improve schema with handling methods
                 _.extend(schema, {
                     popup: {},
-                    frame:  frame,  // why?
-                    remove:     function(dataItem) {
-                        this.dataItems = _.without(this.dataItems, dataItem);
-                        widget.reloadData(this);
-                        widget._trigger('removed', null, {
-                            schema:  this,
-                            feature: dataItem
-                        });
-                        $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info')
-                    }
+                    frame:  frame  // why?
                 });
 
                 var table = widget._renderTable(schema);
@@ -572,17 +563,51 @@
          */
         removeData: function(schema, dataItem) {
             var widget = this;
+            // @todo: this default should be server provided
+            var idPropertyName = this._getDataStoreFromSchema(schema).uniqueId || 'id';
+            var id = dataItem[idPropertyName];
+            if (!id) {
+                throw new Error("Can't delete item without id from server");
+            }
             confirmDialog(Mapbender.trans('mb.data.store.remove.confirm.text')).then(function() {
                 widget.query('delete', {
                     schema: schema.schemaName,
-                    // @todo: this default should be server provided
-                    id: (widget._getDataStoreFromSchema(schema).uniqueId || 'id')
+                    id: id
                 }).done(function() {
-                    schema.remove(dataItem);
+                    widget._afterRemove(schema, dataItem, id);
                 });
             });
         },
-
+        /**
+         * Called after item has been deleted from the server
+         *
+         * @param {Object} schema
+         * @param {Object} dataItem
+         * @param {String} id
+         * @private
+         */
+        _afterRemove: function(schema, dataItem, id) {
+            schema.dataItems = _.without(schema.dataItems, dataItem);
+            this.reloadData(schema);
+            // Quirky jquery ui event. Triggers a 'mbatamanagerremove' on this.element. Limited legacy data payload.
+            this._trigger('removed', null, {
+                schema: schema,
+                feature: dataItem
+            });
+            // Listeners should prefer data.manager.deleted because a) it is much easier to search for non-magic, explicit
+            // event names in project code; b) it contains more data
+            this.element.trigger('data.manager.deleted', {
+                schema: schema,
+                schemaName: schema.schemaName,
+                item: dataItem,
+                // Digitizer / bc amenity
+                feature: dataItem,
+                itemId: id,
+                // sending widget instance
+                originator: this
+            });
+            $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info');
+        },
         /** @todo: rename; maybe redrawTable */
         reloadData: function(schema) {
             var $tableWrap = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', this.element);
