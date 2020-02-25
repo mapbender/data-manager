@@ -67,20 +67,27 @@
         _create: function() {
             var widget = this;
             var element = widget.element;
-            var frames = widget.frames = [];
             var selector = widget.selector = $('<select class="selector"/>');
+            if ((typeof this.options.schemes !== 'object') || $.isArray(this.options.schemes)) {
+                throw new Error("Invalid type for schemes configuration " + (typeof this.options.schemes));
+            }
+            if (!Object.keys(this.options.schemes).length) {
+                throw new Error("Missing schemes configuration");
+            }
+
             var options = widget.options;
             var hasOnlyOneScheme = widget.hasOnlyOneScheme = _.size(options.schemes) === 1;
             widget.elementUrl = Mapbender.configuration.application.urls.element + '/' + element.attr('id') + '/';
 
-            if(hasOnlyOneScheme) {
-                var title = _.propertyOf(_.first(_.toArray(options.schemes)))("title");
+            if (hasOnlyOneScheme) {
+                var singleScheme = _.first(_.toArray(this.options.schemes));
+                var title = singleScheme.title || singleScheme.label || singleScheme.schemaName;
                 if(title) {
                     element.append($('<div class="title"/>').html(title));
                 }
-            } else {
-                element.append(selector);
+                selector.hide();
             }
+            element.append(selector);
 
             // build select options
             _.each(options.schemes, function(schema, schemaName) {
@@ -143,8 +150,6 @@
                 schema.schemaName = schemaName;
 
                 frame.append(table);
-                frames.push(frame);
-
                 frame.css('display','none');
 
                 element.append(frame);
