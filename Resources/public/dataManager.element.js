@@ -114,12 +114,15 @@
                 element.append(frame);
             });
 
-            selector.on('change', function() {
-                widget._onSchemaSelectorChange();
-            });
-
+            this._initializeEvents();
             widget._trigger('ready');
             selector.trigger('change');
+        },
+        _initializeEvents: function() {
+            var self = this;
+            $('select.selector', this.element).on('change', function() {
+                self._onSchemaSelectorChange();
+            });
         },
         /**
          * @todo Digitizer: use .featureType attribute instead of .dataStore (otherwise equivalent)
