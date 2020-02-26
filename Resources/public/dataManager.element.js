@@ -155,28 +155,7 @@
             var $select = $('select.selector', this.element);
             var option = $('option:selected', $select);
             var schema = option.data("schema");
-            var table = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', this.element);
-            var tableApi = table.resultTable('getApi');
-
             this._activateSchema(schema);
-
-            // why?
-            table.off('mouseenter', 'mouseleave', 'click');
-
-            // why?
-            table.delegate("tbody > tr", 'mouseenter', function() {
-                var tr = this;
-                var row = tableApi.row(tr);
-            });
-            table.delegate("tbody > tr", 'mouseleave', function() {
-                var tr = this;
-                var row = tableApi.row(tr);
-            });
-            table.delegate("tbody > tr", 'click', function() {
-                var tr = this;
-                var row = tableApi.row(tr);
-            });
-
             this._getData(schema);
         },
         _buildTableRowButtons: function(schema) {
