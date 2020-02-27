@@ -138,7 +138,6 @@
 
                 // Improve schema with handling methods
                 _.extend(schema, {
-                    popup: {},
                     frame:  frame  // why?
                 });
 
@@ -522,10 +521,8 @@
                     widget._closeCurrentPopup();
                 }
             });
+            // @todo Digitizer: add custom schema buttons...?
 
-            if (schema.popup.buttons ){
-                buttons =_.union(schema.popup.buttons , buttons);
-            }
             return buttons;
         },
 
