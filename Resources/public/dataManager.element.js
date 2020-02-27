@@ -165,6 +165,12 @@
         _getDataStoreFromSchema: function(schema) {
             return schema.dataStore;
         },
+        _closeCurrentPopup: function() {
+            if (this.currentPopup){
+                this.currentPopup.popupDialog('destroy');
+                this.currentPopup = null;
+            }
+        },
         /**
          * @param {DataManagerSchemaConfig} schema
          * @private
@@ -187,10 +193,7 @@
             // @todo: remove monkey-patched frame property on schema
             var frame = schema.frame;
             frame.css('display', 'none');
-            if (this.currentPopup){
-                this.currentPopup.popupDialog('close');
-                this.currentPopup = null;
-            }
+            this._closeCurrentPopup();
         },
         _onSchemaSelectorChange: function() {
             var $select = $('select.selector', this.element);
@@ -311,8 +314,7 @@
                         var schema = $(this).closest(".frame").data("schema");
                         if(self.currentPopup) {
                             confirmDialog(Mapbender.trans('mb.data.store.confirm.close.edit.form')).then(function() {
-                                self.currentPopup.popupDialog('close');
-                                self.currentPopup = null;
+                                self._closeCurrentPopup();
                                 self._getData(schema);
                             });
                         } else {
@@ -440,11 +442,7 @@
          */
         _openEditDialog: function(schema, dataItem) {
             var widget = this;
-
-            if(widget.currentPopup) {
-                widget.currentPopup.popupDialog('destroy');
-                widget.currentPopup = null;
-            }
+            this._closeCurrentPopup();
 
             var dialog = $("<div/>");
             var popupConfig = _.extend({
@@ -490,8 +488,7 @@
                         };
                         if (saved) {
                             saved.then(function() {
-                                widget.currentPopup.popupDialog('destroy');
-                                widget.currentPopup = null;
+                                widget._closeCurrentPopup();
                             }, onFail);
                         } else {
                             onFail();
@@ -505,17 +502,15 @@
                     text: Mapbender.trans('mb.data.store.remove'),
                     'class': 'critical',
                     click: function() {
+                        widget._closeCurrentPopup();
                         widget.removeData(schema, dataItem);
-                        widget.currentPopup.popupDialog('close');
-                        widget.currentPopup = null;
                     }
                 });
             }
             buttons.push({
                 text: Mapbender.trans('mb.data.store.cancel'),
                 click: function() {
-                    widget.currentPopup.popupDialog('close');
-                    widget.currentPopup = null;
+                    widget._closeCurrentPopup();
                 }
             });
 
