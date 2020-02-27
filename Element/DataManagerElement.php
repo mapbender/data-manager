@@ -162,13 +162,14 @@ class DataManagerElement extends BaseElement
                 if (!$schemaConfig['allowEdit']) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
-
-                $uniqueIdKey = $dataStore->getDriver()->getUniqueId();
-                if (empty($requestData['dataItem'][$uniqueIdKey])) {
-                    unset($requestData['dataItem'][$uniqueIdKey]);
+                if ($itemId = $request->query->get('id', null)) {
+                    // update existing item
+                    $dataItem = $dataStore->getById($itemId);
+                    $dataItem->setAttributes($requestData['dataItem']);
+                } else {
+                    // store new item
+                    $dataItem = $dataStore->create($requestData['dataItem']);
                 }
-
-                $dataItem = $dataStore->create($requestData['dataItem']);
                 return new JsonResponse(array(
                     'dataItem' => $dataStore->save($dataItem)->toArray(),
                 ));

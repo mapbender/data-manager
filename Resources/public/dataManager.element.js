@@ -357,7 +357,7 @@
         _saveItem: function(schema, id, dataItem) {
             var self = this;
             // todo: never post object ids with object data; put the id in the url
-            return this.query('save', {
+            return this.query('save' + (id && ('?id=' + id)), {
                 schema:   schema.schemaName,
                 dataItem: dataItem
             }).then(function(response) {
