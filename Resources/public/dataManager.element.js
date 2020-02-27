@@ -356,9 +356,13 @@
          */
         _saveItem: function(schema, id, dataItem) {
             var self = this;
-            // todo: never post object ids with object data; put the id in the url
-            return this.query('save' + (id && ('?id=' + id)), {
-                schema:   schema.schemaName,
+            var params = {
+                schema: schema.schemaName
+            };
+            if (id) {
+                params.id = id;
+            }
+            return this.postJSON('save?' + $.param(params), {
                 dataItem: dataItem
             }).then(function(response) {
                 _.extend(dataItem, response.dataItem);
@@ -581,9 +585,8 @@
          */
         _getData: function(schema) {
             var widget = this;
-            return widget.query('select', {
-                maxResults: schema.maxResults,
-                schema:     schema.schemaName
+            return this.getJSON('select', {
+                    schema: schema.schemaName
             }).done(function(dataItems) {
                 schema.dataItems = dataItems;
                 widget.redrawTable(schema);
@@ -605,9 +608,12 @@
                 throw new Error("Can't delete item without id from server");
             }
             confirmDialog(Mapbender.trans('mb.data.store.remove.confirm.text')).then(function() {
-                widget.query('delete', {
+                var params ={
                     schema: schema.schemaName,
                     id: id
+                };
+                widget.postJSON('delete?' + $.param(params), null, {
+                    method: 'DELETE'
                 }).done(function() {
                     widget._afterRemove(schema, dataItem, id);
                 });
@@ -653,28 +659,32 @@
             tableApi.rows.add(schema.dataItems);
             tableApi.draw();
         },
-
         /**
-         * Query API
-         *
-         * @param uri suffix
-         * @param request query
-         * @return xhr jQuery XHR object
-         * @version 0.2
+         * @param {String} uri
+         * @param {Object} [data]
+         * @return {jQuery.Deferred}
          */
-        query: function(uri, request) {
-            var widget = this;
-            return $.ajax({
-                url:         widget.elementUrl + uri,
-                type:        'POST',
-                contentType: "application/json; charset=utf-8",
-                dataType:    "json",
-                data:        JSON.stringify(request)
-            }).error(function(xhr) {
-                var errorMessage = Mapbender.trans('mb.data.store.api.query.error-message');
-                $.notify(errorMessage + JSON.stringify(xhr.responseText));
-                console.log(errorMessage, xhr);
-            });
+        getJSON: function(uri, data) {
+            var url = this.elementUrl + uri;
+            return $.getJSON(url, data).fail(this._onAjaxError);
+        },
+        postJSON: function(uri, data, options) {
+            var options_ = {
+                url: this.elementUrl + uri,
+                method: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json'
+            };
+            _.extend(options_, options || {});
+            if (data && !options_.data) {
+                options_.data = JSON.stringify(data);
+            }
+            return $.ajax(options_).fail(this._onAjaxError);
+        },
+        _onAjaxError: function(xhr) {
+            var errorMessage = Mapbender.trans('mb.data.store.api.query.error-message');
+            $.notify(errorMessage + JSON.stringify(xhr.responseText));
+            console.log(errorMessage, xhr);
         }
     });
 

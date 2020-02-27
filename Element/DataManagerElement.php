@@ -134,8 +134,8 @@ class DataManagerElement extends BaseElement
     public function handleHttpRequest(Request $request)
     {
         $action = $request->attributes->get('action');
-        $requestData = json_decode($request->getContent(), true);
-        $schemaName = isset($requestData["schema"]) ? $requestData["schema"] : $request->get("schema");
+        $schemaName = $request->query->get('schema');
+
         // @todo: avoid full collateral formItem preparation overhead if all we need is a resolved dataStore config
         $schemaConfig = $this->getSchemaConfig($schemaName, true);
         if (!$schemaConfig) {
@@ -150,11 +150,10 @@ class DataManagerElement extends BaseElement
         switch ($action) {
             case 'select':
                 $results = array();
-                $defaultCriteria = array(
-                    'returnType' => 'FeatureCollection',
+                $criteria = array(
                     'maxResults' => $schemaConfig['maxResults'],
                 );
-                foreach ($dataStore->search(array_merge($defaultCriteria, $requestData)) as $dataItem) {
+                foreach ($dataStore->search($criteria) as $dataItem) {
                     $results[] = $dataItem->toArray();
                 }
                 return new JsonResponse($results);
@@ -162,6 +161,7 @@ class DataManagerElement extends BaseElement
                 if (!$schemaConfig['allowEdit']) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
+                $requestData = json_decode($request->getContent(), true);
                 if ($itemId = $request->query->get('id', null)) {
                     // update existing item
                     $dataItem = $dataStore->getById($itemId);
@@ -177,7 +177,7 @@ class DataManagerElement extends BaseElement
                 if (!$schemaConfig['allowEdit']) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
-                $id = intval($requestData['id']);
+                $id = $request->query->get('id');
                 return new JsonResponse($dataStore->remove($id));
             case 'file-upload':
                 if (!$schemaConfig['allowEdit']) {
