@@ -447,16 +447,16 @@
                         var $form = $(this).closest('.ui-dialog-content');
                         $form.disableForm();
                         var saved = widget._submitFormData(schema, $form, dataItem);
-                        var always_ = function() {
+                        var onFail = function() {
                             $form.enableForm()
                         };
                         if (saved) {
                             saved.then(function() {
-                                widget.currentPopup.popupDialog('close');
+                                widget.currentPopup.popupDialog('destroy');
                                 widget.currentPopup = null;
-                            }).always(always_);
+                            }, onFail);
                         } else {
-                            always_();
+                            onFail();
                         }
                     }
                 };
