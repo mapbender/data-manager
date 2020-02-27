@@ -411,6 +411,7 @@
         _submitFormData: function(schema, $form, dataItem) {
             var formData = $form.formData();
             if (!$(".has-error", $form).length) {
+                $form.disableForm();
                 var uniqueIdAttribute = this._getDataStoreFromSchema(schema).uniqueId;
                 var uniqueId = (dataItem && dataItem[uniqueIdAttribute]) || null;
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
@@ -418,7 +419,11 @@
                 }
                 delete formData[uniqueIdAttribute];
                 _.extend(dataItem, formData);
-                return this._saveItem(schema, uniqueId, formData);
+                return this._saveItem(schema, uniqueId, formData)
+                    .always(function() {
+                        $form.enableForm();
+                    })
+                ;
             } else {
                 return false;
             }
@@ -480,17 +485,11 @@
                     text: Mapbender.trans('mb.data.store.save'),
                     click: function() {
                         var $form = $(this).closest('.ui-dialog-content');
-                        $form.disableForm();
                         var saved = widget._submitFormData(schema, $form, dataItem);
-                        var onFail = function() {
-                            $form.enableForm()
-                        };
                         if (saved) {
                             saved.then(function() {
                                 widget._closeCurrentPopup();
-                            }, onFail);
-                        } else {
-                            onFail();
+                            });
                         }
                     }
                 };
