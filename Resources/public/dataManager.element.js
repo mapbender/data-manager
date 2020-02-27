@@ -133,17 +133,6 @@
                 option.val(schemaName).html(schema.label ? schema.label : schemaName);
                 option.data("schema", schema);
                 selector.append(option);
-
-                var frame = widget._renderSchemaFrame(schema);
-
-                // Improve schema with handling methods
-                _.extend(schema, {
-                    frame:  frame  // why?
-                });
-
-                frame.css('display','none');
-
-                element.append(frame);
             });
 
             this._initializeEvents();
@@ -181,23 +170,19 @@
          * @private
          */
         _activateSchema: function(schema) {
-            // @todo: remove monkey-patched frame property on schema
-            var frame = schema.frame;
             if (this.currentSettings) {
                 this._deactivateSchema(this.currentSettings);
                 this.currentSettings = null;
             }
+            $('.frame', this.element).remove();
             this.currentSettings = schema;
-            frame.css('display', 'block');
+            $('select.selector', this.element).after(this._renderSchemaFrame(schema));
         },
         /**
          * @param {DataManagerSchemaConfig} schema
          * @private
          */
         _deactivateSchema: function(schema) {
-            // @todo: remove monkey-patched frame property on schema
-            var frame = schema.frame;
-            frame.css('display', 'none');
             this._closeCurrentPopup();
         },
         _onSchemaSelectorChange: function() {
