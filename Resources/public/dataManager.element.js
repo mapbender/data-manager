@@ -144,6 +144,14 @@
             $('select.selector', this.element).on('change', function() {
                 self._onSchemaSelectorChange();
             });
+            this.element.on('click', '.-fn-edit-data', function() {
+                var $tr = $(this).closest('tr');
+                self._openEditDialog($tr.data('schema'), $tr.data('item'));
+            });
+            this.element.on('click', '.-fn-delete', function() {
+                var $tr = $(this).closest('tr');
+                self.removeData($tr.data('schema'), $tr.data('item'));
+            });
         },
         /**
          * Mapbender sidepane interaction API
@@ -203,20 +211,13 @@
             // @todo: surely this requires checking schema.allowEdit
             buttons.push({
                 title: Mapbender.trans('mb.data.store.edit'),
-                className: 'fa-edit',
-                onClick: function(dataItem) {
-                    self._openEditDialog(schema, dataItem);
-                }
+                cssClass: 'fa fa-edit -fn-edit-data'
             });
 
             if(schema.allowDelete) {
                 buttons.push({
                     title: Mapbender.trans('mb.data.store.remove'),
-                    className: 'fa-times',
-                    cssClass:  'critical',
-                    onClick: function(dataItem) {
-                        self.removeData(schema, dataItem);
-                    }
+                    cssClass: 'critical fa fa-times -fn-delete'
                 });
             }
             if (schema.table.buttons) {
@@ -278,6 +279,12 @@
             }, schema.table);
             settings.buttons = this._buildTableRowButtons(schema);
             settings.columns = this._buildTableColumnsOptions(schema);
+            settings.createdRow = function(tr, data) {
+                $(tr).data({
+                    item: data,
+                    schema: schema
+                });
+            };
             var $tableWrap = $("<div/>").resultTable(settings);
             $tableWrap.attr('data-schema-name', schema.schemaName);
             return $tableWrap;
@@ -298,7 +305,7 @@
                 toolBarButtons.push({
                     type:     "button",
                     title: Mapbender.trans('mb.data.store.create'),
-                    cssClass: "fa-refresh",
+                    cssClass: 'fa fa-refresh',
                     click:    function(e) {
                         // @todo: we have the schema here, why use bound data?
                         var schema = $(this).closest(".frame").data("schema");
@@ -320,7 +327,7 @@
                 toolBarButtons.push({
                     type:     "button",
                     title: Mapbender.trans('mb.data.store.create'),
-                    cssClass: "fa-plus",
+                    cssClass: 'fa fa-plus',
                     click: function(e) {
                         // @todo: we have the schema here, why use bound data?
                         var schema = $(this).closest(".frame").data("schema");

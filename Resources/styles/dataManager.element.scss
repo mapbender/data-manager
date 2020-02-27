@@ -21,15 +21,6 @@
           margin-right: 15px;
         }
     }
-    [class^="fa-"]:before, [class*=" fa-"]:before {
-      display: inline-block;
-      font: normal normal normal 14px/1 FontAwesome;
-      font-size: inherit;
-      text-rendering: auto;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
     > .mapbender-element-result-table {
 
       > .dataTables_wrapper {
@@ -50,8 +41,6 @@
         }
         tr[role='row'] > td > div.button-navigation {
           > button {
-            &.fa-remove {
-            }
             &:before {
               font-family: FontAwesome;
             }
@@ -69,9 +58,6 @@
     > .form-group, > form {
       margin: 5px 10px;
     }
-  }
-
-  > .data-manager-results {
   }
 
   a.infoText {
