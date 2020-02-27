@@ -157,6 +157,12 @@
             });
         },
         /**
+         * Mapbender sidepane interaction API
+         */
+        hide: function() {
+            this._closeCurrentPopup();
+        },
+        /**
          * @todo Digitizer: use .featureType attribute instead of .dataStore (otherwise equivalent)
          * @param {DataManagerSchemaConfig} schema
          * @return {DataStoreConfig}
