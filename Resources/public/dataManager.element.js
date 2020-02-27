@@ -440,13 +440,44 @@
          */
         _openEditDialog: function(schema, dataItem) {
             var widget = this;
-            var buttons = [];
 
             if(widget.currentPopup) {
                 widget.currentPopup.popupDialog('destroy');
                 widget.currentPopup = null;
             }
 
+            var dialog = $("<div/>");
+            var popupConfig = _.extend({
+                title: Mapbender.trans('mb.data.store.edit.title'),
+                width: widget.featureEditDialogWidth
+            }, schema.popup);
+
+            popupConfig.buttons = this._getEditDialogButtons(schema, dataItem);
+
+            var formItems = widget.currentSettings.formItems.map(function(item) {
+                return widget._processFormItem(schema, item, dataItem);
+            });
+            dialog.generateElements({children: formItems});
+            dialog.popupDialog(popupConfig);
+            dialog.addClass("data-manager-edit-data");
+            widget.currentPopup = dialog;
+
+            setTimeout(function() {
+                dialog.formData(dataItem);
+            }, 30);
+
+            return dialog;
+        },
+        /**
+         *
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} dataItem
+         * @return {Array<Object>}
+         * @private
+         */
+        _getEditDialogButtons: function(schema, dataItem) {
+            var buttons = [];
+            var widget = this;
             if(schema.allowEdit){
                 var saveButton = {
                     text: Mapbender.trans('mb.data.store.save'),
@@ -487,32 +518,13 @@
                     widget.currentPopup = null;
                 }
             });
-            var dialog = $("<div/>");
 
-            if(schema.popup.buttons ){
+            if (schema.popup.buttons ){
                 buttons =_.union(schema.popup.buttons , buttons);
             }
-            var popupConfig = _.extend({
-                title: Mapbender.trans('mb.data.store.edit.title'),
-                width: widget.featureEditDialogWidth
-            }, schema.popup);
-
-            popupConfig.buttons = buttons;
-
-            var formItems = widget.currentSettings.formItems.map(function(item) {
-                return widget._processFormItem(schema, item, dataItem);
-            });
-            dialog.generateElements({children: formItems});
-            dialog.popupDialog(popupConfig);
-            dialog.addClass("data-manager-edit-data");
-            widget.currentPopup = dialog;
-
-            setTimeout(function() {
-                dialog.formData(dataItem);
-            }, 30);
-
-            return dialog;
+            return buttons;
         },
+
         /**
          * Preprocess form items from schema before passing off to vis-ui
          * @param {DataManagerSchemaConfig} schema
