@@ -352,7 +352,7 @@
                 // new item
                 schema.dataItems.push(dataItem);
             }
-            this.reloadData(schema);
+            this.redrawTable(schema);
             $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
             this.element.trigger('data.manager.item.saved', {
                 item: dataItem,
@@ -550,7 +550,7 @@
                 schema:     schema.schemaName
             }).done(function(dataItems) {
                 schema.dataItems = dataItems;
-                widget.reloadData(schema);
+                widget.redrawTable(schema);
             });
         },
 
@@ -587,8 +587,8 @@
          */
         _afterRemove: function(schema, dataItem, id) {
             schema.dataItems = _.without(schema.dataItems, dataItem);
-            this.reloadData(schema);
-            // Quirky jquery ui event. Triggers a 'mbatamanagerremove' on this.element. Limited legacy data payload.
+            this.redrawTable(schema);
+            // Quirky jquery ui event. Triggers a 'mbdatamanagerremove' on this.element. Limited legacy data payload.
             this._trigger('removed', null, {
                 schema: schema,
                 feature: dataItem
@@ -604,11 +604,14 @@
                 itemId: id,
                 // sending widget instance
                 originator: this
-            });
+            };
+
+            // Listeners should prefer data.manager.deleted because a) it is much easier to search for non-magic, explicit
+            // event names in project code; b) it contains more data
+            this.element.trigger('data.manager.deleted', eventData);
             $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info');
         },
-        /** @todo: rename; maybe redrawTable */
-        reloadData: function(schema) {
+        redrawTable: function(schema) {
             var $tableWrap = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', this.element);
             var tableApi = $tableWrap.resultTable('getApi');
             tableApi.clear();
