@@ -436,7 +436,7 @@
             var buttons = [];
 
             if(widget.currentPopup) {
-                widget.currentPopup.popupDialog('close');
+                widget.currentPopup.popupDialog('destroy');
                 widget.currentPopup = null;
             }
 
