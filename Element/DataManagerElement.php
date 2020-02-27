@@ -196,14 +196,43 @@ class DataManagerElement extends BaseElement
      */
     protected function getSchemaConfigs()
     {
-        $entityConfig = $this->entity->getConfiguration();
-        $schemaNames = array_keys($entityConfig['schemes'] ?: array());
+        $schemaNames = $this->getValidSchemaNames();
         $preparedConfigs = $this->schemaConfigs;
         foreach (array_diff($schemaNames, array_keys($preparedConfigs)) as $missingSchemaName) {
             // use get... instead of prepare... to buffer result for next time
             $preparedConfigs[$missingSchemaName] = $this->getSchemaConfig($missingSchemaName, false);
         }
         return $preparedConfigs;
+    }
+
+    /**
+     * @return string[]
+     * @throws ConfigurationErrorException if config values are completly unsalvagable
+     */
+    protected function getValidSchemaNames()
+    {
+        $entityConfig = $this->entity->getConfiguration();
+        if (empty($entityConfig['schemes'])) {
+            throw new ConfigurationErrorException("Schema configuration completely empty");
+        }
+        $names = array();
+        $invalid = array();
+        foreach (array_keys($entityConfig['schemes']) as $schemaName) {
+            try {
+                // data store must be configured properly as well
+                $this->getDataStoreConfigForSchema($schemaName);
+                $names[] = $schemaName;
+            } catch (ConfigurationErrorException $e) {
+                $invalid[] = $schemaName;
+            }
+        }
+        if (!$names && $invalid) {
+            throw new ConfigurationErrorException("All schema configurations are invalid");
+        }
+        if ($invalid) {
+            @trigger_error("WARNING: " . get_class($this) . '#' . $this->entity->getId() . ' contains invalid schema configuration for schemes ' . implode(', ', $invalid), E_USER_DEPRECATED);
+        }
+        return $names;
     }
 
     /**
