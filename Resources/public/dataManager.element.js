@@ -209,7 +209,7 @@
             buttons.push({
                 title: Mapbender.trans('mb.data.store.edit'),
                 className: 'fa-edit',
-                onClick:   function(dataItem, ui) {
+                onClick: function(dataItem) {
                     self._openEditDialog(schema, dataItem);
                 }
             });
@@ -219,7 +219,7 @@
                     title: Mapbender.trans('mb.data.store.remove'),
                     className: 'fa-times',
                     cssClass:  'critical',
-                    onClick:   function(dataItem, ui) {
+                    onClick: function(dataItem) {
                         self.removeData(schema, dataItem);
                     }
                 });
@@ -243,7 +243,7 @@
             return (schema.table.columns || []).map(function(fieldSettings) {
                 return $.extend({}, fieldSettings, {
                     fieldName: fieldSettings.data,  // why?
-                    render: function(data, type, row, meta) {
+                    render: function(data, type, row) {
                         switch (type) {
                             case 'sort':
                             case 'type':
@@ -487,7 +487,7 @@
             }
             var popupConfig = _.extend({
                 title: Mapbender.trans('mb.data.store.edit.title'),
-                width:   widget.featureEditDialogWidth,
+                width: widget.featureEditDialogWidth
             }, schema.popup);
 
             popupConfig.buttons = buttons;
@@ -539,10 +539,8 @@
                         // @todo: figure out who even populates this value (not data source, not data manager)
                         files = this._getDataStoreFromSchema(schema).files || [];
                         $.each(files, function(k, fileInfo) {
-                            if(fileInfo.field && fileInfo.field == item.name) {
-                                if(fileInfo.formats) {
-                                    itemOut.accept = fileInfo.formats;
-                                }
+                            if (fileInfo.field === item.name && fileInfo.formats) {
+                                itemOut.accept = fileInfo.formats;
                             }
                         });
                     }
@@ -552,15 +550,13 @@
                     if(!item.origSrc) {
                         itemOut.origSrc = item.src; //why?
                     }
-                    if (item.hasOwnProperty("name") && dataItem[item.name]) {
+                    if (item.name && dataItem[item.name]) {
                         itemOut.dbSrc = dataItem[item.name]; // why?
                         // @todo: figure out who even populates this value (not data source, not data manager)
                         files = this._getDataStoreFromSchema(schema).files || [];
                         $.each(files, function(k, fileInfo) {
-                            if(fileInfo.field && fileInfo.field == item.name) {
-                                if(fileInfo.uri) {
-                                    itemOut.dbSrc = fileInfo.uri + "/" + itemOut.dbSrc;
-                                }
+                            if (fileInfo.field === item.name && fileInfo.uri) {
+                                itemOut.dbSrc = fileInfo.uri + "/" + itemOut.dbSrc;
                             }
                         });
                     }
@@ -571,6 +567,9 @@
                     } else {
                         itemOut.src = src;
                     }
+                    break;
+                default:
+                    // fall out
                     break;
             }
             return itemOut || item;
