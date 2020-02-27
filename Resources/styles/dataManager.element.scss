@@ -1,45 +1,20 @@
 .mb-element-data-manager.modal-body {
-  > .frame{
-
-    > .mapbender-element-result-table {
-
-      > .dataTables_wrapper {
-        > .dataTables_filter > label {
-          width: 100%;
-          line-height: 14px;
-          > input[type="search"] {
-            display: block;
-            width: 100%;
-            margin-bottom: 8px;
-            border: 1px solid #c0c0c0;
-            color: #555;
-            font-weight: normal;
-            height: 29px;
-            padding: 2px 24px 2px 7px;
-            line-height: 1.42857143;
-          }
-        }
-        tr[role='row'] > td > div.button-navigation {
-          > button {
-            &:before {
-              font-family: FontAwesome;
-            }
-          }
-        }
-      }
-    }
+  select.selector, .dataTables_filter label input {
+    display: block;
+    width: 100%;
+    background: white;
+    border: solid 1px grey;
+  }
+  .dataTables_filter label {
+    display: block; // allow input (inside label!) to grow to full width
+  }
+  .schema-toolset, .dataTables_filter, select.selector, .single-schema-title {
+    margin-bottom: 1.5ex;
   }
 }
 
 // Pop-up dialogs
 .ui-dialog {
-
-  > .data-manager-edit-data {
-    > .form-group, > form {
-      margin: 5px 10px;
-    }
-  }
-
   a.infoText {
     display: block;
     position: absolute;

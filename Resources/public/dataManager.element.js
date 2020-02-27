@@ -310,12 +310,11 @@
          * @private
          */
         _renderSchemaFrame: function(schema) {
-            var self = this;
             var frame =  $("<div/>")
                 .addClass('frame')
                 .data("schema", schema)
             ;
-            var $buttons = $('<div>').addClass('btn-group');
+            var $buttons = $('<div>').addClass('btn-group schema-toolset');
             if(schema.allowRefresh) {       // how?
                 var $refreshButton = $('<button>').data('schema', schema).attr({
                     type: 'button',
