@@ -3,6 +3,8 @@
 namespace Mapbender\DataManagerBundle\Element;
 
 use Mapbender\DataManagerBundle\Component\Uploader;
+use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
+use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
 use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Element\BaseElement;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -136,15 +138,12 @@ class DataManagerElement extends BaseElement
         $action = $request->attributes->get('action');
         $schemaName = $request->query->get('schema');
 
-        // @todo: avoid full collateral formItem preparation overhead if all we need is a resolved dataStore config
-        $schemaConfig = $this->getSchemaConfig($schemaName, true);
-        if (!$schemaConfig) {
-            return new JsonResponse(array('message' => 'Unknown schema ' . print_r($schemaName)), JsonResponse::HTTP_NOT_FOUND);
-        } elseif (empty($schemaConfig['dataStore'])) {
-            throw new \Exception("DataStore setup is not correct");
-        } else {
+        try {
+            $schemaConfig = $this->getSchemaConfig($schemaName, true);
             // @todo: use DataStoreService::dataStoreFactory (requires data-source >= 0.1.15)
-            $dataStore = new DataStore($this->container, $schemaConfig['dataStore']);
+            $dataStore = new DataStore($this->container, $this->getDataStoreConfigForSchema($schemaName));
+        } catch (UnknownSchemaException $e) {
+            return new JsonResponse(array('message' => 'Unknown schema ' . print_r($schemaName)), JsonResponse::HTTP_NOT_FOUND);
         }
 
         switch ($action) {
@@ -217,6 +216,7 @@ class DataManagerElement extends BaseElement
      * @param string $schemaName
      * @param bool $raw
      * @return mixed[]|false
+     * @throws UnknownSchemaException
      */
     protected function getSchemaConfig($schemaName, $raw = false)
     {
@@ -225,25 +225,36 @@ class DataManagerElement extends BaseElement
                 'schemes' => array(),
             );
             if (empty($entityConfig['schemes'][$schemaName])) {
-                $schemaConfig = false;
-            } else {
-                $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $entityConfig['schemes'][$schemaName]);
-                if (!$raw) {
-                    $schemaConfig = array_replace($this->prepareSchemaConfig($schemaConfig), array(
-                        'schemaName' => $schemaName,
-                    ));
-                }
+                throw new UnknownSchemaException("No such schema " . print_r($schemaName, true));
             }
-            if (!$raw || !$schemaConfig) {
-                // buffer for next invocation (including falsy value for missing schema)
+            $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $entityConfig['schemes'][$schemaName]);
+            if (!$raw) {
+                $schemaConfig = array_replace($this->prepareSchemaConfig($schemaConfig), array(
+                    'schemaName' => $schemaName,
+                ));
+                // buffer for next invocation
                 $this->schemaConfigs[$schemaName] = $schemaConfig;
-            } elseif ($raw) {
+            } else {
                 return $schemaConfig;
             }
         }
         // NOTE: this may return a prepared config with $raw = true, if it was already prepared fully. This should be
         //       transparent to callers.
         return $this->schemaConfigs[$schemaName];
+    }
+
+    /**
+     * @param string $schemaName
+     * @return mixed[]
+     * @throws ConfigurationErrorException
+     */
+    protected function getDataStoreConfigForSchema($schemaName)
+    {
+        $schemaConfig = $this->getSchemaConfig($schemaName, true);
+        if (empty($schemaConfig['dataStore'])) {
+            throw new ConfigurationErrorException("Missing dataStore configuration for schema " . print_r($schemaName, true));
+        }
+        return $this->resolveDataStoreConfig($schemaConfig['dataStore']);
     }
 
     /**
@@ -256,6 +267,7 @@ class DataManagerElement extends BaseElement
         if (isset($rawConfig['formItems'])) {
             $prepared['formItems'] = $this->prepareItems($rawConfig['formItems']);
         }
+        // lenient mode: ignore missing dataStore setting for Digitizer inheritance
         if (isset($rawConfig['dataStore'])) {
             $prepared['dataStore'] = $this->resolveDataStoreConfig($rawConfig['dataStore']);
         }
