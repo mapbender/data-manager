@@ -142,10 +142,6 @@
                     frame:  frame  // why?
                 });
 
-                var table = widget._renderTable(schema);
-                // @todo: table should be rendered by _renderSchemaFrame, we only need it here because to break schema.table
-
-                frame.append(table);
                 frame.css('display','none');
 
                 element.append(frame);
@@ -351,6 +347,7 @@
                     cssClass: 'toolbar'
                 }]
             });
+            frame.append(this._renderTable(schema));
             return frame;
         },
         /**
