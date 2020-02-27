@@ -550,26 +550,26 @@
                     }
                     break;
                 case 'image':
-                    itemOut = itemOut || $.extend({}, item);
-                    if(!item.origSrc) {
-                        itemOut.origSrc = item.src; //why?
-                    }
-                    if (item.name && dataItem[item.name]) {
-                        itemOut.dbSrc = dataItem[item.name]; // why?
+                    var origSrc = item.origSrc || item.src;
+                    var dbSrc = item.name && dataItem[item.name];
+                    if (dbSrc) {
                         // @todo: figure out who even populates this value (not data source, not data manager)
                         files = this._getDataStoreFromSchema(schema).files || [];
                         $.each(files, function(k, fileInfo) {
                             if (fileInfo.field === item.name && fileInfo.uri) {
-                                itemOut.dbSrc = fileInfo.uri + "/" + itemOut.dbSrc;
+                                dbSrc = fileInfo.uri + "/" + dbSrc;
                             }
                         });
                     }
-                    var src = itemOut.dbSrc || itemOut.origSrc || item.src;
-                    if(item.relative) {
-                        // why do we support a distinct 'relative' image type if this means supporting both absolute and relative?
-                        itemOut.src = src.match(/^(http[s]?\:|\/{2})/) ? src : Mapbender.configuration.application.urls.asset + src;
-                    } else {
-                        itemOut.src = src;
+                    var src = dbSrc || origSrc;
+                    // why do we support a distinct 'relative' image type if this means supporting both absolute and relative?
+                    if (item.relative && !src.test(/^(http[s]?\:|\/{2})/)) {
+                        src = Mapbender.configuration.application.urls.asset + src;
+                    }
+                    if (src !== item.src) {
+                        itemOut = itemOut || $.extend({}, item, {
+                            src: src
+                        });
                     }
                     break;
                 default:
