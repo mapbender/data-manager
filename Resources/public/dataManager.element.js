@@ -152,6 +152,21 @@
                 var $tr = $(this).closest('tr');
                 self.removeData($tr.data('schema'), $tr.data('item'));
             });
+            this.element.on('click', '.-fn-refresh-schema', function() {
+                var schema = $(this).data('schema');
+                if(self.currentPopup) {
+                    confirmDialog(Mapbender.trans('mb.data.store.confirm.close.edit.form')).then(function() {
+                        self._closeCurrentPopup();
+                        self._getData(schema);
+                    });
+                } else {
+                    self._getData(schema);
+                }
+            });
+            this.element.on('click', '.-fn-create-item', function() {
+                var schema = $(this).data('schema');
+                self._openEditDialog(schema, {});
+            });
         },
         /**
          * Mapbender sidepane interaction API
@@ -300,52 +315,28 @@
                 .addClass('frame')
                 .data("schema", schema)
             ;
-            var toolBarButtons = [];
+            var $buttons = $('<div>').addClass('btn-group');
             if(schema.allowRefresh) {       // how?
-                toolBarButtons.push({
-                    type:     "button",
-                    title: Mapbender.trans('mb.data.store.create'),
-                    cssClass: 'fa fa-refresh',
-                    click:    function(e) {
-                        // @todo: we have the schema here, why use bound data?
-                        var schema = $(this).closest(".frame").data("schema");
-                        if(self.currentPopup) {
-                            confirmDialog(Mapbender.trans('mb.data.store.confirm.close.edit.form')).then(function() {
-                                self._closeCurrentPopup();
-                                self._getData(schema);
-                            });
-                        } else {
-                            self._getData(schema);
-                        }
-                        e.preventDefault();
-                        return false;
-                    }
+                var $refreshButton = $('<button>').data('schema', schema).attr({
+                    type: 'button',
+                    'class': 'btn btn-sm -fn-refresh-schema',
+                    title: Mapbender.trans('mb.data.store.create')      // sic! @todo: distinct translation
                 });
+                $refreshButton.append($('<i/>').addClass('fa fa-refresh'));
+                $buttons.append($refreshButton);
             }
 
             if(schema.allowCreate) {
-                toolBarButtons.push({
-                    type:     "button",
-                    title: Mapbender.trans('mb.data.store.create'),
-                    cssClass: 'fa fa-plus',
-                    click: function(e) {
-                        // @todo: we have the schema here, why use bound data?
-                        var schema = $(this).closest(".frame").data("schema");
-                        self._openEditDialog(schema, {});
-                        e.preventDefault();
-                        return false;
-                    }
-                })
+                var $createButton = $('<button>').data('schema', schema).attr({
+                    type: 'button',
+                    'class': 'btn btn-sm -fn-create-item',
+                    title: Mapbender.trans('mb.data.store.create')
+                });
+                $createButton.append($('<i/>').addClass('fa fa-plus'));
+                $buttons.append($createButton);
             }
 
-            /** @todo: this is simple enough to do it without vis-ui */
-            frame.generateElements({
-                children: [{
-                    type:     'fieldSet',
-                    children: toolBarButtons,
-                    cssClass: 'toolbar'
-                }]
-            });
+            frame.append($buttons);
             frame.append(this._renderTable(schema));
             return frame;
         },

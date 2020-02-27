@@ -1,26 +1,6 @@
 .mb-element-data-manager.modal-body {
   > .frame{
 
-    > .toolbar {
-      margin-top: 8px;
-      button.btn{
-        font-size: 0;
-        line-height: 12px;
-        &:before{
-          font-size: 12px;
-          vertical-align: middle;
-        }
-      }
-    }
-
-    .form-group > button.btn {
-        &:first-child{
-          margin-left: 15px;
-        }
-        &:last-child{
-          margin-right: 15px;
-        }
-    }
     > .mapbender-element-result-table {
 
       > .dataTables_wrapper {
