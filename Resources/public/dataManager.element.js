@@ -1,10 +1,48 @@
 (function($) {
+    /**
+     * @typedef {Object} DataManagerItem
+     */
+    /**
+     * @typedef {Object} DataStoreConfig
+     * @property {String} id
+     * @property {String} uniqueId
+     */
+    /**
+     * @typedef {Object} DataManagerSchemaConfig
+     * @property {String} schemaName identifier for schema
+     * @property {DataStoreConfig} dataStore
+     * @property {boolean} allowEdit
+     * @property {boolean} allowCreate
+     * @property {boolean} allowDelete
+     * @property {Array<*>} formItems
+     * @property {*} table
+     */
+    /**
+     * @typedef {Object} DataManagagerBaseEventData
+     * @property {Object} item
+     * @property {String} itemId
+     * @property {Object} schema
+     * @property {*} originator sending widget instance
+     */
+    /**
+     * @typedef {DataManagagerBaseEventData} DataManagerDeletedEventData
+     * @property {String} schemaName
+     * @property {Object} feature digitizer / bc amenity
+     */
+    /**
+     * @typedef {DataManagagerBaseEventData} DataManagagerSaveEventData
+     * @property {String|null} originalId null for newly saved item
+     * @property {String} uniqueIdKey legacy: name of attribute on item that contains id
+     * @property {String} schemaName identifier for schema
+     * @property {String} scheme legacy (ambiguous): alias for schemaName
+     */
 
     /**
      * @param {String} title
      * @returns {Promise}
      */
     function confirmDialog(title) {
+
         // @todo: bypass vis-ui / jquerydialogextend auto-monkey-patching
         var $dialog =$('<div/>').addClass('confirm-dialog');
         var deferred = $.Deferred();
@@ -58,13 +96,6 @@
         currentSettings: null,
         featureEditDialogWidth: "423px",
 
-        /**
-         * Constructor.
-         *
-         * At this moment not all elements (like a OpenLayers) are avaible.
-         *
-         * @private
-         */
         _create: function() {
             var widget = this;
             var element = widget.element;
@@ -126,12 +157,16 @@
         },
         /**
          * @todo Digitizer: use .featureType attribute instead of .dataStore (otherwise equivalent)
-         * @param {Object} schema
-         * @private
+         * @param {DataManagerSchemaConfig} schema
+         * @return {DataStoreConfig}
          */
         _getDataStoreFromSchema: function(schema) {
             return schema.dataStore;
         },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @private
+         */
         _activateSchema: function(schema) {
             // @todo: remove monkey-patched frame property on schema
             var frame = schema.frame;
@@ -142,6 +177,10 @@
             this.currentSettings = schema;
             frame.css('display', 'block');
         },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @private
+         */
         _deactivateSchema: function(schema) {
             // @todo: remove monkey-patched frame property on schema
             var frame = schema.frame;
@@ -158,6 +197,11 @@
             this._activateSchema(schema);
             this._getData(schema);
         },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @return {Array<Object>}
+         * @private
+         */
         _buildTableRowButtons: function(schema) {
             var buttons = [];
             var self = this;
@@ -189,16 +233,7 @@
             }
         },
         /**
-         * @param {Object} schema
-         * @return {Array<String>}
-         */
-        _getTableDataAttributes: function(schema) {
-            return (schema.table.columns || []).map(function(columnConfig) {
-                return columnConfig.data;
-            });
-        },
-        /**
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @return {Array<Object>}
          * @see https://datatables.net/reference/option/columns
          * @private
@@ -354,16 +389,18 @@
             }
             this.redrawTable(schema);
             $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
-            this.element.trigger('data.manager.item.saved', {
+            /** @var {DataManagagerSaveEventData} eventData */
+            var eventData = {
                 item: dataItem,
                 itemId: id,
-                originalId: originalId,     // may be null
+                originalId: originalId,
                 uniqueIdKey: uniqueIdKey,
-                schema: schema,             // Object
+                schema: schema,
                 schemaName: schema.schemaName,
-                scheme: schema.schemaName,  // ambiguous legacy alias for schemaName
-                originator: this            // sending widget instance
-            });
+                scheme: schema.schemaName,
+                originator: this
+            };
+            this.element.trigger('data.manager.item.saved', eventData);
         },
         /**
          * @param {Object} schema
@@ -471,7 +508,7 @@
         },
         /**
          * Preprocess form items from schema before passing off to vis-ui
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @param {Object} item
          * @param {Object} dataItem
          * @return {Object}
@@ -580,7 +617,7 @@
         /**
          * Called after item has been deleted from the server
          *
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @param {Object} dataItem
          * @param {String} id
          * @private
@@ -593,9 +630,8 @@
                 schema: schema,
                 feature: dataItem
             });
-            // Listeners should prefer data.manager.deleted because a) it is much easier to search for non-magic, explicit
-            // event names in project code; b) it contains more data
-            this.element.trigger('data.manager.deleted', {
+            /** @type {DataManagerDeletedEventData} */
+            var eventData = {
                 schema: schema,
                 schemaName: schema.schemaName,
                 item: dataItem,
