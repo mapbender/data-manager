@@ -58,7 +58,10 @@
                 // @todo: translate
                 text:  "OK",
                 click: function(e) {
+                    // work around vis-ui forgetting to remove its invisible modal block
                     $(this).popupDialog('close');
+                    // ... then do what we actually need to do
+                    $(this).popupDialog('destroy');
                     deferred.resolveWith(true);
                 }
             }, {
@@ -66,7 +69,10 @@
                 text:    "Abbrechen",
                 'class': 'critical',
                 click:   function(e) {
+                    // work around vis-ui forgetting to remove its invisible modal block
                     $(this).popupDialog('close');
+                    // ... then do what we actually need to do
+                    $(this).popupDialog('destroy');
                     deferred.reject();
                 }
             }]
