@@ -436,7 +436,7 @@
         /**
          * Open edit feature dialog
          *
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @param {Object} dataItem
          * @private
          */
@@ -445,19 +445,11 @@
             this._closeCurrentPopup();
 
             var dialog = $("<div/>");
-            var popupConfig = _.extend({
-                title: Mapbender.trans('mb.data.store.edit.title'),
-                width: widget.featureEditDialogWidth
-            }, schema.popup);
-
-            popupConfig.buttons = this._getEditDialogButtons(schema, dataItem);
-
             var formItems = widget.currentSettings.formItems.map(function(item) {
                 return widget._processFormItem(schema, item, dataItem);
             });
             dialog.generateElements({children: formItems});
-            dialog.popupDialog(popupConfig);
-            dialog.addClass("data-manager-edit-data");
+            dialog.popupDialog(this._getEditDialogPopupConfig(schema, dataItem));
             widget.currentPopup = dialog;
 
             setTimeout(function() {
@@ -465,6 +457,23 @@
             }, 30);
 
             return dialog;
+        },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} dataItem
+         * @return {Object}
+         * @see https://api.jqueryui.com/1.12/dialog/
+         * @private
+         */
+        _getEditDialogPopupConfig: function(schema, dataItem) {
+            return {
+                title: Mapbender.trans('mb.data.store.edit.title'),
+                width: this.featureEditDialogWidth,
+                classes: {
+                    'ui-dialog-content': 'ui-dialog-content data-manager-edit-data'
+                },
+                buttons: this._getEditDialogButtons(schema, dataItem)
+            };
         },
         /**
          *
