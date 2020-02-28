@@ -1,4 +1,4 @@
-.mb-element-data-manager.modal-body {
+.mb-element-data-manager {
   select.selector, .dataTables_filter label input {
     display: block;
     width: 100%;
@@ -14,7 +14,7 @@
 }
 
 // Pop-up dialogs
-.ui-dialog {
+.ui-dialog-content.data-manager-edit-data {
   a.infoText {
     display: block;
     position: absolute;
