@@ -121,7 +121,7 @@
                 var singleScheme = _.first(_.toArray(this.options.schemes));
                 var title = singleScheme.title || singleScheme.label || singleScheme.schemaName;
                 if(title) {
-                    element.append($('<div class="title"/>').html(title));
+                    element.append($('<h3 class="title"/>').text(title));
                 }
                 selector.hide();
             }

@@ -8,7 +8,7 @@
   .dataTables_filter label {
     display: block; // allow input (inside label!) to grow to full width
   }
-  .schema-toolset, .dataTables_filter, select.selector, .single-schema-title {
+  .schema-toolset, .dataTables_filter, select.selector, >.title {
     margin-bottom: 1.5ex;
   }
 }
