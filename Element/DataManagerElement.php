@@ -247,7 +247,9 @@ class DataManagerElement extends BaseElement
                 $results = array_merge($uploadHandler->get_response(), $urlParameters);
 
                 break;
-
+            case  'getConfiguration':
+                $results = $schemaConfig;
+                break;
             default:
                 $results = array(
                     array('errors' => array(

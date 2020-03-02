@@ -413,7 +413,7 @@
          * @param dataItem open layer feature
          * @private
          */
-        _openEditDialog: function(dataItem) {
+        _openEditDialog: function(dataItem, callback) {
             var widget = this;
             var schema = dataItem.schema;
             var buttons = [];
@@ -511,18 +511,29 @@
 
             popupConfig.buttons = buttons;
 
-            var formItems = JSON.parse(JSON.stringify(widget.currentSettings.formItems)); // Deep clone hack!
+            widget.query('getConfiguration',{
+                schema: widget.currentSettings.schemaName
+            }).done(function(schema) {
 
-            var processedFormItems = this.processFormItems(dataItem,formItems);
+                widget.currentSettings.formItems = schema.formItems;
 
-            dialog.generateElements({children: processedFormItems});
-            dialog.popupDialog(popupConfig);
-            dialog.addClass("data-manager-edit-data");
-            widget.currentPopup = dialog;
+                var formItems = JSON.parse(JSON.stringify(widget.currentSettings.formItems)); // Deep clone hack!
 
-            setTimeout(function() {
-                dialog.formData(dataItem);
-            }, 30);
+                var processedFormItems = widget.processFormItems(dataItem, formItems);
+
+                dialog.generateElements({children: processedFormItems});
+                dialog.popupDialog(popupConfig);
+                dialog.addClass("data-manager-edit-data");
+                widget.currentPopup = dialog;
+
+                setTimeout(function() {
+                    dialog.formData(dataItem);
+                }, 0);
+
+                initResultTables(dataItem);
+                callback && callback();
+            });
+
 
 
             var initResultTables = function(feature) {
@@ -551,8 +562,6 @@
 
                 });
             };
-
-            initResultTables(dataItem);
 
             return dialog;
         },
@@ -699,11 +708,13 @@
 
 
                         var dm = widget.getConnectedDataManager();
+
                         var dataItem = dm.getSchemaByName(schemaName).create();
                         dataItem[fieldName] = feature[fieldName];
-                        var dialog = dm._openEditDialog(dataItem);
+                        var dialog = dm._openEditDialog(dataItem, function() {
+                            $(dialog).find("select[name=" + fieldName + "]").attr("disabled", "true");
+                        });
                         dialog.parentTable = table;
-                        $(dialog).find("select[name=" + fieldName + "]").attr("disabled", "true");
                         $(dialog).bind('data.manager.item.saved', function (event, data) {
                             tableApi.rows.add([data.item]);
                             tableApi.draw();
@@ -722,12 +733,12 @@
 
 
                         var dm = widget.getConnectedDataManager();
-                        var dialog = dm._openEditDialog(rowData);
+                        var dialog = dm._openEditDialog(rowData, function(){
+                            $(dialog).find("select[name=" + fieldName + "]").attr("disabled", "true");
+
+                        });
                         dialog.parentTable = table;
-
                         var rowId = getRowId(tableApi,rowData);
-
-                        $(dialog).find("select[name=" + fieldName + "]").attr("disabled", "true");
                         $(dialog).bind('data.manager.item.saved', function (event, data) {
                             tableApi.row(rowId).data(data.item);
                             tableApi.draw();
