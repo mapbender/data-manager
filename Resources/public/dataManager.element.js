@@ -97,8 +97,10 @@
 
     $.widget("mapbender.mbDataManager", {
         options: {
+            /** @type {Object<String, DataManagerSchemaConfig>} */
             schemes: {}
         },
+        /** @type {DataManagerSchemaConfig|null} */
         currentSettings: null,
         featureEditDialogWidth: "423px",
 
@@ -662,6 +664,11 @@
             tableApi.rows.add(schema.dataItems);
             tableApi.draw();
         },
+        /**
+         * @param {String} title
+         * @return {Promise}
+         */
+        confirmDialog: confirmDialog,
         /**
          * @param {String} uri
          * @param {Object} [data]
