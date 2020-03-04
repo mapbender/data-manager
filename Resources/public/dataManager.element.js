@@ -167,7 +167,7 @@
             });
             this.element.on('click', '.-fn-create-item', function() {
                 var schema = $(this).data('schema');
-                self._openEditDialog(schema, {});
+                self._createItem(schema);
             });
         },
         /**
@@ -529,7 +529,13 @@
 
             return buttons;
         },
-
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @private
+         */
+        _createItem: function(schema) {
+            this._openEditDialog(schema, {});
+        },
         /**
          * Preprocess form items from schema before passing off to vis-ui
          * @param {DataManagerSchemaConfig} schema
