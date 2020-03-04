@@ -665,9 +665,9 @@
                 originator: this
             };
 
-            // Listeners should prefer data.manager.deleted because a) it is much easier to search for non-magic, explicit
+            // Listeners should prefer data.manager.item.deleted because a) it is much easier to search for non-magic, explicit
             // event names in project code; b) it contains more data
-            this.element.trigger('data.manager.deleted', eventData);
+            this.element.trigger('data.manager.item.deleted', eventData);
         },
         /**
          * Called after item has been deleted from the server
