@@ -372,21 +372,18 @@
             });
         },
         /**
+         * Produces event after item has been saved on the server.
+         * New items have a null originalId. Updated items have a non-empty originalId.
+         *
          * @param {Object} schema
          * @param {Object} dataItem
          * @param {String|null} originalId
          * @private
          */
-        _afterSave: function(schema, dataItem, originalId) {
+        _saveEvent: function(schema, dataItem, originalId) {
             // @todo: this default should be server provided
             var uniqueIdKey = this._getDataStoreFromSchema(schema).uniqueId || 'id';
             var id = dataItem[uniqueIdKey];
-            if (!originalId) {
-                // new item
-                schema.dataItems.push(dataItem);
-            }
-            this.redrawTable(schema);
-            $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
             /** @var {DataManagagerSaveEventData} eventData */
             var eventData = {
                 item: dataItem,
@@ -399,6 +396,24 @@
                 originator: this
             };
             this.element.trigger('data.manager.item.saved', eventData);
+        },
+        /**
+         * Called after item has been stored on the server.
+         * New items have a null originalId. Updated items have a non-empty originalId.
+         *
+         * @param {Object} schema
+         * @param {Object} dataItem
+         * @param {String|null} originalId
+         * @private
+         */
+        _afterSave: function(schema, dataItem, originalId) {
+            if (!originalId) {
+                // new item
+                schema.dataItems.push(dataItem);
+            }
+            this.redrawTable(schema);
+            this._saveEvent(schema, dataItem, originalId);
+            $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
         },
         /**
          * @param {Object} schema
@@ -625,16 +640,14 @@
             });
         },
         /**
-         * Called after item has been deleted from the server
+         * Produces event after item has been deleted server-side
          *
-         * @param {DataManagerSchemaConfig} schema
-         * @param {Object} dataItem
-         * @param {String} id
+         * @param schema
+         * @param dataItem
+         * @param id
          * @private
          */
-        _afterRemove: function(schema, dataItem, id) {
-            schema.dataItems = _.without(schema.dataItems, dataItem);
-            this.redrawTable(schema);
+        _deleteEvent: function(schema, dataItem, id) {
             // Quirky jquery ui event. Triggers a 'mbdatamanagerremove' on this.element. Limited legacy data payload.
             this._trigger('removed', null, {
                 schema: schema,
@@ -655,6 +668,19 @@
             // Listeners should prefer data.manager.deleted because a) it is much easier to search for non-magic, explicit
             // event names in project code; b) it contains more data
             this.element.trigger('data.manager.deleted', eventData);
+        },
+        /**
+         * Called after item has been deleted from the server
+         *
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} dataItem
+         * @param {String} id
+         * @private
+         */
+        _afterRemove: function(schema, dataItem, id) {
+            schema.dataItems = _.without(schema.dataItems, dataItem);
+            this.redrawTable(schema);
+            this._deleteEvent(schema, dataItem, id);
             $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info');
         },
         redrawTable: function(schema) {
