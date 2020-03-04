@@ -121,7 +121,7 @@
 
             if (hasOnlyOneScheme) {
                 var singleScheme = _.first(_.toArray(this.options.schemes));
-                var title = singleScheme.title || singleScheme.label || singleScheme.schemaName;
+                var title = singleScheme.label || singleScheme.schemaName;
                 if(title) {
                     element.append($('<h3 class="title"/>').text(title));
                 }
@@ -132,7 +132,7 @@
             // build select options
             _.each(options.schemes, function(schema, schemaName) {
                 var option = $("<option/>");
-                option.val(schemaName).html(schema.label ? schema.label : schemaName);
+                option.val(schemaName).text(schema.label || schemaName);
                 option.data("schema", schema);
                 selector.append(option);
             });
