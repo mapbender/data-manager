@@ -102,6 +102,8 @@
         },
         /** @type {{DataManagerSchemaConfig|null}} */
         currentSettings: null,
+        /** @type {Array.<Object>} */
+        currentItems: [],
         featureEditDialogWidth: "423px",
 
         _create: function() {
@@ -415,7 +417,7 @@
         _afterSave: function(schema, dataItem, originalId) {
             if (!originalId) {
                 // new item
-                schema.dataItems.push(dataItem);
+                this.currentItems.push(dataItem);
             }
             this.redrawTable(schema);
             this._saveEvent(schema, dataItem, originalId);
@@ -620,7 +622,7 @@
             return this.getJSON('select', {
                     schema: schema.schemaName
             }).done(function(dataItems) {
-                schema.dataItems = dataItems;
+                widget.currentItems = dataItems;
                 widget.redrawTable(schema);
             });
         },
@@ -688,7 +690,7 @@
          * @private
          */
         _afterRemove: function(schema, dataItem, id) {
-            schema.dataItems = _.without(schema.dataItems, dataItem);
+            this.currentItems = _.without(this.currentItems, dataItem);
             this.redrawTable(schema);
             this._deleteEvent(schema, dataItem, id);
             $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info');
@@ -697,7 +699,7 @@
             var $tableWrap = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', this.element);
             var tableApi = $tableWrap.resultTable('getApi');
             tableApi.clear();
-            tableApi.rows.add(schema.dataItems);
+            tableApi.rows.add(this.currentItems);
             tableApi.draw();
         },
         /**
