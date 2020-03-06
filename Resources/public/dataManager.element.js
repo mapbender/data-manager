@@ -21,7 +21,7 @@
      * @typedef {Object} DataManagagerBaseEventData
      * @property {Object} item
      * @property {String} itemId
-     * @property {Object} schema
+     * @property {DataManagerSchemaConfig} schema
      * @property {*} originator sending widget instance
      */
     /**
@@ -31,7 +31,7 @@
      */
     /**
      * @typedef {DataManagagerBaseEventData} DataManagagerSaveEventData
-     * @property {String|null} originalId null for newly saved item
+     * @property {(String|null)} originalId null for newly saved item
      * @property {String} uniqueIdKey legacy: name of attribute on item that contains id
      * @property {String} schemaName identifier for schema
      * @property {String} scheme legacy (ambiguous): alias for schemaName
@@ -57,7 +57,7 @@
             buttons:     [{
                 // @todo: translate
                 text:  "OK",
-                click: function(e) {
+                click: function() {
                     // work around vis-ui forgetting to remove its invisible modal block
                     $(this).popupDialog('close');
                     // ... then do what we actually need to do
@@ -68,7 +68,7 @@
                 // @todo: translate
                 text:    "Abbrechen",
                 'class': 'critical',
-                click:   function(e) {
+                click:   function() {
                     // work around vis-ui forgetting to remove its invisible modal block
                     $(this).popupDialog('close');
                     // ... then do what we actually need to do
@@ -87,7 +87,7 @@
      */
     function escapeHtml(text) {
         'use strict';
-        return text.replace(/[\"&'\/<>]/g, function (a) {
+        return text.replace(/["&'\/<>]/g, function (a) {
             return {
                 '"': '&quot;', '&': '&amp;', "'": '&#39;',
                 '/': '&#47;',  '<': '&lt;',  '>': '&gt;'
@@ -100,7 +100,7 @@
             /** @type {Object<String, DataManagerSchemaConfig>} */
             schemes: {}
         },
-        /** @type {DataManagerSchemaConfig|null} */
+        /** @type {{DataManagerSchemaConfig|null}} */
         currentSettings: null,
         featureEditDialogWidth: "423px",
 
@@ -224,7 +224,6 @@
          */
         _buildTableRowButtons: function(schema) {
             var buttons = [];
-            var self = this;
             // @todo: surely this requires checking schema.allowEdit
             buttons.push({
                 title: Mapbender.trans('mb.data.store.edit'),
@@ -277,7 +276,7 @@
             });
         },
         /**
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @return {jQuery}
          * @private
          */
@@ -307,7 +306,7 @@
             return $tableWrap;
         },
         /**
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @return {jQuery}
          * @private
          */
@@ -342,8 +341,8 @@
             return frame;
         },
         /**
-         * @param {Object} schema
-         * @param {*} id
+         * @param {DataManagerSchemaConfig} schema
+         * @param {String|null} id
          * @param {Object} dataItem
          * @return {Promise}
          * @private
@@ -375,14 +374,15 @@
          * Produces event after item has been saved on the server.
          * New items have a null originalId. Updated items have a non-empty originalId.
          *
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @param {Object} dataItem
-         * @param {String|null} originalId
+         * @param {(String|null)} originalId
          * @private
          */
         _saveEvent: function(schema, dataItem, originalId) {
             // @todo: this default should be server provided
             var uniqueIdKey = this._getDataStoreFromSchema(schema).uniqueId || 'id';
+            /** @type {String} */
             var id = dataItem[uniqueIdKey];
             /** @var {DataManagagerSaveEventData} eventData */
             var eventData = {
@@ -401,7 +401,7 @@
          * Called after item has been stored on the server.
          * New items have a null originalId. Updated items have a non-empty originalId.
          *
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @param {Object} dataItem
          * @param {String|null} originalId
          * @private
@@ -416,7 +416,7 @@
             $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
         },
         /**
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @param {jQuery} $form
          * @param {Object} [dataItem]
          * @return {boolean|Promise}
@@ -589,7 +589,7 @@
                     }
                     var src = dbSrc || origSrc;
                     // why do we support a distinct 'relative' image type if this means supporting both absolute and relative?
-                    if (item.relative && !src.test(/^(http[s]?\:|\/{2})/)) {
+                    if (item.relative && !src.test(/^(http[s]?:|\/{2})/)) {
                         src = Mapbender.configuration.application.urls.asset + src;
                     }
                     if (src !== item.src) {
@@ -622,7 +622,7 @@
         /**
          * Remove data item
          *
-         * @param {Object} schema
+         * @param {DataManagerSchemaConfig} schema
          * @param {Object} dataItem
          */
         removeData: function(schema, dataItem) {
