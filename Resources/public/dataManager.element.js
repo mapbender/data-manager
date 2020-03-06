@@ -315,7 +315,21 @@
                 .addClass('frame')
                 .data("schema", schema)
             ;
-            var $buttons = $('<div>').addClass('btn-group schema-toolset');
+            var $toolset = $('<div>').addClass('btn-group schema-toolset');
+            frame.append($toolset);
+            this._updateToolset($toolset, schema);
+
+            frame.append($toolset);
+            frame.append(this._renderTable(schema));
+            return frame;
+        },
+        /**
+         * @param {jQuery} $container
+         * @param {DataManagerSchemaConfig} schema
+         * @private
+         */
+        _updateToolset: function($container, schema) {
+            $container.empty();
             if(schema.allowRefresh) {       // how?
                 var $refreshButton = $('<button>').data('schema', schema).attr({
                     type: 'button',
@@ -323,7 +337,7 @@
                     title: Mapbender.trans('mb.data.store.create')      // sic! @todo: distinct translation
                 });
                 $refreshButton.append($('<i/>').addClass('fa fa-refresh'));
-                $buttons.append($refreshButton);
+                $container.append($refreshButton);
             }
 
             if(schema.allowCreate) {
@@ -333,12 +347,8 @@
                     title: Mapbender.trans('mb.data.store.create')
                 });
                 $createButton.append($('<i/>').addClass('fa fa-plus'));
-                $buttons.append($createButton);
+                $container.append($createButton);
             }
-
-            frame.append($buttons);
-            frame.append(this._renderTable(schema));
-            return frame;
         },
         /**
          * @param {DataManagerSchemaConfig} schema
