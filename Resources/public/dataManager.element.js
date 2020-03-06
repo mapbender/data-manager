@@ -390,16 +390,12 @@
          * @private
          */
         _saveEvent: function(schema, dataItem, originalId) {
-            // @todo: this default should be server provided
-            var uniqueIdKey = this._getDataStoreFromSchema(schema).uniqueId || 'id';
-            /** @type {String} */
-            var id = dataItem[uniqueIdKey];
             /** @var {DataManagagerSaveEventData} eventData */
             var eventData = {
                 item: dataItem,
-                itemId: id,
+                itemId: this._getUniqueItemId(schema, dataItem),
                 originalId: originalId,
-                uniqueIdKey: uniqueIdKey,
+                uniqueIdKey: this._getUniqueItemIdProperty(schema),
                 schema: schema,
                 schemaName: schema.schemaName,
                 scheme: schema.schemaName,
@@ -436,7 +432,7 @@
             var formData = $form.formData();
             if (!$(".has-error", $form).length) {
                 $form.disableForm();
-                var uniqueIdAttribute = this._getDataStoreFromSchema(schema).uniqueId;
+                var uniqueIdAttribute = this._getUniqueItemIdProperty(schema);
                 var uniqueId = (dataItem && dataItem[uniqueIdAttribute]) || null;
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
                     console.warn("Form contains an input field for the object id", schema);
@@ -637,9 +633,7 @@
          */
         removeData: function(schema, dataItem) {
             var widget = this;
-            // @todo: this default should be server provided
-            var idPropertyName = this._getDataStoreFromSchema(schema).uniqueId || 'id';
-            var id = dataItem[idPropertyName];
+            var id = this._getUniqueItemId(schema, dataItem);
             if (!id) {
                 throw new Error("Can't delete item without id from server");
             }
@@ -705,6 +699,24 @@
             tableApi.clear();
             tableApi.rows.add(schema.dataItems);
             tableApi.draw();
+        },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @return {String}
+         * @private
+         */
+        _getUniqueItemIdProperty: function(schema) {
+            // @todo: this default should be server provided
+            return this._getDataStoreFromSchema(schema).uniqueId || 'id';
+        },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} item
+         * @return {(String|null)}
+         * @private
+         */
+        _getUniqueItemId: function(schema, item) {
+            return item[this._getUniqueItemIdProperty(schema)];
         },
         /**
          * @param {String} title
