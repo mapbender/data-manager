@@ -36,14 +36,14 @@
             var popupContainer = $popupForm.closest('.popup');
             var yamlEditorElement = $(".code-yaml > div", $popupForm);
 
-            popupContainer.animate({
+            popupContainer.css({
                 width:  '100%',
                 height: '100%'
-            }, 350);
+            });
 
-            yamlEditorElement.animate({
+            yamlEditorElement.css({
                 height: $(window).height() - 382
-            }, 350);
+            });
         })
     </script>
     {{ form_row(form.title) }}
