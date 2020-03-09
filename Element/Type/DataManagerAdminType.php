@@ -36,6 +36,9 @@ class DataManagerAdminType extends AbstractType
                 'attr' => array(
                     'class' => 'code-yaml',
                 ),
+                'label_attr' => array(
+                    'class' => 'block',
+                ),
             ))
         ;
     }
