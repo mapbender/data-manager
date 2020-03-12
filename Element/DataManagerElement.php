@@ -12,8 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * Class DataManagerElement
- *
  * @author  Andriy Oblivantsev <eslider@gmail.com>
  */
 class DataManagerElement extends BaseElement
@@ -26,6 +24,7 @@ class DataManagerElement extends BaseElement
      */
     public static function getClassTitle()
     {
+        // @todo: translations
         return "Data manager";
     }
 
@@ -34,6 +33,7 @@ class DataManagerElement extends BaseElement
      */
     public static function getClassDescription()
     {
+        // @todo: translations
         return "Data manager element";
     }
 
