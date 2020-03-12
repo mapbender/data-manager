@@ -83,4 +83,13 @@
       z-index: 1;
     }
   }
+  .fileinput-button {
+    position: relative;
+    input {
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      width: 100%;
+    }
+  }
 }
