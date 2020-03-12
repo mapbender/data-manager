@@ -1,4 +1,4 @@
-# 1.0.6.3
+# 1.0.6.4
 - Fix empty table row "ghosts" appearing when cancelling new item creation
 - Fix broken file upload implementation
 - Fix popup positioning when switching between object detail forms without manually closing previous popup first
@@ -15,6 +15,9 @@
 - Resolve Mapbender Element API deprecations (backward-compatible)
 - Resolve FontAwesome 5 incompatibilities
 - Add [event documentation](./events.md)
+
+# 1.0.6.3
+- Nothing
 
 # 1.0.6.2
 - Extract frontend twig
