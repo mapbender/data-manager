@@ -877,32 +877,6 @@
     });
 
 
-    /**
-     * This piece of code is actually an extension of digitizer / data-manager Popup Dialog that belongs to a specific custom bundle and should be part of
-     * a common digitizer/datamanager base class extended in the specific bundle
-     */
-    $.widget("rvr.popupDialog", $["vis-ui-js"].popupDialog, {
-
-        _create: function() {
-            this._super();
-            var element = this.element;
-
-            element.bind("has-error",function(event,p) {
-                var tabDiv = event.target.closest(".tab-content");
-                var tabId = $(tabDiv).attr("aria-labelledby");
-                var tabControl = $(tabDiv.closest(".ui-tabs")).find("li[aria-labelledby="+tabId+"][aria-selected=false]");
-                if (tabControl.length > 0) {
-                    tabControl.find("a").attr("style","color:white;background-color:#ae6170 !important");
-                    tabControl.one("click",function(){
-                        tabControl.find("a").removeAttr("style");
-                    });
-
-                }
-            });
-
-        }
-    });
-
 
 })(jQuery);
 
