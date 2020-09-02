@@ -687,7 +687,6 @@
                 if (item.hasOwnProperty('dataManagerLink')) {
                     var fieldName = item.dataManagerLink.fieldName;
                     var schemaName = item.dataManagerLink.schema;
-                    console.log(fieldName, schemaName);
 
                     var getRowId = function(tableApi,rowData) {
                         var rowId = null;
