@@ -546,15 +546,18 @@
                     if (formItem.dataManagerLink) {
                         var schemaName = formItem.dataManagerLink.schema;
                         var fieldName = formItem.dataManagerLink.fieldName;
+
                         var dm = widget.getConnectedDataManager();
-                        if (!dataItem[fieldName]) {
+                        var id = schema.dataStore.uniqueId;
+
+                        if (!feature[id]) {
                             $(table).siblings(".button").attr("disabled","disabled");
                         }
                         dm.withSchema(schemaName, function (schema) {
                             var tableApi = $(table).resultTable('getApi');
                             tableApi.clear();
                             tableApi.rows.add(schema.dataItems.filter(function (dataItem) {
-                                return dataItem[fieldName] == feature[fieldName];
+                                return dataItem[fieldName] == feature[id];
                             }));
                             tableApi.draw();
                         });
@@ -684,6 +687,7 @@
                 if (item.hasOwnProperty('dataManagerLink')) {
                     var fieldName = item.dataManagerLink.fieldName;
                     var schemaName = item.dataManagerLink.schema;
+                    console.log(fieldName, schemaName);
 
                     var getRowId = function(tableApi,rowData) {
                         var rowId = null;
