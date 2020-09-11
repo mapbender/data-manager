@@ -462,7 +462,7 @@
             this._closeCurrentPopup();
 
             var dialog = $("<div/>");
-            var formItems = widget.currentSettings.formItems.map(function(item) {
+            var formItems = schema.formItems.map(function(item) {
                 return widget._processFormItem(schema, item, dataItem);
             });
             dialog.generateElements({children: formItems});
