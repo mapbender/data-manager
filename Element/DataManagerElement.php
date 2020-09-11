@@ -280,10 +280,11 @@ class DataManagerElement extends BaseElement
     protected function getDataStoreConfigForSchema($schemaName)
     {
         $schemaConfig = $this->getSchemaConfig($schemaName, true);
-        if (empty($schemaConfig['dataStore'])) {
+        $dsConfigKey = $this->getDataStoreKeyInSchemaConfig();
+        if (empty($schemaConfig[$dsConfigKey])) {
             throw new ConfigurationErrorException("Missing dataStore configuration for schema " . print_r($schemaName, true));
         }
-        return $this->resolveDataStoreConfig($schemaConfig['dataStore']);
+        return $this->resolveDataStoreConfig($schemaConfig[$dsConfigKey]);
     }
 
     /**
@@ -296,9 +297,10 @@ class DataManagerElement extends BaseElement
         if (isset($rawConfig['formItems'])) {
             $prepared['formItems'] = $this->prepareItems($rawConfig['formItems']);
         }
+        $dsConfigKey = $this->getDataStoreKeyInSchemaConfig();
         // lenient mode: ignore missing dataStore setting for Digitizer inheritance
-        if (isset($rawConfig['dataStore'])) {
-            $prepared['dataStore'] = $this->resolveDataStoreConfig($rawConfig['dataStore']);
+        if (isset($rawConfig[$dsConfigKey])) {
+            $prepared[$dsConfigKey] = $this->resolveDataStoreConfig($rawConfig[$dsConfigKey]);
         }
         return $prepared;
     }
@@ -457,6 +459,19 @@ class DataManagerElement extends BaseElement
             }
         }
         return $item;
+    }
+
+    /**
+     * Names the key inside the schema top-level config where data store config
+     * is located.
+     * Override support for child classes (Digitizer uses featureType instead
+     * of the default dataStore).
+     * @return string
+     * @todo: remove duplicated implementation (will require data-source ^0.1.17)
+     */
+    protected function getDataStoreKeyInSchemaConfig()
+    {
+        return 'dataStore';
     }
 
     /**
