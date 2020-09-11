@@ -1,3 +1,8 @@
+# 1.0.7
+- Fix openEditDialog to use passed schema
+- Extract method getDefaultUploadsPath to support Digitizer / other child class customization
+- Extract method getDatastoreKeyInSchemaConfig method to Support Digitizer / other child class customization
+
 # 1.0.6.4
 - Fix empty table row "ghosts" appearing when cancelling new item creation
 - Fix broken file upload implementation
