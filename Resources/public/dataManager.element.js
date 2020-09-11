@@ -14,6 +14,7 @@
      * @property {boolean} allowEdit
      * @property {boolean} allowCreate
      * @property {boolean} allowDelete
+     * @property {String} label
      * @property {Array<*>} formItems
      * @property {*} table
      */
@@ -134,14 +135,51 @@
             // build select options
             _.each(options.schemes, function(schema, schemaName) {
                 var option = $("<option/>");
-                option.val(schemaName).text(schema.label || schemaName);
+                var schema = widget._schemaFactory(schemaConfig, key);
+                option.val(schema.schemaName).text(schema.label);
                 option.data("schema", schema);
                 selector.append(option);
             });
 
             this._initializeEvents();
-            widget._trigger('ready');
-            selector.trigger('change');
+            this._afterCreate();
+        },
+        /**
+         * Called before binding schema to schema selection dropdown, effectively before
+         * using schema in any scope. Support for child classes that want to add methods or
+         * extend / modify / freeze the schema config otherwise before using it.
+         * @param {DataManagerSchemaConfig} schemaConfig
+         * @param {String|Number} key used as last-resort fallback for schema name
+         * @return {*}
+         * @private
+         */
+        _schemaFactory: function(schemaConfig, key) {
+            if (!schemaConfig.schemaName) {
+                schemaConfig.schemaName = key;
+            }
+            if (!schemaConfig.label) {
+                schemaConfig.label = schemaConfig.schemaName;
+            }
+            return schemaConfig;
+        },
+        /**
+         * Unraveled from _create for child class actions after initialization, but
+         * before triggering ready event and loading the first set of data.
+         * @private
+         */
+        _afterCreate: function() {
+            this._start();
+        },
+        /**
+         * Loads and displays data from initially selected schema.
+         * Unraveled from _create for child classes need to act after our initialization,
+         * but before loading the first set of data.
+         * @private
+         */
+        _start: function() {
+            this._trigger('ready');
+            // Use schema change event, it does everything we need
+            this.selector.trigger('change');
         },
         _initializeEvents: function() {
             var self = this;
@@ -251,10 +289,10 @@
          * @return {Array<Object>}
          * @see https://datatables.net/reference/option/columns
          * @private
-         * @todo Digitizer: table configuration is structurally incompatible, placed in attribute tableFields
          */
         _buildTableColumnsOptions: function(schema) {
-            return (schema.table.columns || []).map(function(fieldSettings) {
+            var columnConfigs = this._getTableColumnsConfiguration(schema);
+            return (columnConfigs || []).map(function(fieldSettings) {
                 return $.extend({}, fieldSettings, {
                     fieldName: fieldSettings.data,  // why?
                     render: function(data, type, row) {
@@ -276,6 +314,14 @@
                     }
                 });
             });
+        },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @return {Array|undefined}
+         * @private
+         */
+        _getTableColumnsConfiguration: function(schema) {
+            return (schema.table || {}).columns;
         },
         /**
          * @param {DataManagerSchemaConfig} schema
