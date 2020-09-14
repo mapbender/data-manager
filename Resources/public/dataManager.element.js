@@ -39,49 +39,6 @@
      */
 
     /**
-     * @param {String} title
-     * @returns {Promise}
-     */
-    function confirmDialog(title) {
-
-        // @todo: bypass vis-ui / jquerydialogextend auto-monkey-patching
-        var $dialog =$('<div/>').addClass('confirm-dialog');
-        var deferred = $.Deferred();
-        $dialog.popupDialog({
-            title: title,
-            maximizable: false,
-            dblclick:    false,
-            minimizable: false,
-            resizable:   false,
-            collapsable: false,
-            modal:       true,
-            buttons:     [{
-                // @todo: translate
-                text:  "OK",
-                click: function() {
-                    // work around vis-ui forgetting to remove its invisible modal block
-                    $(this).popupDialog('close');
-                    // ... then do what we actually need to do
-                    $(this).popupDialog('destroy');
-                    deferred.resolveWith(true);
-                }
-            }, {
-                // @todo: translate
-                text:    "Abbrechen",
-                'class': 'critical',
-                click:   function() {
-                    // work around vis-ui forgetting to remove its invisible modal block
-                    $(this).popupDialog('close');
-                    // ... then do what we actually need to do
-                    $(this).popupDialog('destroy');
-                    deferred.reject();
-                }
-            }]
-        });
-        return deferred;
-    }
-
-    /**
      * Escape HTML chars
      * @param text
      * @returns {string}
@@ -200,8 +157,8 @@
             });
             this.element.on('click', '.-fn-refresh-schema', function() {
                 var schema = $(this).data('schema');
-                if(self.currentPopup) {
-                    confirmDialog(Mapbender.trans('mb.data.store.confirm.close.edit.form')).then(function() {
+                if (self.currentPopup) {
+                    self.confirmDialog(Mapbender.trans('mb.data.store.confirm.close.edit.form')).then(function() {
                         self._closeCurrentPopup();
                         self._getData(schema);
                     });
@@ -699,7 +656,7 @@
             if (!id) {
                 throw new Error("Can't delete item without id from server");
             }
-            confirmDialog(Mapbender.trans('mb.data.store.remove.confirm.text')).then(function() {
+            this.confirmDialog(Mapbender.trans('mb.data.store.remove.confirm.text')).then(function() {
                 var params ={
                     schema: schema.schemaName,
                     id: id
@@ -781,11 +738,6 @@
             return item[this._getUniqueItemIdProperty(schema)];
         },
         /**
-         * @param {String} title
-         * @return {Promise}
-         */
-        confirmDialog: confirmDialog,
-        /**
          * @param {String} uri
          * @param {Object} [data]
          * @return {jQuery.Deferred}
@@ -811,7 +763,51 @@
             var errorMessage = Mapbender.trans('mb.data.store.api.query.error-message');
             $.notify(errorMessage + JSON.stringify(xhr.responseText));
             console.log(errorMessage, xhr);
-        }
+        },
+        /**
+         * Promise-based confirmation dialog utility.
+         * @param {String} title
+         * @return {Promise}
+         * @static
+         */
+        confirmDialog: function confirmDialog(title) {
+            // @todo: bypass vis-ui / jquerydialogextend auto-monkey-patching
+            var $dialog =$('<div/>').addClass('confirm-dialog');
+            var deferred = $.Deferred();
+            $dialog.popupDialog({
+                title: title,
+                maximizable: false,
+                dblclick:    false,
+                minimizable: false,
+                resizable:   false,
+                collapsable: false,
+                modal:       true,
+                buttons:     [{
+                    // @todo: translate
+                    text:  "OK",
+                    click: function() {
+                        // work around vis-ui forgetting to remove its invisible modal block
+                        $(this).popupDialog('close');
+                        // ... then do what we actually need to do
+                        $(this).popupDialog('destroy');
+                        deferred.resolveWith(true);
+                    }
+                }, {
+                    // @todo: translate
+                    text:    "Abbrechen",
+                    'class': 'critical',
+                    click:   function() {
+                        // work around vis-ui forgetting to remove its invisible modal block
+                        $(this).popupDialog('close');
+                        // ... then do what we actually need to do
+                        $(this).popupDialog('destroy');
+                        deferred.reject();
+                    }
+                }]
+            });
+            return deferred;
+        },
+        __dummy: null
     });
 
 })(jQuery);
