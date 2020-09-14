@@ -345,7 +345,7 @@
                 $container.append($refreshButton);
             }
 
-            if(schema.allowCreate) {
+            if (this._allowDirectItemCreation(schema)) {
                 var $createButton = $('<button>').data('schema', schema).attr({
                     type: 'button',
                     'class': 'btn btn-sm -fn-create-item',
@@ -452,6 +452,19 @@
             } else {
                 return false;
             }
+        },
+        /**
+         * Support immediate top-level creation via tool button?
+         * Override support for Digitizer, which creates different item
+         * types with different drawing tools, and cannot allow item creation
+         * based purely on form input.
+         *
+         * @param {DataManagerSchemaConfig} schema
+         * @return {boolean}
+         * @private
+         */
+        _allowDirectItemCreation: function(schema) {
+            return !!schema.allowCreate;
         },
         /**
          * Open edit feature dialog
