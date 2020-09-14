@@ -38,21 +38,6 @@
      * @property {String} scheme legacy (ambiguous): alias for schemaName
      */
 
-    /**
-     * Escape HTML chars
-     * @param text
-     * @returns {string}
-     */
-    function escapeHtml(text) {
-        'use strict';
-        return text.replace(/["&'\/<>]/g, function (a) {
-            return {
-                '"': '&quot;', '&': '&amp;', "'": '&#39;',
-                '/': '&#47;',  '<': '&lt;',  '>': '&gt;'
-            }[a];
-        });
-    }
-
     $.widget("mapbender.mbDataManager", {
         options: {
             /** @type {Object<String, DataManagerSchemaConfig>} */
@@ -253,6 +238,7 @@
          */
         _buildTableColumnsOptions: function(schema) {
             var columnConfigs = this._getTableColumnsConfiguration(schema);
+            var escapeHtml = this.escapeHtml;
             return (columnConfigs || []).map(function(fieldSettings) {
                 return $.extend({}, fieldSettings, {
                     fieldName: fieldSettings.data,  // why?
@@ -806,6 +792,21 @@
                 }]
             });
             return deferred;
+        },
+        /**
+         * Utility method to escape HTML chars
+         * @param {String} text
+         * @returns {string}
+         * @static
+         */
+        escapeHtml: function escapeHtml(text) {
+            'use strict';
+            return text.replace(/["&'\/<>]/g, function (a) {
+                return {
+                    '"': '&quot;', '&': '&amp;', "'": '&#39;',
+                    '/': '&#47;',  '<': '&lt;',  '>': '&gt;'
+                }[a];
+            });
         },
         __dummy: null
     });
