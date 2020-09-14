@@ -280,7 +280,7 @@
                     cssClass: 'critical fa fa-times -fn-delete'
                 });
             }
-            if (schema.table.buttons) {
+            if ((schema.table || {}).buttons) {
                 // why flatten...?
                 // how exactly can the table configuration define row buttons?
                 return _.flatten(buttons, schema.table.buttons);
