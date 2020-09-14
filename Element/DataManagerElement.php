@@ -240,7 +240,7 @@ class DataManagerElement extends BaseElement
      * * formItems prepared
      * * featureType string reference resolved to full featureType configuration + featureTypeName entry
      *
-     * Pass $raw = true to skip prepareItems / featureType resolution
+     * Pass $raw = true to skip prepareItems / dataStore / featureType resolution
      *
      * @param string $schemaName
      * @param bool $raw
@@ -257,10 +257,13 @@ class DataManagerElement extends BaseElement
                 throw new UnknownSchemaException("No such schema " . print_r($schemaName, true));
             }
             $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $entityConfig['schemes'][$schemaName]);
+            // always guarantee "schemaName" and "label" properties, even with $raw = true
+            $schemaConfig['schemaName'] = $schemaName;
+            if (empty($schemaConfig['label'])) {
+                $schemaConfig['label'] = $schemaName;
+            }
             if (!$raw) {
-                $schemaConfig = array_replace($this->prepareSchemaConfig($schemaConfig), array(
-                    'schemaName' => $schemaName,
-                ));
+                $schemaConfig = $this->prepareSchemaConfig($schemaConfig);
                 // buffer for next invocation
                 $this->schemaConfigs[$schemaName] = $schemaConfig;
             } else {

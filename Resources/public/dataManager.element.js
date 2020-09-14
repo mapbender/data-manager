@@ -146,11 +146,10 @@
             $container.append(selector);
 
             // build select options
-            _.each(this.options.schemes, function(schemaConfig, key) {
+            _.each(this.options.schemes, function(schemaConfig) {
                 var option = $("<option/>");
-                var schema = widget._schemaFactory(schemaConfig, key);
-                option.val(schema.schemaName).text(schema.label);
-                option.data("schema", schema);
+                option.val(schemaConfig.schemaName).text(schemaConfig.label);
+                option.data('schema', widget._schemaFactory(schemaConfig));
                 selector.append(option);
             });
             return selector;
@@ -160,17 +159,11 @@
          * using schema in any scope. Support for child classes that want to add methods or
          * extend / modify / freeze the schema config otherwise before using it.
          * @param {DataManagerSchemaConfig} schemaConfig
-         * @param {String|Number} key used as last-resort fallback for schema name
          * @return {*}
          * @private
          */
-        _schemaFactory: function(schemaConfig, key) {
-            if (!schemaConfig.schemaName) {
-                schemaConfig.schemaName = key;
-            }
-            if (!schemaConfig.label) {
-                schemaConfig.label = schemaConfig.schemaName;
-            }
+        _schemaFactory: function(schemaConfig) {
+            // return incoming object as is, no transformation
             return schemaConfig;
         },
         /**
