@@ -108,41 +108,52 @@
         featureEditDialogWidth: "423px",
 
         _create: function() {
+            this.elementUrl = [
+                Mapbender.configuration.application.urls.element,
+                this.element.attr('id'),
+                ''  // produce trailing slash
+            ].join('/');
+            this.selector = $(this._renderSchemaSelector(this.element));
+            this._initializeEvents();
+            this._afterCreate();
+        },
+        /**
+         * @param {jQuery} $container to render into
+         * @return {*|jQuery|HTMLElement} should always be (or wrap) the <select> tag
+         * @private
+         */
+        _renderSchemaSelector: function($container) {
             var widget = this;
-            var element = widget.element;
-            var selector = widget.selector = $('<select class="selector"/>');
+            var selector = $('<select class="selector -fn-schema-selector"/>');
             if ((typeof this.options.schemes !== 'object') || $.isArray(this.options.schemes)) {
                 throw new Error("Invalid type for schemes configuration " + (typeof this.options.schemes));
             }
-            if (!Object.keys(this.options.schemes).length) {
+            // Use _.size, to support both Array and Object types
+            var nSchemes = _.size(this.options.schemes);
+            if (!nSchemes) {
                 throw new Error("Missing schemes configuration");
             }
 
-            var options = widget.options;
-            var hasOnlyOneScheme = widget.hasOnlyOneScheme = _.size(options.schemes) === 1;
-            widget.elementUrl = Mapbender.configuration.application.urls.element + '/' + element.attr('id') + '/';
-
-            if (hasOnlyOneScheme) {
+            if (nSchemes === 1) {
                 var singleScheme = _.first(_.toArray(this.options.schemes));
                 var title = singleScheme.label || singleScheme.schemaName;
                 if(title) {
-                    element.append($('<h3 class="title"/>').text(title));
+                    $container.append($('<h3 class="title"/>').text(title));
                 }
                 selector.hide();
             }
-            element.append(selector);
+            this.hasOnlyOneScheme = (nSchemes === 1);
+            $container.append(selector);
 
             // build select options
-            _.each(options.schemes, function(schema, schemaName) {
+            _.each(this.options.schemes, function(schemaConfig, key) {
                 var option = $("<option/>");
                 var schema = widget._schemaFactory(schemaConfig, key);
                 option.val(schema.schemaName).text(schema.label);
                 option.data("schema", schema);
                 selector.append(option);
             });
-
-            this._initializeEvents();
-            this._afterCreate();
+            return selector;
         },
         /**
          * Called before binding schema to schema selection dropdown, effectively before
