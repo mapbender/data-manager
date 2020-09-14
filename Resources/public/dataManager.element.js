@@ -328,11 +328,12 @@
             return (schema.table || {}).columns;
         },
         /**
+         * Returns options used to initialize resultTable widget.
          * @param {DataManagerSchemaConfig} schema
-         * @return {jQuery}
+         * @return {Object}
          * @private
          */
-        _renderTable: function(schema) {
+        _getTableSettings: function(schema) {
             var settings = _.extend({
                 lengthChange: false,
                 pageLength:   20,
@@ -353,6 +354,15 @@
                     schema: schema
                 });
             };
+            return settings;
+        },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @return {jQuery}
+         * @private
+         */
+        _renderTable: function(schema) {
+            var settings = this._getTableSettings(schema);
             var $tableWrap = $("<div/>").resultTable(settings);
             $tableWrap.attr('data-schema-name', schema.schemaName);
             return $tableWrap;
