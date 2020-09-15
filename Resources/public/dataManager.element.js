@@ -196,12 +196,15 @@
         _deactivateSchema: function(schema) {
             this._closeCurrentPopup();
         },
-        _onSchemaSelectorChange: function() {
+        _getCurrentSchema: function() {
             var $select = $('select.selector', this.element);
             var option = $('option:selected', $select);
-            var schema = option.data("schema");
-            this._activateSchema(schema);
-            this._getData(schema);
+            return option.data("schema");
+        },
+        _onSchemaSelectorChange: function() {
+            var schemaNew = this._getCurrentSchema();
+            this._activateSchema(schemaNew);
+            this._getData(schemaNew);
         },
         /**
          * @param {DataManagerSchemaConfig} schema
