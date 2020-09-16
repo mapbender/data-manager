@@ -18,6 +18,8 @@ class DataManagerElement extends BaseElement
 {
     /** @var mixed[] lazy-initialized entries */
     protected $schemaConfigs = array();
+    /** @var null|TranslatorInterface */
+    protected $translator;
 
     /**
      * @inheritdoc
@@ -485,16 +487,25 @@ class DataManagerElement extends BaseElement
      */
     protected function resolveTableTranslations(array $values)
     {
-        static $translator = null;      // optimize away service lookup over repeated invocations
+        $translator = $this->getTranslator();
         foreach ($values as $key => $value) {
             if (is_string($value) && preg_match('#^trans:\w+([\.\-]\w+)*$#', $value)) {
-                /** @var TranslatorInterface $translator */
-                $translator = $translator ?: $this->container->get('translator');
                 $values[$key] = $translator->trans(substr($value, /* strlen('trans:') */ 6));
             } elseif (is_array($value)) {
                 $values[$key] = $this->resolveTableTranslations($values);
             }
         }
         return $values;
+    }
+
+    /**
+     * @return TranslatorInterface
+     */
+    protected function getTranslator()
+    {
+        if (!$this->translator) {
+            $this->translator = $this->container->get('translator');
+        }
+        return $this->translator;
     }
 }
