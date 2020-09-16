@@ -111,7 +111,7 @@ class DataManagerElement extends BaseElement
                 // Policy: make a top-level configuration setting available for DB applications or not at all; Yaml-app-only HACKs are not acceptable
                 @trigger_error("WARNING: element config for " .get_class($this) . "#{$this->entity->getId()} contains illegal settings for 'tableTranslation', configurable only in a Yaml-defined application", E_USER_DEPRECATED);
             }
-            $configuration['tableTranslations'] = $this->resolveTableTranslations($configuration['tableTranslations'] ?: array());
+            $configuration['tableTranslation'] = $this->resolveTableTranslations($configuration['tableTranslation'] ?: array());
         }
         return $configuration;
     }
