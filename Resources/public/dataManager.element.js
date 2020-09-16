@@ -438,7 +438,17 @@
          */
         _submitFormData: function(schema, $form, dataItem) {
             var formData = $form.formData();
-            if (!$(".has-error", $form).length) {
+            var $allNamedInputs = $(':input[name]', dialog.$popup);
+            var $invalidInputs = $allNamedInputs.filter(function() {
+                // NOTE: jQuery pseudo-selector :valid can not be chained into a single .find (or snytactic variant)
+                return $(this).is(':not(:valid)');
+            });
+            // @todo vis-ui: some inputs (with ".mandatory") are made invalid only visually when
+            //               empty, but do not have the HTML required or pattern property to
+            //               support selector detection. Work around that here.
+            $invalidInputs = $invalidInputs.add($('.has-error :input', dialog.$popup));
+
+            if (!$invalidInputs.length) {
                 $form.disableForm();
                 var uniqueIdAttribute = this._getUniqueItemIdProperty(schema);
                 var uniqueId = (dataItem && dataItem[uniqueIdAttribute]) || null;
@@ -525,6 +535,8 @@
                 var saveButton = {
                     text: Mapbender.trans('mb.data.store.save'),
                     click: function() {
+                        // HACK: depending on configuration, there may not even be a form tag
+                        //       in the current editing dialog
                         var $form = $(this).closest('.ui-dialog-content');
                         var saved = widget._submitFormData(schema, $form, dataItem);
                         if (saved) {
