@@ -456,6 +456,7 @@
                     console.warn("Form contains an input field for the object id", schema);
                 }
                 delete formData[uniqueIdAttribute];
+                this._replaceItemData(schema, dataItem, formData);
                 _.extend(dataItem, formData);
                 return this._saveItem(schema, uniqueId, formData)
                     .always(function() {
@@ -465,6 +466,27 @@
             } else {
                 return false;
             }
+        },
+        /**
+         * Gets persistent data properties of the item
+         * @return {Object}
+         */
+        _getItemData: function(schema, dataItem) {
+            // Trivial in data manager: the item and the item data are completely interchangeable
+            // @todo Digitizer: when working with native Openlayers feature, return data properties instead of top-level object
+            return dataItem;
+        },
+        /**
+         * Places updated data (from form or otherwise) back into the item
+         *
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} dataItem
+         * @param {Object} newValues
+         * @private
+         */
+        _replaceItemData: function(schema, dataItem, newValues) {
+            // @todo Digitizer: when working with native Openlayers feature, use data properties instead of top-level object
+            _.extend(dataItem, newValues);
         },
         /**
          * Support immediate top-level creation via tool button?
@@ -489,17 +511,18 @@
         _openEditDialog: function(schema, dataItem) {
             var widget = this;
             this._closeCurrentPopup();
+            var itemValues = this._getItemData(schema, dataItem);
 
             var dialog = $("<div/>");
             var formItems = schema.formItems.map(function(item) {
-                return widget._processFormItem(schema, item, dataItem);
+                return widget._processFormItem(schema, item, itemValues);
             });
             dialog.generateElements({children: formItems});
             dialog.popupDialog(this._getEditDialogPopupConfig(schema, dataItem));
             widget.currentPopup = dialog;
 
             setTimeout(function() {
-                dialog.formData(dataItem);
+                dialog.formData(itemValues);
             }, 30);
 
             return dialog;
