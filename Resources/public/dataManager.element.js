@@ -561,7 +561,7 @@
             buttons.push({
                 text: Mapbender.trans('mb.data.store.cancel'),
                 click: function() {
-                    widget._closeCurrentPopup();
+                    widget._cancelForm(schema, dataItem);
                 }
             });
             // @todo Digitizer: add custom schema buttons...?
@@ -574,6 +574,15 @@
          */
         _createItem: function(schema) {
             this._openEditDialog(schema, {});
+        },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} dataItem
+         * @private
+         */
+        _cancelForm: function(schema, dataItem) {
+            this._closeCurrentPopup();
+            // @todo Digitizer: discard geometry modifications / discard entire item if it's new
         },
         /**
          * Preprocess form items from schema before passing off to vis-ui
