@@ -521,6 +521,8 @@
             dialog.popupDialog(this._getEditDialogPopupConfig(schema, dataItem));
             widget.currentPopup = dialog;
 
+            // Work around vis-ui quirk where item creation may be asynchrnous (selects in particular),
+            // and form data can only be set after waiting for all pending events to complete
             setTimeout(function() {
                 dialog.formData(itemValues);
             }, 30);
