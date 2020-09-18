@@ -438,7 +438,7 @@
          */
         _submitFormData: function(schema, $form, dataItem) {
             var formData = $form.formData();
-            var $allNamedInputs = $(':input[name]', dialog.$popup);
+            var $allNamedInputs = $(':input[name]', $form);
             var $invalidInputs = $allNamedInputs.filter(function() {
                 // NOTE: jQuery pseudo-selector :valid can not be chained into a single .find (or snytactic variant)
                 return $(this).is(':not(:valid)');
