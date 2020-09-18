@@ -246,24 +246,13 @@ class DataManagerElement extends BaseElement
      *
      * @param string $schemaName
      * @param bool $raw
-     * @return mixed[]|false
+     * @return mixed[]
      * @throws UnknownSchemaException
      */
     protected function getSchemaConfig($schemaName, $raw = false)
     {
         if (!array_key_exists($schemaName, $this->schemaConfigs)) {
-            $entityConfig = $this->entity->getConfiguration() + array(
-                'schemes' => array(),
-            );
-            if (empty($entityConfig['schemes'][$schemaName])) {
-                throw new UnknownSchemaException("No such schema " . print_r($schemaName, true));
-            }
-            $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $entityConfig['schemes'][$schemaName]);
-            // always guarantee "schemaName" and "label" properties, even with $raw = true
-            $schemaConfig['schemaName'] = $schemaName;
-            if (empty($schemaConfig['label'])) {
-                $schemaConfig['label'] = $schemaName;
-            }
+            $schemaConfig = $this->getSchemaBaseConfig($schemaName);
             if (!$raw) {
                 $schemaConfig = $this->prepareSchemaConfig($schemaConfig);
                 // buffer for next invocation
@@ -278,13 +267,39 @@ class DataManagerElement extends BaseElement
     }
 
     /**
+     * Returns a schema configuration merged with defaults but no expensive processing, meaning
+     * * no form item resolution
+     * * no data store reference resolution
+     *
+     * @param string $schemaName
+     * @return mixed[]
+     * @throws UnknownSchemaException
+     */
+    protected function getSchemaBaseConfig($schemaName)
+    {
+        $entityConfig = $this->entity->getConfiguration() + array(
+            'schemes' => array(),
+        );
+        if (empty($entityConfig['schemes'][$schemaName])) {
+            throw new UnknownSchemaException("No such schema " . print_r($schemaName, true));
+        }
+        $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $entityConfig['schemes'][$schemaName]);
+        // always guarantee "schemaName" and "label" properties, even with $raw = true
+        $schemaConfig['schemaName'] = $schemaName;
+        if (empty($schemaConfig['label'])) {
+            $schemaConfig['label'] = $schemaName;
+        }
+        return $schemaConfig;
+    }
+
+    /**
      * @param string $schemaName
      * @return mixed[]
      * @throws ConfigurationErrorException
      */
     protected function getDataStoreConfigForSchema($schemaName)
     {
-        $schemaConfig = $this->getSchemaConfig($schemaName, true);
+        $schemaConfig = $this->getSchemaBaseConfig($schemaName);
         $dsConfigKey = $this->getDataStoreKeyInSchemaConfig();
         if (empty($schemaConfig[$dsConfigKey])) {
             throw new ConfigurationErrorException("Missing dataStore configuration for schema " . print_r($schemaName, true));
