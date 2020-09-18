@@ -158,11 +158,12 @@ class DataManagerElement extends BaseElement
                 }
                 return new JsonResponse($results);
             case 'save':
-                if (!$schemaConfig['allowEdit']) {
+                $itemId = $request->query->get('id', null);
+                if (!$this->allowSave($schemaName, !$itemId, 'save')) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 $requestData = json_decode($request->getContent(), true);
-                if ($itemId = $request->query->get('id', null)) {
+                if ($itemId) {
                     // update existing item
                     $dataItem = $dataStore->getById($itemId);
                     $dataItem->setAttributes($requestData['dataItem']);
@@ -174,19 +175,49 @@ class DataManagerElement extends BaseElement
                     'dataItem' => $dataStore->save($dataItem)->toArray(),
                 ));
             case 'delete':
-                if (!$schemaConfig['allowEdit']) {
+                if (!$this->allowDelete($schemaName)) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 $id = $request->query->get('id');
                 return new JsonResponse($dataStore->remove($id));
             case 'file-upload':
-                if (!$schemaConfig['allowEdit']) {
+                if (!$this->allowSave($schemaName, false, 'file-upload')) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 return new JsonResponse($this->getUploadHandlerResponseData($dataStore, $schemaName, $request->query->get('fid'), $request->query->get('field')));
             default:
                 return new JsonResponse(array('message' => 'Unsupported action ' . $action), JsonResponse::HTTP_BAD_REQUEST);
         }
+    }
+
+    /**
+     * Checks save access.
+     *
+     * @param string $schemaName
+     * @param boolean $isNew
+     * @param string $actionName 'save' or 'file-upload'
+     * @return boolean
+     */
+    protected function allowSave($schemaName, $isNew, $actionName)
+    {
+        try {
+            $config = $this->getSchemaBaseConfig($schemaName);
+            return !empty($config['allowEdit']);
+        } catch (UnknownSchemaException $e) {
+            // @todo: let fly? (needs some integration with json message formatting)
+            return false;
+        }
+    }
+
+    /**
+     * Checks delete access
+     * @param string $schemaName
+     * @return boolean
+     */
+    protected function allowDelete($schemaName)
+    {
+        // DataManager legacy quirk: http action uses same check as saving (frontend does not!)
+        return $this->allowSave($schemaName, false, 'delete');
     }
 
     /**
