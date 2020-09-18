@@ -216,8 +216,13 @@ class DataManagerElement extends BaseElement
      */
     protected function allowDelete($schemaName)
     {
-        // DataManager legacy quirk: http action uses same check as saving (frontend does not!)
-        return $this->allowSave($schemaName, false, 'delete');
+        try {
+            $config = $this->getSchemaBaseConfig($schemaName);
+            return !empty($config['allowDelete']);
+        } catch (UnknownSchemaException $e) {
+            // @todo: let fly? (needs some integration with json message formatting)
+            return false;
+        }
     }
 
     /**
