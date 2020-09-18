@@ -159,7 +159,7 @@ class DataManagerElement extends BaseElement
                 return new JsonResponse($results);
             case 'save':
                 $itemId = $request->query->get('id', null);
-                if (!$this->allowSave($schemaName, !$itemId, 'save')) {
+                if (!$this->checkAllowSave($schemaName, !$itemId, 'save')) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 $requestData = json_decode($request->getContent(), true);
@@ -175,13 +175,13 @@ class DataManagerElement extends BaseElement
                     'dataItem' => $dataStore->save($dataItem)->toArray(),
                 ));
             case 'delete':
-                if (!$this->allowDelete($schemaName)) {
+                if (!$this->checkAllowDelete($schemaName)) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 $id = $request->query->get('id');
                 return new JsonResponse($dataStore->remove($id));
             case 'file-upload':
-                if (!$this->allowSave($schemaName, false, 'file-upload')) {
+                if (!$this->checkAllowSave($schemaName, false, 'file-upload')) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
                 return new JsonResponse($this->getUploadHandlerResponseData($dataStore, $schemaName, $request->query->get('fid'), $request->query->get('field')));
@@ -198,7 +198,7 @@ class DataManagerElement extends BaseElement
      * @param string $actionName 'save' or 'file-upload'
      * @return boolean
      */
-    protected function allowSave($schemaName, $isNew, $actionName)
+    protected function checkAllowSave($schemaName, $isNew, $actionName)
     {
         try {
             $config = $this->getSchemaBaseConfig($schemaName);
@@ -218,7 +218,7 @@ class DataManagerElement extends BaseElement
      * @param string $schemaName
      * @return boolean
      */
-    protected function allowDelete($schemaName)
+    protected function checkAllowDelete($schemaName)
     {
         try {
             $config = $this->getSchemaBaseConfig($schemaName);
