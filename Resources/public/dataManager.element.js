@@ -457,7 +457,6 @@
                 }
                 delete formData[uniqueIdAttribute];
                 this._replaceItemData(schema, dataItem, formData);
-                _.extend(dataItem, formData);
                 return this._saveItem(schema, uniqueId, formData)
                     .always(function() {
                         $form.enableForm();
