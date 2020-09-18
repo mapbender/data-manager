@@ -142,8 +142,7 @@ class DataManagerElement extends BaseElement
 
         try {
             $schemaConfig = $this->getSchemaConfig($schemaName, true);
-            // @todo: use DataStoreService::dataStoreFactory (requires data-source >= 0.1.15)
-            $dataStore = new DataStore($this->container, $this->getDataStoreConfigForSchema($schemaName));
+            $dataStore = $this->getDataStoreBySchemaName($schemaName);
         } catch (UnknownSchemaException $e) {
             return new JsonResponse(array('message' => 'Unknown schema ' . print_r($schemaName)), JsonResponse::HTTP_NOT_FOUND);
         }
@@ -188,6 +187,17 @@ class DataManagerElement extends BaseElement
             default:
                 return new JsonResponse(array('message' => 'Unsupported action ' . $action), JsonResponse::HTTP_BAD_REQUEST);
         }
+    }
+
+    /**
+     * @param string $schemaName
+     * @return DataStore
+     * @throws ConfigurationErrorException
+     */
+    protected function getDataStoreBySchemaName($schemaName)
+    {
+        // @todo: use DataStoreService::dataStoreFactory (requires data-source >= 0.1.15)
+        return new DataStore($this->container, $this->getDataStoreConfigForSchema($schemaName));
     }
 
     /**
