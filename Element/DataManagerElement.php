@@ -202,10 +202,14 @@ class DataManagerElement extends BaseElement
     {
         try {
             $config = $this->getSchemaBaseConfig($schemaName);
-            return !empty($config['allowEdit']);
         } catch (UnknownSchemaException $e) {
             // @todo: let fly? (needs some integration with json message formatting)
             return false;
+        }
+        if ($isNew) {
+            return !empty($config['allowCreate']);
+        } else {
+            return !empty($config['allowEdit']);
         }
     }
 
