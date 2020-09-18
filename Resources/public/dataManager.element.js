@@ -451,7 +451,7 @@
             if (!$invalidInputs.length) {
                 $form.disableForm();
                 var uniqueIdAttribute = this._getUniqueItemIdProperty(schema);
-                var uniqueId = (dataItem && dataItem[uniqueIdAttribute]) || null;
+                var uniqueId = this._getUniqueItemId(schema, dataItem);
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
                     console.warn("Form contains an input field for the object id", schema);
                 }
@@ -782,7 +782,9 @@
          * @private
          */
         _getUniqueItemId: function(schema, item) {
-            return item[this._getUniqueItemIdProperty(schema)];
+            var itemData = this._getItemData(schema, item);
+            var idProperty = this._getUniqueItemIdProperty(schema);
+            return itemData[idProperty] || null;
         },
         /**
          * @param {String} uri
