@@ -173,16 +173,16 @@ class DataManagerElement extends BaseElement
                 if (!$this->checkAllowDelete($schemaName)) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
-                $dataStore = $this->getDataStoreBySchemaName($schemaName);
+                $repository = $this->getDataStoreBySchemaName($schemaName);
                 $id = $request->query->get('id');
-                return new JsonResponse($dataStore->remove($id));
+                return new JsonResponse($repository->remove($id));
             case 'file-upload':
                 $schemaName = $request->query->get('schema');
                 if (!$this->checkAllowSave($schemaName, false, 'file-upload')) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
-                $dataStore = $this->getDataStoreBySchemaName($schemaName);
-                return new JsonResponse($this->getUploadHandlerResponseData($dataStore, $schemaName, $request->query->get('fid'), $request->query->get('field')));
+                $repository = $this->getDataStoreBySchemaName($schemaName);
+                return new JsonResponse($this->getUploadHandlerResponseData($repository, $schemaName, $request->query->get('fid'), $request->query->get('field')));
             default:
                 return null;
         }
@@ -205,12 +205,12 @@ class DataManagerElement extends BaseElement
     {
         $schemaName = $request->query->get('schema');
         $schemaConfig = $this->getSchemaConfig($schemaName, true);
-        $dataStore = $this->getDataStoreBySchemaName($schemaName);
+        $repository = $this->getDataStoreBySchemaName($schemaName);
         $results = array();
         $criteria = array(
             'maxResults' => $schemaConfig['maxResults'],
         );
-        foreach ($dataStore->search($criteria) as $dataItem) {
+        foreach ($repository->search($criteria) as $dataItem) {
             $results[] = $dataItem->toArray();
         }
         return $results;
@@ -238,21 +238,20 @@ class DataManagerElement extends BaseElement
     {
         $itemId = $request->query->get('id', null);
         $schemaName = $request->query->get('schema');
-        $dataStore = $this->getDataStoreBySchemaName($schemaName);
+        $repository = $this->getDataStoreBySchemaName($schemaName);
         $requestData = json_decode($request->getContent(), true);
         if ($itemId) {
             // update existing item
-            $dataItem = $dataStore->getById($itemId);
+            $dataItem = $repository->getById($itemId);
             $dataItem->setAttributes($requestData['dataItem']);
         } else {
             // store new item
-            $dataItem = $dataStore->create($requestData['dataItem']);
+            $dataItem = $repository->create($requestData['dataItem']);
         }
         return array(
-            'dataItem' => $dataStore->save($dataItem)->toArray(),
+            'dataItem' => $repository->save($dataItem)->toArray(),
         );
     }
-
 
     /**
      * Checks save access.
