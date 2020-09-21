@@ -430,13 +430,13 @@
             $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
         },
         /**
-         * @param {DataManagerSchemaConfig} schema
          * @param {jQuery} $form
-         * @param {Object} [dataItem]
-         * @return {boolean|Promise}
+         * @return {Object|boolean} false on any invalid form inputs
          * @private
          */
-        _submitFormData: function(schema, $form, dataItem) {
+        _getFormData: function($form) {
+            // @todo vis-ui: make form validation and form data extraction available separately
+            //               validation is currently only performed implicitly on extraction
             var formData = $form.formData();
             var $allNamedInputs = $(':input[name]', $form);
             var $invalidInputs = $allNamedInputs.filter(function() {
@@ -447,8 +447,20 @@
             //               empty, but do not have the HTML required or pattern property to
             //               support selector detection. Work around that here.
             $invalidInputs = $invalidInputs.add($('.has-error :input', $form));
+            // return false if any inputs are invalid
+            return !$invalidInputs.length && formData;
+        },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @param {jQuery} $form
+         * @param {Object} [dataItem]
+         * @return {boolean|Promise}
+         * @private
+         */
+        _submitFormData: function(schema, $form, dataItem) {
+            var formData = this._getFormData($form);
 
-            if (!$invalidInputs.length) {
+            if (formData) {
                 $form.disableForm();
                 var uniqueIdAttribute = this._getUniqueItemIdProperty(schema);
                 var uniqueId = this._getUniqueItemId(schema, dataItem);
