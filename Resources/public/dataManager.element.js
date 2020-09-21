@@ -362,10 +362,11 @@
          * @param {DataManagerSchemaConfig} schema
          * @param {String|null} id
          * @param {Object} dataItem
+         * @param {Object} [newValues]
          * @return {Promise}
          * @private
          */
-        _saveItem: function(schema, id, dataItem) {
+        _saveItem: function(schema, id, dataItem, newValues) {
             var self = this;
             var params = {
                 schema: schema.schemaName
@@ -373,20 +374,33 @@
             if (id) {
                 params.id = id;
             }
-            return this.postJSON('save?' + $.param(params), {
-                dataItem: dataItem
-            }).then(function(response) {
-                self._replaceItemData(schema, dataItem, response.dataItem);
-                self._afterSave(schema, dataItem, id);
-            }, function(jqXHR, textStatus, errorThrown) {
-                var message = (jqXHR.responseJSON || {}).message || 'API error';
-                console.error(message, textStatus, errorThrown, jqXHR);
-                $.notify(message, {
-                    title:     'API Error',
-                    autoHide:  false,
-                    className: 'error'
-                });
-            });
+            var submitData = this._getSaveRequestData(schema, dataItem, newValues);
+            return this.postJSON('save?' + $.param(params), submitData)
+                .then(function(response) {
+                    self._afterSave(schema, dataItem, id, response);
+                    return response;
+                }, function(jqXHR, textStatus, errorThrown) {
+                    var message = (jqXHR.responseJSON || {}).message || 'API error';
+                    console.error(message, textStatus, errorThrown, jqXHR);
+                    $.notify(message, {
+                        title:     'API Error',
+                        autoHide:  false,
+                        className: 'error'
+                    });
+                })
+            ;
+        },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} dataItem
+         * @param {Object} [newValues]
+         * @return {{dataItem: *}}
+         * @private
+         */
+        _getSaveRequestData: function(schema, dataItem, newValues) {
+            return {
+                dataItem: Object.assign({}, this._getItemData(schema, dataItem), newValues || {})
+            };
         },
         /**
          * Produces event after item has been saved on the server.
@@ -418,9 +432,11 @@
          * @param {DataManagerSchemaConfig} schema
          * @param {Object} dataItem
          * @param {String|null} originalId
+         * @param {Object} responseData
          * @private
          */
-        _afterSave: function(schema, dataItem, originalId) {
+        _afterSave: function(schema, dataItem, originalId, responseData) {
+            this._replaceItemData(schema, dataItem, responseData.dataItem);
             if (!originalId) {
                 // new item
                 this.currentItems.push(dataItem);
@@ -468,8 +484,7 @@
                     console.warn("Form contains an input field for the object id", schema);
                 }
                 delete formData[uniqueIdAttribute];
-                this._replaceItemData(schema, dataItem, formData);
-                return this._saveItem(schema, uniqueId, formData)
+                return this._saveItem(schema, uniqueId, dataItem, formData)
                     .always(function() {
                         $form.enableForm();
                     })
