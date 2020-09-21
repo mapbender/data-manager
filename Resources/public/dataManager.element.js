@@ -709,12 +709,26 @@
             var widget = this;
             return this.getJSON('select', {
                     schema: schema.schemaName
-            }).done(function(dataItems) {
-                widget.currentItems = dataItems;
+            }).then(function(dataItems) {
+                widget.currentItems = dataItems.map(function(itemData) {
+                    return widget._prepareDataItem(schema, itemData);
+                });
                 widget.redrawTable(schema);
+                return widget.currentItems;
             });
         },
-
+        /**
+         * Transforms data item server response data to internally used item structure.
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} data
+         * @return {*}
+         * @private
+         */
+        _prepareDataItem: function(schema, data) {
+            // trivial in data-manager: data item and plain data objects are interchangeable
+            // @todo Digitizer: create Openlayers feature
+            return data;
+        },
         /**
          * Remove data item
          *
