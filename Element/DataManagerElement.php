@@ -146,7 +146,6 @@ class DataManagerElement extends BaseElement
         $schemaName = $request->query->get('schema');
 
         try {
-            $schemaConfig = $this->getSchemaConfig($schemaName, true);
             $dataStore = $this->getDataStoreBySchemaName($schemaName);
         } catch (UnknownSchemaException $e) {
             return new JsonResponse(array('message' => 'Unknown schema ' . print_r($schemaName)), JsonResponse::HTTP_NOT_FOUND);
@@ -154,31 +153,9 @@ class DataManagerElement extends BaseElement
 
         switch ($action) {
             case 'select':
-                $results = array();
-                $criteria = array(
-                    'maxResults' => $schemaConfig['maxResults'],
-                );
-                foreach ($dataStore->search($criteria) as $dataItem) {
-                    $results[] = $dataItem->toArray();
-                }
-                return new JsonResponse($results);
+                return $this->selectAction($request);
             case 'save':
-                $itemId = $request->query->get('id', null);
-                if (!$this->checkAllowSave($schemaName, !$itemId, 'save')) {
-                    return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
-                }
-                $requestData = json_decode($request->getContent(), true);
-                if ($itemId) {
-                    // update existing item
-                    $dataItem = $dataStore->getById($itemId);
-                    $dataItem->setAttributes($requestData['dataItem']);
-                } else {
-                    // store new item
-                    $dataItem = $dataStore->create($requestData['dataItem']);
-                }
-                return new JsonResponse(array(
-                    'dataItem' => $dataStore->save($dataItem)->toArray(),
-                ));
+                return $this->saveAction($request);
             case 'delete':
                 if (!$this->checkAllowDelete($schemaName)) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
@@ -194,6 +171,72 @@ class DataManagerElement extends BaseElement
                 return new JsonResponse(array('message' => 'Unsupported action ' . $action), JsonResponse::HTTP_BAD_REQUEST);
         }
     }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    protected function selectAction(Request $request)
+    {
+        return new JsonResponse($this->getSelectActionResponseData($request));
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed[]
+     */
+    protected function getSelectActionResponseData(Request $request)
+    {
+        $schemaName = $request->query->get('schema');
+        $schemaConfig = $this->getSchemaConfig($schemaName, true);
+        $dataStore = $this->getDataStoreBySchemaName($schemaName);
+        $results = array();
+        $criteria = array(
+            'maxResults' => $schemaConfig['maxResults'],
+        );
+        foreach ($dataStore->search($criteria) as $dataItem) {
+            $results[] = $dataItem->toArray();
+        }
+        return $results;
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    protected function saveAction(Request $request)
+    {
+        $itemId = $request->query->get('id', null);
+        $schemaName = $request->query->get('schema');
+        if (!$this->checkAllowSave($schemaName, !$itemId, 'save')) {
+            return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
+        }
+        return new JsonResponse($this->getSaveActionResponseData($request));
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed[]
+     */
+    protected function getSaveActionResponseData(Request $request)
+    {
+        $itemId = $request->query->get('id', null);
+        $schemaName = $request->query->get('schema');
+        $dataStore = $this->getDataStoreBySchemaName($schemaName);
+        $requestData = json_decode($request->getContent(), true);
+        if ($itemId) {
+            // update existing item
+            $dataItem = $dataStore->getById($itemId);
+            $dataItem->setAttributes($requestData['dataItem']);
+        } else {
+            // store new item
+            $dataItem = $dataStore->create($requestData['dataItem']);
+        }
+        return array(
+            'dataItem' => $dataStore->save($dataItem)->toArray(),
+        );
+    }
+
 
     /**
      * Checks save access.
