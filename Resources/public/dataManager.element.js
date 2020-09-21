@@ -376,7 +376,7 @@
             return this.postJSON('save?' + $.param(params), {
                 dataItem: dataItem
             }).then(function(response) {
-                _.extend(dataItem, response.dataItem);
+                self._replaceItemData(schema, dataItem, response.dataItem);
                 self._afterSave(schema, dataItem, id);
             }, function(jqXHR, textStatus, errorThrown) {
                 var message = (jqXHR.responseJSON || {}).message || 'API error';
