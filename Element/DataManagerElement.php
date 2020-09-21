@@ -530,11 +530,9 @@ class DataManagerElement extends BaseElement
     protected function prepareItem($item)
     {
         $item = parent::prepareItem($item);
-        static $translator = null;      // optimize away service lookup over repeated invocations
+        $translator = $this->getTranslator();
         foreach ($item as $key => $value) {
             if (is_string($value) && preg_match('#^trans:\w+([\.\-]\w+)*$#', $value)) {
-                /** @var TranslatorInterface $translator */
-                $translator = $translator ?: $this->container->get('translator');
                 $item[$key] = $translator->trans(substr($value, /* strlen('trans:') */ 6));
             }
         }
