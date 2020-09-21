@@ -9,6 +9,7 @@ use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Element\BaseElement;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -137,38 +138,53 @@ class DataManagerElement extends BaseElement
 
     /**
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Exception
+     * @return Response
      */
     public function handleHttpRequest(Request $request)
     {
-        $action = $request->attributes->get('action');
-        $schemaName = $request->query->get('schema');
-
         try {
-            $dataStore = $this->getDataStoreBySchemaName($schemaName);
+            $response = $this->dispatchRequest($request);
+            if (!$response) {
+                $action = $request->attributes->get('action');
+                $response = new JsonResponse(array('message' => 'Unsupported action ' . $action), JsonResponse::HTTP_BAD_REQUEST);
+            }
+            return $response;
         } catch (UnknownSchemaException $e) {
-            return new JsonResponse(array('message' => 'Unknown schema ' . print_r($schemaName)), JsonResponse::HTTP_NOT_FOUND);
+            return new JsonResponse(array('message' => $e->getMessage()), JsonResponse::HTTP_NOT_FOUND);
         }
+    }
 
+    /**
+     * @param Request $request
+     * @return Response|null
+     * @throws UnknownSchemaException
+     * @throws ConfigurationErrorException
+     */
+    protected function dispatchRequest(Request $request)
+    {
+        $action = $request->attributes->get('action');
         switch ($action) {
             case 'select':
                 return $this->selectAction($request);
             case 'save':
                 return $this->saveAction($request);
             case 'delete':
+                $schemaName = $request->query->get('schema');
                 if (!$this->checkAllowDelete($schemaName)) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
+                $dataStore = $this->getDataStoreBySchemaName($schemaName);
                 $id = $request->query->get('id');
                 return new JsonResponse($dataStore->remove($id));
             case 'file-upload':
+                $schemaName = $request->query->get('schema');
                 if (!$this->checkAllowSave($schemaName, false, 'file-upload')) {
                     return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
                 }
+                $dataStore = $this->getDataStoreBySchemaName($schemaName);
                 return new JsonResponse($this->getUploadHandlerResponseData($dataStore, $schemaName, $request->query->get('fid'), $request->query->get('field')));
             default:
-                return new JsonResponse(array('message' => 'Unsupported action ' . $action), JsonResponse::HTTP_BAD_REQUEST);
+                return null;
         }
     }
 
@@ -249,12 +265,7 @@ class DataManagerElement extends BaseElement
      */
     protected function checkAllowSave($schemaName, $isNew, $actionName)
     {
-        try {
-            $config = $this->getSchemaBaseConfig($schemaName);
-        } catch (UnknownSchemaException $e) {
-            // @todo: let fly? (needs some integration with json message formatting)
-            return false;
-        }
+        $config = $this->getSchemaBaseConfig($schemaName);
         if ($isNew) {
             return !empty($config['allowCreate']);
         } else {
@@ -270,13 +281,8 @@ class DataManagerElement extends BaseElement
      */
     protected function checkAllowDelete($schemaName)
     {
-        try {
-            $config = $this->getSchemaBaseConfig($schemaName);
-            return !empty($config['allowDelete']);
-        } catch (UnknownSchemaException $e) {
-            // @todo: let fly? (needs some integration with json message formatting)
-            return false;
-        }
+        $config = $this->getSchemaBaseConfig($schemaName);
+        return !empty($config['allowDelete']);
     }
 
     /**
