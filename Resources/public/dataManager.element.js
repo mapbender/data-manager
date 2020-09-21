@@ -242,24 +242,21 @@
         _buildTableColumnsOptions: function(schema) {
             var columnConfigs = this._getTableColumnsConfiguration(schema);
             var escapeHtml = this.escapeHtml;
+            var self = this;
             return (columnConfigs || []).map(function(fieldSettings) {
                 return $.extend({}, fieldSettings, {
                     fieldName: fieldSettings.data,  // why?
                     render: function(data, type, row) {
+                        var rowData = self._getItemData(schema, row);
                         switch (type) {
                             case 'sort':
                             case 'type':
                             default:
-                                return row[fieldSettings.data];
+                                return rowData[fieldSettings.data];
                             case 'filter':
-                                return ('' + row[fieldSettings.data]) || undefined;
+                                return ('' + rowData[fieldSettings.data]) || undefined;
                             case 'display':
-                                return escapeHtml('' + row[fieldSettings.data]);
-                        }
-                        if (typeof this[fieldSettings.data] !== 'undefined') {
-                            return escapeHtml('' + this[fieldSettings.data]);
-                        } else {
-                            return '';
+                                return escapeHtml('' + rowData[fieldSettings.data]);
                         }
                     }
                 });
