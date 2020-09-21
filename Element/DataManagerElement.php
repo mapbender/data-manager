@@ -202,6 +202,7 @@ class DataManagerElement extends BaseElement
      * @param boolean $isNew
      * @param string $actionName 'save' or 'file-upload'
      * @return boolean
+     * @since 1.0.7
      */
     protected function checkAllowSave($schemaName, $isNew, $actionName)
     {
@@ -222,6 +223,7 @@ class DataManagerElement extends BaseElement
      * Checks delete access
      * @param string $schemaName
      * @return boolean
+     * @since 1.0.7
      */
     protected function checkAllowDelete($schemaName)
     {
@@ -238,6 +240,7 @@ class DataManagerElement extends BaseElement
      * @param string $schemaName
      * @return DataStore
      * @throws ConfigurationErrorException
+     * @since 1.0.7
      */
     protected function getDataStoreBySchemaName($schemaName)
     {
@@ -329,6 +332,7 @@ class DataManagerElement extends BaseElement
      * @param string $schemaName
      * @return mixed[]
      * @throws UnknownSchemaException
+     * @since 1.0.7
      */
     protected function getSchemaBaseConfig($schemaName)
     {
@@ -399,6 +403,7 @@ class DataManagerElement extends BaseElement
     /**
      * Returns web-relative base path for uploads. Used in schema defaults.
      * @return string
+     * @since 1.0.7
      */
     protected function getDefaultUploadsPath()
     {
@@ -543,6 +548,7 @@ class DataManagerElement extends BaseElement
      * of the default dataStore).
      * @return string
      * @todo: remove duplicated implementation (will require data-source ^0.1.17)
+     * @since 1.0.7
      */
     protected function getDataStoreKeyInSchemaConfig()
     {
@@ -570,6 +576,7 @@ class DataManagerElement extends BaseElement
 
     /**
      * @return TranslatorInterface
+     * @since 1.0.7
      */
     protected function getTranslator()
     {
