@@ -169,20 +169,9 @@ class DataManagerElement extends BaseElement
             case 'save':
                 return $this->saveAction($request);
             case 'delete':
-                $schemaName = $request->query->get('schema');
-                if (!$this->checkAllowDelete($schemaName)) {
-                    return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
-                }
-                $repository = $this->getDataStoreBySchemaName($schemaName);
-                $id = $request->query->get('id');
-                return new JsonResponse($repository->remove($id));
+                return $this->deleteAction($request);
             case 'file-upload':
-                $schemaName = $request->query->get('schema');
-                if (!$this->checkAllowSave($schemaName, false, 'file-upload')) {
-                    return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
-                }
-                $repository = $this->getDataStoreBySchemaName($schemaName);
-                return new JsonResponse($this->getUploadHandlerResponseData($repository, $schemaName, $request->query->get('fid'), $request->query->get('field')));
+                return $this->fileUploadAction($request);
             default:
                 return null;
         }
@@ -251,6 +240,35 @@ class DataManagerElement extends BaseElement
         return array(
             'dataItem' => $repository->save($dataItem)->toArray(),
         );
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    protected function deleteAction(Request $request)
+    {
+        $schemaName = $request->query->get('schema');
+        if (!$this->checkAllowDelete($schemaName)) {
+            return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
+        }
+        $repository = $this->getDataStoreBySchemaName($schemaName);
+        $id = $request->query->get('id');
+        return new JsonResponse($repository->remove($id));
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    protected function fileUploadAction(Request $request)
+    {
+        $schemaName = $request->query->get('schema');
+        if (!$this->checkAllowSave($schemaName, false, 'file-upload')) {
+            return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
+        }
+        $repository = $this->getDataStoreBySchemaName($schemaName);
+        return new JsonResponse($this->getUploadHandlerResponseData($repository, $schemaName, $request->query->get('fid'), $request->query->get('field')));
     }
 
     /**
