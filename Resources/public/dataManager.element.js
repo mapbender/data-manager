@@ -213,7 +213,8 @@
          */
         _buildTableRowButtons: function(schema) {
             var buttons = [];
-            // @todo: surely this requires checking schema.allowEdit
+            // NOTE: "edit" interaction is always added even with "allowEdit" schema config false. Without "allowEdit",
+            //       the dialog will not have a save button, but it will still function as an attribute data viewer.
             buttons.push({
                 title: Mapbender.trans('mb.data.store.edit'),
                 cssClass: 'fa fa-edit -fn-edit-data'
