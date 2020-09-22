@@ -1,7 +1,9 @@
 # 1.0.7
 - Fix openEditDialog to use passed schema
-- Extract method getDefaultUploadsPath to support Digitizer / other child class customization
-- Extract method getDatastoreKeyInSchemaConfig method to Support Digitizer / other child class customization
+- Fix bad server-side access check for item creation; use config value `allowCreate`)
+- Fix bad server-side access check for item deletion (use config value `allowDelete`)
+- Fix reliance on Mapbender template or other Elements to provide vis-ui.js requirement
+- Extract Element methods support WIP Digitizer 1.4 / other child class customization
 
 # 1.0.6.4
 - Fix empty table row "ghosts" appearing when cancelling new item creation
