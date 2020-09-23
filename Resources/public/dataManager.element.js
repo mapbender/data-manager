@@ -56,8 +56,12 @@
                 ''  // produce trailing slash
             ].join('/');
             this.selector = $(this._renderSchemaSelector(this.element));
+            this.tableRenderer = this._createTableRenderer();
             this._initializeEvents();
             this._afterCreate();
+        },
+        _createTableRenderer: function() {
+            return new Mapbender.DataManager.TableRenderer(this);
         },
         /**
          * @param {jQuery} $container to render into
@@ -206,110 +210,20 @@
             this._activateSchema(schemaNew);
             this._getData(schemaNew);
         },
-        /**
-         * @param {DataManagerSchemaConfig} schema
-         * @return {Array<Object>}
-         * @private
-         */
         _buildTableRowButtons: function(schema) {
-            var buttons = [];
-            // NOTE: "edit" interaction is always added even with "allowEdit" schema config false. Without "allowEdit",
-            //       the dialog will not have a save button, but it will still function as an attribute data viewer.
-            buttons.push({
-                title: Mapbender.trans('mb.data.store.edit'),
-                cssClass: 'fa fa-edit -fn-edit-data'
-            });
-
-            if(schema.allowDelete) {
-                buttons.push({
-                    title: Mapbender.trans('mb.data.store.remove'),
-                    cssClass: 'critical fa fa-times -fn-delete'
-                });
-            }
-            if ((schema.table || {}).buttons) {
-                // why flatten...?
-                // how exactly can the table configuration define row buttons?
-                return _.flatten(buttons, schema.table.buttons);
-            } else {
-                return buttons;
-            }
+            return this.tableRenderer.getButtonsOption(schema);
         },
-        /**
-         * @param {DataManagerSchemaConfig} schema
-         * @return {Array<Object>}
-         * @see https://datatables.net/reference/option/columns
-         * @private
-         */
         _buildTableColumnsOptions: function(schema) {
-            var columnConfigs = this._getTableColumnsConfiguration(schema);
-            var escapeHtml = this.escapeHtml;
-            var self = this;
-            return (columnConfigs || []).map(function(fieldSettings) {
-                return $.extend({}, fieldSettings, {
-                    fieldName: fieldSettings.data,  // why?
-                    render: function(data, type, row) {
-                        var rowData = self._getItemData(schema, row);
-                        switch (type) {
-                            case 'sort':
-                            case 'type':
-                            default:
-                                return rowData[fieldSettings.data];
-                            case 'filter':
-                                return ('' + rowData[fieldSettings.data]) || undefined;
-                            case 'display':
-                                return escapeHtml('' + rowData[fieldSettings.data]);
-                        }
-                    }
-                });
-            });
+            return this.tableRenderer.getColumnsOption(schema);
         },
-        /**
-         * @param {DataManagerSchemaConfig} schema
-         * @return {Array|undefined}
-         * @private
-         */
         _getTableColumnsConfiguration: function(schema) {
-            return (schema.table || {}).columns;
+            return this.tableRenderer.getColumnsConfigs(schema);
         },
-        /**
-         * Returns options used to initialize resultTable widget.
-         * @param {DataManagerSchemaConfig} schema
-         * @return {Object}
-         * @private
-         */
         _getTableSettings: function(schema) {
-            var settings = _.extend({
-                lengthChange: false,
-                pageLength:   20,
-                searching:    true,
-                info:         true,
-                processing:   false,
-                ordering:     true,
-                paging:       true,
-                selectable:   false,
-                oLanguage: this.options.tableTranslation || {},
-                autoWidth:    false
-            }, schema.table);
-            settings.buttons = this._buildTableRowButtons(schema);
-            settings.columns = this._buildTableColumnsOptions(schema);
-            settings.createdRow = function(tr, data) {
-                $(tr).data({
-                    item: data,
-                    schema: schema
-                });
-            };
-            return settings;
+            return this.tableRenderer.getOptions(schema);
         },
-        /**
-         * @param {DataManagerSchemaConfig} schema
-         * @return {jQuery}
-         * @private
-         */
         _renderTable: function(schema) {
-            var settings = this._getTableSettings(schema);
-            var $tableWrap = $("<div/>").resultTable(settings);
-            $tableWrap.attr('data-schema-name', schema.schemaName);
-            return $tableWrap;
+            return this.tableRenderer.render(schema);
         },
         /**
          * @param {DataManagerSchemaConfig} schema
@@ -799,11 +713,7 @@
             $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info');
         },
         redrawTable: function(schema) {
-            var $tableWrap = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', this.element);
-            var tableApi = $tableWrap.resultTable('getApi');
-            tableApi.clear();
-            tableApi.rows.add(this.currentItems);
-            tableApi.draw();
+            this.tableRenderer.replaceRows(schema, this.currentItems);
         },
         /**
          * @param {DataManagerSchemaConfig} schema

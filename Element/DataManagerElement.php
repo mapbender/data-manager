@@ -96,6 +96,7 @@ class DataManagerElement extends BaseElement
                 "/components/vis-ui.js/vis-ui.js-built.js",
                 '../../vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js',
                 '../../vendor/blueimp/jquery-file-upload/js/jquery.iframe-transport.js',
+                '@MapbenderDataManagerBundle/Resources/public/TableRenderer.js',
                 '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
             ),
             'trans' => array(
