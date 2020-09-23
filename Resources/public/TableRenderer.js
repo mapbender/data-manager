@@ -83,13 +83,14 @@
             settings.buttons = this.owner._buildTableRowButtons(schema);
             /** @todo: remove owner inflection to _getTableColumnsConfiguration */
             settings.columns = this.owner._buildTableColumnsOptions(schema);
-            settings.createdRow = function(tr, data) {
-                $(tr).data({
-                    item: data,
-                    schema: schema
-                });
-            };
+            settings.createdRow = this.onRowCreation.bind(this, schema);
             return settings;
+        },
+        onRowCreation: function(schema, tr, dataItem) {
+            $(tr).data({
+                item: dataItem,
+                schema: schema
+            });
         },
         /**
          * Extra options to be added to resultTable constructor options, REPLACING our own values
