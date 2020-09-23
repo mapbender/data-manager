@@ -465,6 +465,10 @@
                 dialog.formData(itemValues);
             }, 30);
 
+            dialog.one('popupdialogclose', function() {
+                widget._cancelForm(schema, dataItem);
+            });
+
             return dialog;
         },
         /**
