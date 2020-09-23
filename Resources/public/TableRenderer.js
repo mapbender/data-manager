@@ -78,7 +78,7 @@
                 selectable:   false,
                 oLanguage: this.getOLanguageOption(schema),
                 autoWidth:    false
-            }, schema.table);
+            }, this.getCustomOptions(schema));
             /** @todo: remove owner inflection to _buildTableRowButtons */
             settings.buttons = this.owner._buildTableRowButtons(schema);
             /** @todo: remove owner inflection to _getTableColumnsConfiguration */
@@ -90,6 +90,16 @@
                 });
             };
             return settings;
+        },
+        /**
+         * Extra options to be added to resultTable constructor options, REPLACING our own values
+         * This seems highly unsafe.
+         *
+         * @param {DataManagerSchemaConfig} schema
+         * @todo: stop supporting this entirely
+         */
+        getCustomOptions: function(schema) {
+            return schema.table;
         },
         /**
          * @param {DataManagerSchemaConfig} schema
