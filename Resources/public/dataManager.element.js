@@ -713,10 +713,16 @@
                         var dm = widget.getConnectedDataManager();
 
                         var dataItem = dm.getSchemaByName(schemaName).create();
-                        dataItem[fieldName] = feature[fieldName];
+                        var id = schema.dataStore.uniqueId;
+
+                        dataItem[fieldName] = feature[id];
                         var dialog = dm._openEditDialog(dataItem, function() {
                             var id = dataItem[fieldName];
+                            if (!$(dialog).find(":input[name=" + fieldName + "]").length) {
+                                $.notify("No input with name "+fieldName+" found in dialog ");
+                            }
                             $(dialog).find("select[name=" + fieldName + "]").find("option[value!="+id+"]").attr("disabled",true).hide();
+                            $(dialog).find("input[name=" + fieldName + "]").attr("disabled",true);
                         });
                         dialog.parentTable = table;
                         $(dialog).bind('data.manager.item.saved', function (event, data) {
