@@ -148,7 +148,6 @@
             var hasOnlyOneScheme = widget.hasOnlyOneScheme = _.size(options.schemes) === 1;
             widget.elementUrl = Mapbender.configuration.application.urls.element + '/' + element.attr('id') + '/';
 
-            Mapbender.DigitizerTranslator = Mapbender.DigitizerTranslator || { translate: translate };
 
             if(hasOnlyOneScheme) {
                 var title = _.propertyOf(_.first(_.toArray(options.schemes)))("title");
@@ -792,7 +791,7 @@
                 var button = {
                     type: "button",
                     title: "",
-                    hover: Mapbender.DigitizerTranslator.translate('feature.create'),
+                    hover: Mapbender.trans('mb.data.store.feature.create'),
                     cssClass: "icon-create",
                     click: onCreateClick
                 };
@@ -802,13 +801,13 @@
                 var buttons = [];
 
                 buttons.push({
-                    title: Mapbender.DigitizerTranslator.translate('feature.edit'),
+                    title: Mapbender.trans('mb.data.store.feature.edit'),
                     className: 'edit',
                     onClick: onEditClick
                 });
 
                 buttons.push({
-                    title: Mapbender.DigitizerTranslator.translate('feature.remove.title'),
+                    title: Mapbender.trans('mb.data.store.feature.remove.title'),
                     className: 'remove',
                     onClick: onRemoveClick
                 });
