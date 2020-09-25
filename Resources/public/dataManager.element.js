@@ -250,14 +250,24 @@
          */
         _updateToolset: function($container, schema) {
             $container.empty();
-            if(schema.allowRefresh) {       // how?
+            var buttons = this._renderToolButtons(schema);
+            $container.append(buttons);
+        },
+        /**
+         * @param {DataManagerSchemaConfig}schema
+         * @return {Array<(Element|{jQuery})>}
+         * @private
+         */
+        _renderToolButtons: function(schema) {
+            var buttons = [];
+            if (schema.allowRefresh) {       // how?
                 var $refreshButton = $('<button>').data('schema', schema).attr({
                     type: 'button',
                     'class': 'btn btn-sm -fn-refresh-schema',
                     title: Mapbender.trans('mb.data.store.create')      // sic! @todo: distinct translation
                 });
                 $refreshButton.append($('<i/>').addClass('fa fa-refresh'));
-                $container.append($refreshButton);
+                buttons.push($refreshButton);
             }
 
             if (this._allowDirectItemCreation(schema)) {
@@ -267,8 +277,9 @@
                     title: Mapbender.trans('mb.data.store.create')
                 });
                 $createButton.append($('<i/>').addClass('fa fa-plus'));
-                $container.append($createButton);
+                buttons.push($createButton);
             }
+            return buttons;
         },
         /**
          * @param {DataManagerSchemaConfig} schema
