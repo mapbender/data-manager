@@ -11,6 +11,14 @@
   .schema-toolset, .dataTables_filter, select.selector, >.title {
     margin-bottom: 1.5ex;
   }
+  // Independence from quirky vis-ui ".modal-body" rules; this Element is not a modal body
+  color: #555;
+  font-size: 0.85rem;
+  select.selector, .dataTables_filter input {
+    height: 2.5em;
+    padding: 0.35em;
+    border-radius: 0;
+  }
 }
 
 // Pop-up dialogs
