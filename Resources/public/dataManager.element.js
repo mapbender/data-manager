@@ -235,7 +235,7 @@
                 .addClass('frame')
                 .data("schema", schema)
             ;
-            var $toolset = $('<div>').addClass('btn-group schema-toolset');
+            var $toolset = $('<div>').addClass('schema-toolset');
             frame.append($toolset);
             this._updateToolset($toolset, schema);
 
@@ -250,15 +250,15 @@
          */
         _updateToolset: function($container, schema) {
             $container.empty();
-            var buttons = this._renderToolButtons(schema);
-            $container.append(buttons);
+            var toolset = this._renderToolset(schema);
+            $container.append(toolset);
         },
         /**
          * @param {DataManagerSchemaConfig}schema
          * @return {Array<(Element|{jQuery})>}
          * @private
          */
-        _renderToolButtons: function(schema) {
+        _renderToolset: function(schema) {
             var buttons = [];
             if (schema.allowRefresh) {       // how?
                 var $refreshButton = $('<button>').data('schema', schema).attr({
@@ -279,7 +279,15 @@
                 $createButton.append($('<i/>').addClass('fa fa-plus'));
                 buttons.push($createButton);
             }
-            return buttons;
+            if (buttons.length) {
+                var $group = $(document.createElement('span'))
+                    .addClass('btn-group')
+                    .append(buttons)
+                ;
+                return $group.get();
+            } else {
+                return [];
+            }
         },
         /**
          * @param {DataManagerSchemaConfig} schema
