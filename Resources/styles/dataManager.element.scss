@@ -19,6 +19,27 @@
     padding: 0.35em;
     border-radius: 0;
   }
+
+  // Defeat highly specific table legacy row button font-sizing and misc other shenanigans
+  // See Mapbender/CoreBundle/Resources/public/sass/modules/_result_table.scss
+  .mapbender-element-result-table {
+    > .dataTables_wrapper {
+      > table[role="grid"] {
+        > tbody > tr > td.buttons > div.button-navigation {
+          display: inline-block;
+          white-space: nowrap;
+            > button {
+            font-size: inherit;
+            padding: 0.28em;  // ~3px on 11px font-size
+            &:before {
+              font-size: inherit;
+              padding: 0;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 // Pop-up dialogs
