@@ -8,8 +8,11 @@
   .dataTables_filter label {
     display: block; // allow input (inside label!) to grow to full width
   }
-  .schema-toolset, .dataTables_filter, select.selector, >.title {
+  .dataTables_filter, select.selector, >.title {
     margin-bottom: 1.5ex;
+  }
+  .loading-indicator {
+    text-align: right;
   }
   // Independence from quirky vis-ui ".modal-body" rules; this Element is not a modal body
   color: #555;

@@ -240,6 +240,12 @@
             this._updateToolset($toolset, schema);
 
             frame.append($toolset);
+            var $loadingIndicator = $(document.createElement('div'))
+                .addClass('loading-indicator')
+                .css({opacity: 0})
+                .append($('<i class="fa fas fa-spinner fa-spin">'))
+            ;
+            frame.append($loadingIndicator);
             frame.append(this._renderTable(schema));
             return frame;
         },
@@ -757,7 +763,14 @@
          */
         getJSON: function(uri, data) {
             var url = this.elementUrl + uri;
-            return $.getJSON(url, data).fail(this._onAjaxError);
+            var $loadingIndicator = $('.loading-indicator', this.element);
+            $loadingIndicator.css({opacity: 1});
+            return $.getJSON(url, data)
+                .fail(this._onAjaxError)
+                .always(function() {
+                    $loadingIndicator.css({opacity: 0})
+                })
+            ;
         },
         postJSON: function(uri, data, options) {
             var options_ = {
@@ -770,7 +783,14 @@
             if (data && !options_.data) {
                 options_.data = JSON.stringify(data);
             }
-            return $.ajax(options_).fail(this._onAjaxError);
+            var $loadingIndicator = $('.loading-indicator', this.element);
+            $loadingIndicator.css({opacity: 1});
+            return $.ajax(options_)
+                .fail(this._onAjaxError)
+                .always(function() {
+                    $loadingIndicator.css({opacity: 0})
+                })
+            ;
         },
         _onAjaxError: function(xhr) {
             var errorMessage = Mapbender.trans('mb.data.store.api.query.error-message');
