@@ -2,7 +2,10 @@
 - Fix openEditDialog to use passed schema
 - Fix bad server-side access check for item creation; use config value `allowCreate`)
 - Fix bad server-side access check for item deletion (use config value `allowDelete`)
+- Fix broken "Delete" interaction being offered on newly created item data dialog
+- Fix table pagination after saving new data (switch page to make new entry visible)
 - Fix reliance on Mapbender template or other Elements to provide vis-ui.js requirement
+- Add visual indicator for loading / http activity
 - Extract Element methods support WIP Digitizer 1.4 / other child class customization
 
 # 1.0.6.4
