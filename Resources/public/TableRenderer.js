@@ -3,10 +3,12 @@
     Mapbender.DataManager = Mapbender.DataManager || {};
     /**
      * @param {*} owner owning DataManager (jQueryUI widget instance)
+     * @param {Element|jQuery} [scope]
      * @constructor
      */
-    Mapbender.DataManager.TableRenderer = function TableRenderer(owner) {
+    Mapbender.DataManager.TableRenderer = function TableRenderer(owner, scope) {
         this.owner = owner;
+        this.scope = scope || owner.element.get(0);
     }
 
     Object.assign(Mapbender.DataManager.TableRenderer.prototype, {
@@ -24,10 +26,9 @@
         /**
          * @param {DataManagerSchemaConfig} schema
          * @param {Array<Object>} data
-         * @param {*} [scope] (for limiting jQuery find)
          */
-        replaceRows: function(schema, data, scope) {
-            var dt = this.getDatatablesInstance_(schema, scope || undefined);
+        replaceRows: function(schema, data) {
+            var dt = this.getDatatablesInstance_(schema);
             dt.clear();
             dt.rows.add(data);
             dt.draw();
@@ -36,25 +37,22 @@
          * Get table DOM Element for schema. Must be in current document.
          *
          * @param {DataManagerSchemaConfig} schema
-         * @param {*} [scope] (for limiting jQuery find)
          * @return {Element|null}
          */
-        findElement: function(schema, scope) {
-            var scope_ = scope || this.owner.element;
+        findElement: function(schema) {
             // NOTE: Class mapbender-element-result-table added implicitly by vis-ui resultTable
             //       data-schema-name added by us (see render)
-            var $tableWrap = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', scope_);
+            var $tableWrap = $('.mapbender-element-result-table[data-schema-name="' + schema.schemaName + '"]', this.scope);
             return $tableWrap.get(0) || null;
         },
         /**
          * Get native dataTables instance for schema. Must be in current document.
          * @param {DataManagerSchemaConfig} schema
-         * @param {*} [scope] (for limiting jQuery find)
          * @return {Element|null}
          * @private
          */
-        getDatatablesInstance_: function(schema, scope) {
-            var element = this.findElement(schema, scope || undefined);
+        getDatatablesInstance_: function(schema) {
+            var element = this.findElement(schema);
             if (!element) {
                 throw new Error("Cannot access dataTables instance for schema " + schema.schemaName + ". Table not in DOM?")
             }
