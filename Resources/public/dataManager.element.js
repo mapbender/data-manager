@@ -372,7 +372,7 @@
                 // new item
                 this.currentItems.push(dataItem);
             }
-            this.redrawTable(schema);
+            this.tableRenderer.replaceRows(schema, this.currentItems);
             this._saveEvent(schema, dataItem, originalId);
             $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
         },
@@ -638,7 +638,7 @@
                 widget.currentItems = dataItems.map(function(itemData) {
                     return widget._prepareDataItem(schema, itemData);
                 });
-                widget.redrawTable(schema);
+                widget.tableRenderer.replaceRows(schema, widget.currentItems);
                 return widget.currentItems;
             });
         },
@@ -718,10 +718,14 @@
          */
         _afterRemove: function(schema, dataItem, id) {
             this.currentItems = _.without(this.currentItems, dataItem);
-            this.redrawTable(schema);
+            this.tableRenderer.replaceRows(schema, this.currentItems);
             this._deleteEvent(schema, dataItem, id);
             $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info');
         },
+        /**
+         * @param schema
+         * @todo 1.1: remove this method
+         */
         redrawTable: function(schema) {
             this.tableRenderer.replaceRows(schema, this.currentItems);
         },

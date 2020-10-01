@@ -17,7 +17,7 @@
          * @return {jQuery}
          */
         render: function(schema) {
-            /** @todo: remove owner inflection to _getTableSettings */
+            /** @todo 1.1: remove owner inflection to _getTableSettings */
             var settings = this.owner._getTableSettings(schema);
             var $tableWrap = $("<div/>").resultTable(settings);
             $tableWrap.attr('data-schema-name', schema.schemaName);
@@ -77,9 +77,9 @@
                 oLanguage: this.getOLanguageOption(schema),
                 autoWidth:    false
             }, this.getCustomOptions(schema));
-            /** @todo: remove owner inflection to _buildTableRowButtons */
+            /** @todo 1.1: remove owner inflection to _buildTableRowButtons */
             settings.buttons = this.owner._buildTableRowButtons(schema);
-            /** @todo: remove owner inflection to _getTableColumnsConfiguration */
+            /** @todo 1.1: remove owner inflection to _getTableColumnsConfiguration */
             settings.columns = this.owner._buildTableColumnsOptions(schema);
             settings.createdRow = this.onRowCreation.bind(this, schema);
             return settings;
@@ -127,7 +127,7 @@
          * @see https://datatables.net/reference/option/columns
          */
         getColumnsOption: function(schema) {
-            /** @todo: remove owner inflection to _getTableColumnsConfiguration */
+            /** @todo 1.1: remove owner inflection to _getTableColumnsConfiguration */
             var columnConfigs = this.owner._getTableColumnsConfiguration(schema);
             var escapeHtml = this.escapeHtml;
             var self = this;
