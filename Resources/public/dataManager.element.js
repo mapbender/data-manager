@@ -297,24 +297,31 @@
         },
         /**
          * @param {DataManagerSchemaConfig} schema
-         * @param {String|null} id
+         * @param {String|null|undefined} id will auto-extract from dataItem if undefined
          * @param {Object} dataItem
          * @param {Object} [newValues]
          * @return {Promise}
          * @private
+         * @todo 1.1: remove id argument, always auto-extract item id
          */
         _saveItem: function(schema, id, dataItem, newValues) {
             var self = this;
             var params = {
                 schema: schema.schemaName
             };
-            if (id) {
-                params.id = id;
+            var id_;
+            if (typeof id === 'undefined') {
+                id_ = this._getUniqueItemId(schema, dataItem);
+            } else {
+                id_ = id;
+            }
+            if (id_) {
+                params.id = id_;
             }
             var submitData = this._getSaveRequestData(schema, dataItem, newValues);
             return this.postJSON('save?' + $.param(params), submitData)
                 .then(function(response) {
-                    self._afterSave(schema, dataItem, id, response);
+                    self._afterSave(schema, dataItem, id_, response);
                     return response;
                 }, function(jqXHR, textStatus, errorThrown) {
                     var message = (jqXHR.responseJSON || {}).message || 'API error';
