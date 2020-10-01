@@ -506,8 +506,8 @@
         _getEditDialogButtons: function(schema, dataItem) {
             var buttons = [];
             var widget = this;
-            if(schema.allowEdit){
-                var saveButton = {
+            if (schema.allowEdit) {
+                buttons.push({
                     text: Mapbender.trans('mb.data.store.save'),
                     click: function() {
                         // HACK: depending on configuration, there may not even be a form tag
@@ -520,10 +520,9 @@
                             });
                         }
                     }
-                };
-                buttons.push(saveButton);
+                });
             }
-            if(schema.allowDelete) {
+            if (schema.allowDelete && this._getUniqueItemId(schema, dataItem)) {
                 buttons.push({
                     text: Mapbender.trans('mb.data.store.remove'),
                     'class': 'critical',
