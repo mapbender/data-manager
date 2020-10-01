@@ -371,8 +371,10 @@
             if (!originalId) {
                 // new item
                 this.currentItems.push(dataItem);
+                this.tableRenderer.addRow(schema, dataItem, true);
+            } else {
+                this.tableRenderer.refreshRow(schema, dataItem, true);
             }
-            this.tableRenderer.replaceRows(schema, this.currentItems);
             this._saveEvent(schema, dataItem, originalId);
             $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
         },

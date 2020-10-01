@@ -34,6 +34,48 @@
             dt.draw();
         },
         /**
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} item
+         * @param {Boolean} show to automatically update pagination
+         */
+        addRow: function(schema, item, show) {
+            var dt = this.getDatatablesInstance_(schema);
+            var tr = dt.row.add(item).node();
+            if (show) {
+                this.showRow(schema, tr);
+            }
+        },
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} item
+         * @param {Boolean} show to automatically update pagination
+         */
+        refreshRow: function(schema, item, show) {
+            var dt = this.getDatatablesInstance_(schema);
+            var dtRow = dt.row(function(_, data) {
+                return data === item;
+            });
+            dtRow.data(item);
+            if (show) {
+                this.showRow(schema, dtRow.node());
+            }
+        },
+        /**
+         * Switch pagination so the given tr element is on the current page
+         *
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Element} tr
+         */
+        showRow: function(schema, tr) {
+            var dt = this.getDatatablesInstance_(schema);
+            // NOTE: current dataTables versions could just do dt.row(tr).show().draw(false)
+            var rowIndex = dt.rows({order: 'current'}).nodes().indexOf(tr);
+            var pageLength = dt.page.len();
+            var rowPage = Math.floor(rowIndex / pageLength);
+            dt.page(rowPage);
+            dt.draw(false);
+        },
+        /**
          * Get table DOM Element for schema. Must be in current document.
          *
          * @param {DataManagerSchemaConfig} schema
