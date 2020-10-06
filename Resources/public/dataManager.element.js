@@ -640,21 +640,28 @@
             return itemOut || item;
         },
         /**
-         * Getdata
-         *
+         * @param {DataManagerSchemaConfig} schema
+         * @return {Object}
+         */
+        _getSelectRequestParams: function(schema) {
+            return {
+                schema: schema.schemaName
+            };
+        },
+        /**
          * @private
          */
         _getData: function(schema) {
             var widget = this;
-            return this.getJSON('select', {
-                    schema: schema.schemaName
-            }).then(function(dataItems) {
-                widget.currentItems = dataItems.map(function(itemData) {
-                    return widget._prepareDataItem(schema, itemData);
-                });
-                widget.tableRenderer.replaceRows(schema, widget.currentItems);
-                return widget.currentItems;
-            });
+            return this.getJSON('select', this._getSelectRequestParams(schema))
+                .then(function(dataItems) {
+                    widget.currentItems = dataItems.map(function(itemData) {
+                        return widget._prepareDataItem(schema, itemData);
+                    });
+                    widget.tableRenderer.replaceRows(schema, widget.currentItems);
+                    return widget.currentItems;
+                })
+            ;
         },
         /**
          * Transforms data item server response data to internally used item structure.
