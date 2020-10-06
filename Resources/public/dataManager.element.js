@@ -16,6 +16,9 @@
      * @property {boolean} allowDelete
      * @property {String} label
      * @property {Array<*>} formItems
+     * @property {Object} popup
+     * @property {String} popup.title
+     * @property {String} popup.width
      * @property {*} table
      */
     /**
@@ -47,7 +50,6 @@
         currentSettings: null,
         /** @type {Array.<Object>} */
         currentItems: [],
-        featureEditDialogWidth: "423px",
 
         _create: function() {
             this.elementUrl = [
@@ -501,8 +503,8 @@
          */
         _getEditDialogPopupConfig: function(schema, dataItem) {
             return {
-                title: Mapbender.trans('mb.data.store.edit.title'),
-                width: this.featureEditDialogWidth,
+                title: (schema.popup || {}).title || Mapbender.trans('mb.data.store.edit.title'),
+                width: (schema.popup || {}).width || '550px',
                 classes: {
                     'ui-dialog-content': 'ui-dialog-content data-manager-edit-data'
                 },
