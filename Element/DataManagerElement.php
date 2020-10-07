@@ -82,6 +82,13 @@ class DataManagerElement extends BaseElement
         return "MapbenderDataManagerBundle:Element:dataManager{$suffix}";
     }
 
+    public function getFrontendTemplateVars()
+    {
+        // Twig template requires nothing except "id" variable, which is injected
+        // automatically by Mapbender
+        return array();
+    }
+
     /**
      * @inheritdoc
      */
