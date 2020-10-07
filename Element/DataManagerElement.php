@@ -14,6 +14,9 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * @author  Andriy Oblivantsev <eslider@gmail.com>
+ * @todo: add http method for form item reload (modified data may change "sql"-type select options, in any schema)
+ * @todo: supply reasonable defaults for "tableTranslation" option
+ * @todo: support lazy-loading of single schema, to speed up initialization
  */
 class DataManagerElement extends BaseElement
 {
