@@ -55,11 +55,6 @@ schemes:
           -
             data: textInputField
             title: 'Input text description'
-        info: true
-        lenghtChange: false
-        ordering: true
-        pageLength: 12
-        paging: true
-        processing: true
         searching: true
+        pageLength: 12
 ```

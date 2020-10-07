@@ -420,6 +420,10 @@ class DataManagerElement extends BaseElement
         if (!empty($entityConfig['schemes'][$schemaName]['popup'])) {
             $schemaConfig['popup'] = array_replace($defaults['popup'], $entityConfig['schemes'][$schemaName]['popup']);
         }
+        // Re-merge "table" sub-array
+        if (!empty($entityConfig['schemes'][$schemaName]['table'])) {
+            $schemaConfig['table'] = array_replace($defaults['table'], $entityConfig['schemes'][$schemaName]['table']);
+        }
         return $schemaConfig;
     }
 
@@ -473,6 +477,10 @@ class DataManagerElement extends BaseElement
             'popup' => array(
                 'title' => $this->getTranslator()->trans('mb.data.store.edit.title'),
                 'width' => '550px',
+            ),
+            'table' => array(
+                'searching' => true,
+                'pageLength' => 16,
             ),
         );
     }

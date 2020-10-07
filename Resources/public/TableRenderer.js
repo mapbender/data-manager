@@ -107,10 +107,10 @@
          * @return {Object}
          */
         getOptions: function(schema) {
-            var settings = _.extend({
+            var settings = {
                 lengthChange: false,
-                pageLength:   20,
-                searching:    true,
+                pageLength: schema.table.pageLength,
+                searching: schema.table.searching,
                 info:         true,
                 processing:   false,
                 ordering:     true,
@@ -118,7 +118,7 @@
                 selectable:   false,
                 oLanguage: this.getOLanguageOption(schema),
                 autoWidth:    false
-            }, this.getCustomOptions(schema));
+            };
             /** @todo 1.1: remove owner inflection to _buildTableRowButtons */
             settings.buttons = this.owner._buildTableRowButtons(schema);
             /** @todo 1.1: remove owner inflection to _getTableColumnsConfiguration */
@@ -131,16 +131,6 @@
                 item: dataItem,
                 schema: schema
             });
-        },
-        /**
-         * Extra options to be added to resultTable constructor options, REPLACING our own values
-         * This seems highly unsafe.
-         *
-         * @param {DataManagerSchemaConfig} schema
-         * @todo: stop supporting this entirely
-         */
-        getCustomOptions: function(schema) {
-            return schema.table;
         },
         /**
          * @param {DataManagerSchemaConfig} schema
