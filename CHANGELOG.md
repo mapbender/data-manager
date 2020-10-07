@@ -6,6 +6,7 @@
 - Fix table pagination after saving new data (switch page to make new entry visible)
 - Fix reliance on Mapbender template or other Elements to provide vis-ui.js requirement
 - Add visual indicator for loading / http activity
+- Implement per-schema configurable popup title and width, [as documented](./README.md)
 - Extract Element methods support WIP Digitizer 1.4 / other child class customization
 
 # 1.0.6.4
