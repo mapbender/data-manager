@@ -97,22 +97,10 @@
             _.each(this.options.schemes, function(schemaConfig) {
                 var option = $("<option/>");
                 option.val(schemaConfig.schemaName).text(schemaConfig.label);
-                option.data('schema', widget._schemaFactory(schemaConfig));
+                option.data('schema', schemaConfig);
                 selector.append(option);
             });
             return selector;
-        },
-        /**
-         * Called before binding schema to schema selection dropdown, effectively before
-         * using schema in any scope. Support for child classes that want to add methods or
-         * extend / modify / freeze the schema config otherwise before using it.
-         * @param {DataManagerSchemaConfig} schemaConfig
-         * @return {*}
-         * @private
-         */
-        _schemaFactory: function(schemaConfig) {
-            // return incoming object as is, no transformation
-            return schemaConfig;
         },
         /**
          * Unraveled from _create for child class actions after initialization, but
