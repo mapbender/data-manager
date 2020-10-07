@@ -409,11 +409,16 @@ class DataManagerElement extends BaseElement
         if (empty($entityConfig['schemes'][$schemaName])) {
             throw new UnknownSchemaException("No such schema " . print_r($schemaName, true));
         }
-        $schemaConfig = array_replace($this->getSchemaConfigDefaults(), $entityConfig['schemes'][$schemaName]);
+        $defaults = $this->getSchemaConfigDefaults();
+        $schemaConfig = array_replace($defaults, $entityConfig['schemes'][$schemaName]);
         // always guarantee "schemaName" and "label" properties, even with $raw = true
         $schemaConfig['schemaName'] = $schemaName;
         if (empty($schemaConfig['label'])) {
             $schemaConfig['label'] = $schemaName;
+        }
+        // Re-merge "popup" sub-array
+        if (!empty($entityConfig['schemes'][$schemaName]['popup'])) {
+            $schemaConfig['popup'] = array_replace($defaults['popup'], $entityConfig['schemes'][$schemaName]['popup']);
         }
         return $schemaConfig;
     }
@@ -465,6 +470,10 @@ class DataManagerElement extends BaseElement
             'allowCreate' => true,
             'allowDelete' => true,
             'maxResults' => 5000,
+            'popup' => array(
+                'title' => $this->getTranslator()->trans('mb.data.store.edit.title'),
+                'width' => '550px',
+            ),
         );
     }
 
