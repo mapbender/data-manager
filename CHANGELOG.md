@@ -1,3 +1,9 @@
+# 1.0.7.1
+- Fix undesired application reload when pressing enter in an attribute form input
+- Fix double-display of http errors occuring on save
+- Replace HTML dump error messages with readable text
+- Save / load error messages now remain on screen until clicked away
+
 # 1.0.7
 - Fix openEditDialog to use passed schema
 - Fix bad server-side access check for item creation; use config value `allowCreate`)
