@@ -313,14 +313,6 @@
                 .then(function(response) {
                     self._afterSave(schema, dataItem, id_, response);
                     return response;
-                }, function(jqXHR, textStatus, errorThrown) {
-                    var message = (jqXHR.responseJSON || {}).message || 'API error';
-                    console.error(message, textStatus, errorThrown, jqXHR);
-                    $.notify(message, {
-                        title:     'API Error',
-                        autoHide:  false,
-                        className: 'error'
-                    });
                 })
             ;
         },
