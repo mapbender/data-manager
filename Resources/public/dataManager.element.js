@@ -396,16 +396,16 @@
         },
         /**
          * @param {DataManagerSchemaConfig} schema
-         * @param {jQuery} $form
+         * @param {jQuery} $scope
          * @param {Object} [dataItem]
          * @return {boolean|Promise}
          * @private
          */
-        _submitFormData: function(schema, $form, dataItem) {
-            var formData = this._getFormData($form);
+        _submitFormData: function(schema, $scope, dataItem) {
+            var formData = this._getFormData($scope);
 
             if (formData) {
-                $form.disableForm();
+                $scope.disableForm();
                 var uniqueIdAttribute = this._getUniqueItemIdProperty(schema);
                 var uniqueId = this._getUniqueItemId(schema, dataItem);
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
@@ -414,7 +414,7 @@
                 delete formData[uniqueIdAttribute];
                 return this._saveItem(schema, uniqueId, dataItem, formData)
                     .always(function() {
-                        $form.enableForm();
+                        $scope.enableForm();
                     })
                 ;
             } else {
@@ -505,10 +505,8 @@
                 buttons.push({
                     text: Mapbender.trans('mb.data.store.save'),
                     click: function() {
-                        // HACK: depending on configuration, there may not even be a form tag
-                        //       in the current editing dialog
-                        var $form = $(this).closest('.ui-dialog-content');
-                        var saved = widget._submitFormData(schema, $form, dataItem);
+                        var $scope = $(this).closest('.ui-dialog-content');
+                        var saved = widget._submitFormData(schema, $scope, dataItem);
                         if (saved) {
                             saved.then(function() {
                                 widget._closeCurrentPopup();
