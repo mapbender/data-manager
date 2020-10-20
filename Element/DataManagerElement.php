@@ -2,6 +2,7 @@
 
 namespace Mapbender\DataManagerBundle\Element;
 
+use Doctrine\DBAL\DBALException;
 use Mapbender\DataManagerBundle\Component\Uploader;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
@@ -163,6 +164,8 @@ class DataManagerElement extends BaseElement
             return $response;
         } catch (UnknownSchemaException $e) {
             return new JsonResponse(array('message' => $e->getMessage()), JsonResponse::HTTP_NOT_FOUND);
+        } catch (DBALException $e) {
+            return new JsonResponse(array('message' => $e->getMessage()), JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
