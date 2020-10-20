@@ -459,6 +459,11 @@
                 return widget._processFormItem(schema, item, itemValues);
             });
             dialog.generateElements({children: formItems});
+            // Undo collateral tooltips created by support HACK for vis-ui tab container
+            $('.temp-form-substitute', dialog)
+                .removeClass('temp-form-substitute')
+                .attr('title', null)
+            ;
             dialog.popupDialog(this._getEditDialogPopupConfig(schema, dataItem));
             widget.currentPopup = dialog;
 
@@ -573,6 +578,21 @@
                 });
             }
             switch (item.type) {
+                case 'form':
+                    // Do not allow forms. Inputs in forms react to enter.
+                    // Replace all forms with div tags
+                    var children = itemOut.children || [];
+                    var title = itemOut.title;
+                    itemOut = document.createElement('div');
+                    $(itemOut).generateElements({children: children});
+                    // Support HACK for vis-ui tab container looking for a title attribute on the child element...
+                    if (title) {
+                        itemOut.title = title;
+                        // Add a class to support remove the title again later.
+                        // Setting a title attribute on a DOM Element creates a tooltip
+                        itemOut.className = 'temp-form-substitute';
+                    }
+                    break;
                 case 'file':
                     // @todo: cannot upload file properly to new data item (no id to target); disable file inputs, or use proper forms
                     // @todo: cannot use fid in DataManager (fid seems like a Digitizer-specific thing)
