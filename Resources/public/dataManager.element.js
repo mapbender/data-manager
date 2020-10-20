@@ -455,9 +455,7 @@
             var itemValues = this._getItemData(schema, dataItem);
 
             var dialog = $("<div/>");
-            var formItems = schema.formItems.map(function(item) {
-                return widget._processFormItem(schema, item, itemValues);
-            });
+            var formItems = widget._processFormItems(schema, schema.formItems, itemValues);
             dialog.generateElements({children: formItems});
             // Undo collateral tooltips created by support HACK for vis-ui tab container
             $('.temp-form-substitute', dialog)
@@ -559,12 +557,27 @@
         /**
          * Preprocess form items from schema before passing off to vis-ui
          * @param {DataManagerSchemaConfig} schema
-         * @param {Object} item
+         * @param {Array<Object>} items
          * @param {Object} dataItem
          * @return {Object}
          * @private
          * @todo: this could also be a postprocess on the finished form
          */
+        _processFormItems: function(schema, items, dataItem) {
+            var self = this;
+            var itemsOut = items.map(function(item) {
+                return self._processFormItem(schema, item, dataItem);
+            });
+            // strip trailing "breakline"
+            for (var i = itemsOut.length - 1; i >= 0; --i) {
+                if (itemsOut[i].type === 'breakLine') {
+                    itemsOut.pop();
+                } else {
+                    break;
+                }
+            }
+            return itemsOut;
+        },
         _processFormItem: function(schema, item, dataItem) {
             // shallow copy only. Sub-attributes that need patching will be replaced recursively anyway.
             var itemOut;
@@ -572,9 +585,7 @@
             var files;
             if (item.children && item.children.length) {
                 itemOut = $.extend({}, item, {
-                    children: item.children.map(function(ch) {
-                        return self._processFormItem(schema, ch, dataItem);
-                    })
+                    children: self._processFormItems(schema, item.children, dataItem)
                 });
             }
             switch (item.type) {
