@@ -790,8 +790,13 @@
         },
         _onAjaxError: function(xhr) {
             var errorMessage = Mapbender.trans('mb.data.store.api.query.error-message');
-            $.notify(errorMessage + JSON.stringify(xhr.responseText));
-            console.log(errorMessage, xhr);
+            console.error(errorMessage, xhr);
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = [errorMessage, xhr.responseJSON.message].join(":\n");
+            }
+            $.notify(errorMessage, {
+                autoHide: false
+            });
         },
         /**
          * Promise-based confirmation dialog utility.
