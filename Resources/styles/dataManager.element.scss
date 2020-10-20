@@ -47,6 +47,19 @@
 
 // Pop-up dialogs
 .ui-dialog-content.data-manager-edit-data {
+  &.modal-body {
+    // Undo legacy padding: 0, use Bootstrap default 15px
+    padding: 15px;
+    // Reposition vis-ui tab container (visually belongs to titlebar, but is always placed in body)
+    > .mapbender-element-tab-navigator > .nav-tabs {
+      margin-left: -15px;
+      margin-right: -15px;
+      margin-top: -15px;
+      margin-bottom: 10px;
+    }
+  }
+
+  // @todo: remove a.infoText rules; redundant with vis-ui >= 0.1.80 / >= 0.2.0
   a.infoText {
     display: block;
     position: absolute;
