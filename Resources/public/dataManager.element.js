@@ -200,21 +200,6 @@
             this._activateSchema(schemaNew);
             this._getData(schemaNew);
         },
-        _buildTableRowButtons: function(schema) {
-            return this.tableRenderer.getButtonsOption(schema);
-        },
-        _buildTableColumnsOptions: function(schema) {
-            return this.tableRenderer.getColumnsOption(schema);
-        },
-        _getTableColumnsConfiguration: function(schema) {
-            return this.tableRenderer.getColumnsConfigs(schema);
-        },
-        _getTableSettings: function(schema) {
-            return this.tableRenderer.getOptions(schema);
-        },
-        _renderTable: function(schema) {
-            return this.tableRenderer.render(schema);
-        },
         /**
          * @param {DataManagerSchemaConfig} schema
          * @return {jQuery}
@@ -236,7 +221,7 @@
                 .append($('<i class="fa fas fa-spinner fa-spin">'))
             ;
             frame.append($loadingIndicator);
-            frame.append(this._renderTable(schema));
+            frame.append(this.tableRenderer.render(schema));
             return frame;
         },
         /**
