@@ -22,6 +22,15 @@
     padding: 0.35em;
     border-radius: 0;
   }
+  // Disable bootstrap default button outlines on focus
+  // This is to support keyboard navigation (which we don't support) but makes .active hard to see
+  .btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
+      outline: none;
+  }
+  // Disable webkit default outline on focused select and text input
+  select:focus, input:focus {
+    outline: none;
+  }
 
   // Defeat highly specific table legacy row button font-sizing and misc other shenanigans
   // See Mapbender/CoreBundle/Resources/public/sass/modules/_result_table.scss

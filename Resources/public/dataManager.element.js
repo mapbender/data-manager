@@ -259,7 +259,7 @@
             if (schema.allowRefresh) {       // how?
                 var $refreshButton = $('<button>').data('schema', schema).attr({
                     type: 'button',
-                    'class': 'btn btn-sm -fn-refresh-schema',
+                    'class': 'btn btn-sm -fn-refresh-schema btn-default',
                     title: Mapbender.trans('mb.data.store.create')      // sic! @todo: distinct translation
                 });
                 $refreshButton.append($('<i/>').addClass('fa fa-refresh'));
@@ -269,7 +269,7 @@
             if (schema.allowCreate) {
                 var $createButton = $('<button>').data('schema', schema).attr({
                     type: 'button',
-                    'class': 'btn btn-sm -fn-create-item',
+                    'class': 'btn btn-sm -fn-create-item btn-default',
                     title: Mapbender.trans('mb.data.store.create')
                 });
                 $createButton.append($('<i/>').addClass('fa fa-plus'));
