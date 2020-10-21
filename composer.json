@@ -13,6 +13,9 @@
         "blueimp/jquery-file-upload": "9.*",
         "mapbender/data-source": "0.x"
     },
+    "conflict": {
+        "mapbender/mapbender": "<3.0.8.5"
+    },
     "autoload": {
         "psr-4": {
             "Mapbender\\DataManagerBundle\\": "."

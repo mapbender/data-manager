@@ -190,8 +190,15 @@
          * @return {*}
          */
         getOLanguageOption: function(schema) {
-            // @todo Digitizer: per-schema text customization...? (seen in 1.4, unsure since when)
-            return this.owner.options.tableTranslation || {};
+            return {
+                // @see https://legacy.datatables.net/usage/i18n
+                sSearch: Mapbender.trans('mb.data-manager.table.filter') + ':',
+                sEmptyTable: Mapbender.trans('mb.data-manager.table.empty'),
+                sZeroRecords: Mapbender.trans('mb.data-manager.table.empty_after_filtering'),
+                sInfoEmpty: Mapbender.trans('mb.data-manager.table.empty'),
+                sInfo: Mapbender.trans('mb.data-manager.table.from_to_total'),
+                sInfoFiltered: Mapbender.trans('mb.data-manager.table.out_of')
+            };
         },
         /**
          * Utility method to escape HTML chars

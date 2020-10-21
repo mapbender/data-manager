@@ -12,3 +12,10 @@ mb.data.store:
   save: Save
   save.successfully: 'Saved successfully'
   api.query.error-message: Error
+
+mb.data-manager.table:
+  filter: Filter
+  empty: No data
+  empty_after_filtering: No matches
+  from_to_total: Showing _START_ to _END_ from _TOTAL_
+  out_of: (out of _MAX_ total)

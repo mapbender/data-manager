@@ -112,7 +112,8 @@ class DataManagerElement extends BaseElement
                 '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
             ),
             'trans' => array(
-                'MapbenderDataManagerBundle:Element:datamanager.json.twig',
+                'mb.data-manager.*',
+                'mb.data.store.*',  // legacy quirk: this is in our translation catalogs
             ),
         );
     }
@@ -127,13 +128,6 @@ class DataManagerElement extends BaseElement
     {
         $configuration = $this->entity->getConfiguration();
         $configuration['schemes'] = $this->getSchemaConfigs();
-        if (isset($configuration['tableTranslation'])) {
-            if (!in_array('tableTranslation', array_keys($this->getDefaultConfiguration()))) {
-                // Policy: make a top-level configuration setting available for DB applications or not at all; Yaml-app-only HACKs are not acceptable
-                @trigger_error("WARNING: element config for " .get_class($this) . "#{$this->entity->getId()} contains illegal settings for 'tableTranslation', configurable only in a Yaml-defined application", E_USER_DEPRECATED);
-            }
-            $configuration['tableTranslation'] = $this->resolveTableTranslations($configuration['tableTranslation'] ?: array());
-        }
         return $configuration;
     }
 
@@ -651,25 +645,6 @@ class DataManagerElement extends BaseElement
     protected function getDataStoreKeyInSchemaConfig()
     {
         return 'dataStore';
-    }
-
-    /**
-     * Run (invalid, undocumented, unsettable) custom data tables texts through translator.
-     *
-     * @param array $values
-     * @return array
-     */
-    protected function resolveTableTranslations(array $values)
-    {
-        $translator = $this->getTranslator();
-        foreach ($values as $key => $value) {
-            if (is_string($value) && preg_match('#^trans:\w+([\.\-]\w+)*$#', $value)) {
-                $values[$key] = $translator->trans(substr($value, /* strlen('trans:') */ 6));
-            } elseif (is_array($value)) {
-                $values[$key] = $this->resolveTableTranslations($values);
-            }
-        }
-        return $values;
     }
 
     /**
