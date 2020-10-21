@@ -1,6 +1,7 @@
 # 1.0.7.1
 - Fix undesired application reload when pressing enter in an attribute form input
 - Fix double-display of http errors occuring on save
+- Fix success message language on delete / save
 - Replace HTML dump error messages with readable text
 - Save / load error messages now remain on screen until clicked away
 
