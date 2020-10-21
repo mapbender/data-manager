@@ -132,18 +132,6 @@ class DataManagerElement extends BaseElement
     }
 
     /**
-     * Request handling adapter for old Mapbender < 3.0.8-beta1
-     * @param string $action ignored
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function httpAction($action)
-    {
-        /** @var $requestService Request */
-        $request = $this->container->get('request_stack')->getCurrentRequest();
-        return $this->handleHttpRequest($request);
-    }
-
-    /**
      * @param Request $request
      * @return Response
      */
