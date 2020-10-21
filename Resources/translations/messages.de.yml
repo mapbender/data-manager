@@ -6,9 +6,9 @@ mb.data.store:
   feature:
     remove: Löschen
   remove: Löschen
-  remove.successfully: 'Datensatz wurde gelöscht!'
+  remove.successfully: 'Erfolgreich gelöscht'
   remove.confirm:
-    text: 'Datensatz löschen?'
+    text: 'Objekt löschen?'
   save: Speichern
-  save.successfully: 'Datensatz wurde gespeichert!'
+  save.successfully: 'Erfolgreich gespeichert'
   api.query.error-message: Fehler
