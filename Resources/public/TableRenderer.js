@@ -187,9 +187,15 @@
             });
         },
         renderButtonColumnContent: function(schema) {
-            var $buttonGroup = $('<div class="btn-group">');
-            $buttonGroup.append(this.renderRowButtons(schema));
-            return $buttonGroup.get(0);
+            var rowButtons = this.renderRowButtons(schema);
+            if (rowButtons.length) {
+                return $('<div class="btn-group">')
+                    .append(rowButtons)
+                    .get(0)
+                ;
+            } else {
+                return null;
+            }
         },
         renderRowButtons: function(schema) {
             var buttonConfigs = this.getButtonsOption(schema);
@@ -226,12 +232,12 @@
             return (schema.table || {}).columns || [];
         },
         getButtonColumnOptions: function(schema) {
-            var interfaceMarkup =this.renderButtonColumnContent(schema).outerHTML;
-            return {
+            var interfaceElement = this.renderButtonColumnContent(schema).outerHTML;
+            return interfaceElement && {
                 className: 'buttons',
                 render: function(val, type) {
                     if (type === 'display') {
-                        return interfaceMarkup;
+                        return interfaceElement;
                     } else {
                         return null;
                     }
