@@ -108,7 +108,11 @@
         getOptions: function(schema) {
             var settings = {
                 columns: this.getColumnsOption(schema),
-                buttons: this.getButtonsOption(schema),
+                buttons: [{
+                    // vis-ui quirk: type "html" runs through jQuery.append, allowing us to safely pass DOM nodes
+                    type: 'html',
+                    html: this.renderButtonColumnContent(schema)
+                }],
                 lengthChange: false,
                 pageLength: schema.table.pageLength,
                 searching: schema.table.searching,
@@ -139,13 +143,13 @@
             //       the dialog will not have a save button, but it will still function as an attribute data viewer.
             buttons.push({
                 title: Mapbender.trans('mb.data.store.edit'),
-                cssClass: 'fa fa-edit -fn-edit-data'
+                cssClass: 'fa fa-edit -fn-edit-data btn-default'
             });
 
             if (schema.allowDelete) {
                 buttons.push({
                     title: Mapbender.trans('mb.data.store.remove'),
-                    cssClass: 'critical fa fa-times -fn-delete'
+                    cssClass: 'critical fa fa-times -fn-delete btn-danger'
                 });
             }
             return buttons;
@@ -176,6 +180,42 @@
                         }
                     }
                 });
+            });
+        },
+        renderButtonColumnContent: function(schema) {
+            var $buttonGroup = $('<div class="btn-group">');
+            $buttonGroup.append(this.renderRowButtons(schema));
+            return $buttonGroup.get(0);
+        },
+        renderRowButtons: function(schema) {
+            var buttonConfigs = this.getButtonsOption(schema);
+            return buttonConfigs.map(function(buttonConfig) {
+                var allClasses = (buttonConfig.cssClass || '').split(/\s+/);
+                var buttonClasses = allClasses.filter(function(cls) {
+                    return cls && !(/^(icon|fa)/.test(cls));
+                });
+                var iconClasses = allClasses.filter(function(cls) {
+                    return cls && (/^(icon|fa)/.test(cls));
+                });
+                var $icon = $(document.createElement('i'))
+                    .addClass(iconClasses.join(' '))
+                ;
+                var $button = $(document.createElement('button'))
+                    .attr({
+                        type: 'button',
+                        title: buttonConfig.title
+                    })
+                    .addClass(buttonClasses.join(' '))
+                    .addClass('btn')
+                    .append($icon)
+                ;
+                var colorClasses = buttonClasses.filter(function(cls) {
+                    return /^(btn-)/.test(cls);
+                });
+                if (!colorClasses.length) {
+                    $button.addClass('btn-default');
+                }
+                return $button.get(0);
             });
         },
         getColumnsConfigs: function(schema) {

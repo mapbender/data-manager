@@ -37,18 +37,22 @@
   .mapbender-element-result-table {
     > .dataTables_wrapper {
       > table[role="grid"] {
-        > tbody > tr > td.buttons > div.button-navigation {
-          display: inline-block;
-          white-space: nowrap;
-            > button {
+        > tbody > tr > td.buttons {
+          button {
             font-size: inherit;
             padding: 0.28em;  // ~3px on 11px font-size
-            &:before {
-              font-size: inherit;
-              padding: 0;
-            }
           }
         }
+      }
+    }
+    .buttons .btn-group {
+      white-space: nowrap;
+      >.btn {
+        // Bootstrap default float: left on .btn-group > .btn forces computed display: block, allowing horizontal
+        // collapse of the column and spreading the buttons over mulitple lines
+        // @see https://stackoverflow.com/questions/28482145/browsers-seem-to-be-ignoring-displayinline-block-and-rendering-as-block
+        // => disable float
+        float: none;
       }
     }
   }
