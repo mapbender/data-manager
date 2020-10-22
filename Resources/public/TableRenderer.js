@@ -98,8 +98,8 @@
             if (!element) {
                 throw new Error("Cannot access dataTables instance for schema " + schema.schemaName + ". Table not in DOM?")
             }
-            // get instance from wrapping vis-ui widget
-            return $(element).resultTable('getApi');
+            // This works with or without vis-ui resultTable
+            return $('table:first', element).dataTable().api();
         },
         /**
          * Returns options used to initialize resultTable widget.
