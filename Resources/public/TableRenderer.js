@@ -18,7 +18,11 @@
          */
         render: function(schema) {
             var settings = this.getOptions(schema);
-            var $tableWrap = $("<div/>").resultTable(settings);
+            // var $tableWrap = $("<div/>").resultTable(settings);
+            var $table = $('<table class="table table-striped">');
+            $table.DataTable(settings);
+            var $tableWrap = $('<div class="mapbender-element-result-table">');
+            $tableWrap.append($table.closest('.dataTables_wrapper'));
             $tableWrap.attr('data-schema-name', schema.schemaName);
             return $tableWrap;
         },
@@ -106,13 +110,13 @@
          * @return {Object}
          */
         getOptions: function(schema) {
+            var columnsOption = this.getColumnsOption(schema);
+            var buttonColumnOptions = this.getButtonColumnOptions(schema);
+            if (buttonColumnOptions) {
+                columnsOption.push(buttonColumnOptions);
+            }
             var settings = {
-                columns: this.getColumnsOption(schema),
-                buttons: [{
-                    // vis-ui quirk: type "html" runs through jQuery.append, allowing us to safely pass DOM nodes
-                    type: 'html',
-                    html: this.renderButtonColumnContent(schema)
-                }],
+                columns: columnsOption,
                 lengthChange: false,
                 pageLength: schema.table.pageLength,
                 searching: schema.table.searching,
@@ -220,6 +224,20 @@
         },
         getColumnsConfigs: function(schema) {
             return (schema.table || {}).columns || [];
+        },
+        getButtonColumnOptions: function(schema) {
+            var interfaceMarkup =this.renderButtonColumnContent(schema).outerHTML;
+            return {
+                className: 'buttons',
+                render: function(val, type) {
+                    if (type === 'display') {
+                        return interfaceMarkup;
+                    } else {
+                        return null;
+                    }
+                },
+                sortable: false
+            };
         },
         /**
          * @param {DataManagerSchemaConfig} schema
