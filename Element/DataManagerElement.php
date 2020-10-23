@@ -493,15 +493,9 @@ class DataManagerElement extends BaseElement
     protected function resolveDataStoreConfig($value)
     {
         if ($value && is_array($value)) {
-            // Pre-unraveled configs cannot have a sensible id guaranteed
-            // @todo: figure out who wants this id anyway, remove if possible
-            return $value + array(
-                'id' => null,
-            );
+            return $value;
         } elseif ($value && is_string($value)) {
-            return $this->getDataStoreDefinition($value) + array(
-                'id' => $value,
-            );
+            return $this->getDataStoreDefinition($value);
         } else {
             throw new \RuntimeException("Invalid dataStore setting " . var_export($value, true));
         }
