@@ -449,12 +449,6 @@ class DataManagerElement extends BaseElement
         if (isset($rawConfig['formItems'])) {
             $prepared['formItems'] = $this->prepareItems($rawConfig['formItems']);
         }
-        $dsConfigKey = $this->getDataStoreKeyInSchemaConfig();
-        // lenient mode: ignore missing dataStore setting for Digitizer inheritance
-        // @todo 1.1: missing dataStore / featureType is an error
-        if (isset($rawConfig[$dsConfigKey])) {
-            $prepared[$dsConfigKey] = $this->resolveDataStoreConfig($rawConfig[$dsConfigKey]);
-        }
         return $prepared;
     }
 
