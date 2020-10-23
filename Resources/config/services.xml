@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <!-- must reference a container parameter populated with a DataStore name => configuration mapping -->
+        <parameter key="mb.data-manager.registry.declarations-param">dataStores</parameter>
+    </parameters>
+    <services>
+        <service id="mb.data-manager.registry" class="Mapbender\DataSourceBundle\Component\DataStoreService" >
+            <argument type="service" id="service_container"/>
+            <argument>%mb.data-manager.registry.declarations-param%</argument>
+        </service>
+    </services>
+</container>

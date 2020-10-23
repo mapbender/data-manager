@@ -7,6 +7,7 @@ use Mapbender\DataManagerBundle\Component\Uploader;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
 use Mapbender\DataSourceBundle\Component\DataStore;
+use Mapbender\DataSourceBundle\Component\DataStoreService;
 use Mapbender\DataSourceBundle\Element\BaseElement;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -306,8 +307,8 @@ class DataManagerElement extends BaseElement
      */
     protected function getDataStoreBySchemaName($schemaName)
     {
-        // @todo: use DataStoreService::dataStoreFactory (requires data-source >= 0.1.15)
-        return new DataStore($this->container, $this->getDataStoreConfigForSchema($schemaName));
+        $config = $this->getDataStoreConfigForSchema($schemaName);
+        return $this->getDataStoreService()->dataStoreFactory($config);
     }
 
     /**
@@ -644,5 +645,15 @@ class DataManagerElement extends BaseElement
             $this->translator = $this->container->get('translator');
         }
         return $this->translator;
+    }
+
+    /**
+     * @return DataStoreService
+     */
+    protected function getDataStoreService()
+    {
+        /** @var DataStoreService $service */
+        $service = $this->container->get('mb.data-manager.registry');
+        return $service;
     }
 }
