@@ -234,7 +234,7 @@
         getButtonColumnOptions: function(schema) {
             var interfaceElement = this.renderButtonColumnContent(schema).outerHTML;
             return interfaceElement && {
-                className: 'buttons',
+                className: 'interface',
                 render: function(val, type) {
                     if (type === 'display') {
                         return interfaceElement;

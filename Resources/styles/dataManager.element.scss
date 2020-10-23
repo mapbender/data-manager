@@ -32,20 +32,18 @@
     outline: none;
   }
 
-  // Defeat highly specific table legacy row button font-sizing and misc other shenanigans
+  // Defeat highly specific table td padding rule for cell containing interface buttons
   // See Mapbender/CoreBundle/Resources/public/sass/modules/_result_table.scss
   .mapbender-element-result-table {
     > .dataTables_wrapper {
       > table[role="grid"] {
-        > tbody > tr > td.buttons {
-          button {
-            font-size: inherit;
-            padding: 0.28em;  // ~3px on 11px font-size
-          }
+        td.interface {
+          padding: 0;
         }
       }
     }
-    .buttons .btn-group {
+
+    .btn-group {
       white-space: nowrap;
       >.btn {
         // Bootstrap default float: left on .btn-group > .btn forces computed display: block, allowing horizontal
@@ -53,6 +51,8 @@
         // @see https://stackoverflow.com/questions/28482145/browsers-seem-to-be-ignoring-displayinline-block-and-rendering-as-block
         // => disable float
         float: none;
+        font-size: inherit;
+        padding: 0.28em;  // ~3px on 11px font-size
       }
     }
   }
