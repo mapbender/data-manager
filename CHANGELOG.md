@@ -1,5 +1,6 @@
 # 1.0.8
 - Localize table filtering / result count language
+- Fix errors finding item id in file upload fields
 
 # 1.0.7.1
 - Fix undesired application reload when pressing enter in an attribute form input
