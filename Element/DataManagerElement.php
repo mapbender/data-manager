@@ -466,7 +466,6 @@ class DataManagerElement extends BaseElement
             'allowDelete' => true,
             'maxResults' => 5000,
             'popup' => array(
-                'title' => $this->getTranslator()->trans('mb.data.store.edit.title'),
                 'width' => '550px',
             ),
             'table' => array(

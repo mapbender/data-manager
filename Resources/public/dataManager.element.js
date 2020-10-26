@@ -463,7 +463,7 @@
          */
         _getEditDialogPopupConfig: function(schema, dataItem) {
             return {
-                title: schema.popup.title,
+                title: schema.popup.title || Mapbender.trans('mb.data.store.edit.title'),
                 width: schema.popup.width,
                 classes: {
                     'ui-dialog-content': 'ui-dialog-content data-manager-edit-data'
