@@ -507,7 +507,7 @@ class DataManagerElement extends BaseElement
      */
     protected function getDataStoreDefinition($storeId)
     {
-        $storeConfigs = $this->container->getParameter('dataStores');
+        $storeConfigs = $this->getDataStoreService()->getDataStoreDeclarations();
         return $storeConfigs[$storeId];
     }
 
