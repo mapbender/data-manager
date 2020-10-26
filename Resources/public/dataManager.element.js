@@ -272,31 +272,24 @@
         },
         /**
          * @param {DataManagerSchemaConfig} schema
-         * @param {String|null|undefined} id will auto-extract from dataItem if undefined
          * @param {Object} dataItem
          * @param {Object} [newValues]
          * @return {Promise}
          * @private
-         * @todo 1.1: remove id argument, always auto-extract item id
          */
-        _saveItem: function(schema, id, dataItem, newValues) {
+        _saveItem: function(schema, dataItem, newValues) {
             var self = this;
             var params = {
                 schema: schema.schemaName
             };
-            var id_;
-            if (typeof id === 'undefined') {
-                id_ = this._getUniqueItemId(schema, dataItem);
-            } else {
-                id_ = id;
-            }
-            if (id_) {
-                params.id = id_;
+            var id = this._getUniqueItemId(schema, dataItem);
+            if (id) {
+                params.id = id;
             }
             var submitData = this._getSaveRequestData(schema, dataItem, newValues);
             return this.postJSON('save?' + $.param(params), submitData)
                 .then(function(response) {
-                    self._afterSave(schema, dataItem, id_, response);
+                    self._afterSave(schema, dataItem, id, response);
                     return response;
                 })
             ;
@@ -392,12 +385,11 @@
             if (formData) {
                 $scope.disableForm();
                 var uniqueIdAttribute = this._getUniqueItemIdProperty(schema);
-                var uniqueId = this._getUniqueItemId(schema, dataItem);
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
                     console.warn("Form contains an input field for the object id", schema);
                 }
                 delete formData[uniqueIdAttribute];
-                return this._saveItem(schema, uniqueId, dataItem, formData)
+                return this._saveItem(schema, dataItem, formData)
                     .always(function() {
                         $scope.enableForm();
                     })
