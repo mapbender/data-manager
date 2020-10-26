@@ -1,3 +1,8 @@
+# 1.1.0
+- Adopt basic Mapbender 3.2 design sensibilities
+- Drop support hacks for legacy vis-ui versions <0.1.80
+- Replace vis-ui.js-built.js dependency (provided by abandonware robloach/component-installer) with individual vendor-sourced file references
+
 # 1.0.8
 - Localize table filtering / result count language
 - Fix errors finding item id in file upload fields
