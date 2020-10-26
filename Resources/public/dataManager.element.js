@@ -14,6 +14,7 @@
      * @property {boolean} allowEdit
      * @property {boolean} allowCreate
      * @property {boolean} allowDelete
+     * @property {boolean} allowRefresh
      * @property {String} label
      * @property {Array<*>} formItems
      * @property {Object} popup
@@ -241,7 +242,7 @@
          */
         _renderToolset: function(schema) {
             var buttons = [];
-            if (schema.allowRefresh) {       // how?
+            if (schema.allowRefresh) {
                 var $refreshButton = $('<button>').data('schema', schema).attr({
                     type: 'button',
                     'class': 'btn btn-sm -fn-refresh-schema btn-default',

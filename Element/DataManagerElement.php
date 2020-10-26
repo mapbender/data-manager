@@ -461,6 +461,7 @@ class DataManagerElement extends BaseElement
     {
         return array(
             'allowEdit' => false,
+            'allowRefresh' => false,
             'fileUri' => $this->getDefaultUploadsPath(),
             'allowCreate' => true,
             'allowDelete' => true,
