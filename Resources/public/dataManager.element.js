@@ -49,8 +49,6 @@
         },
         /** @type {{DataManagerSchemaConfig|null}} */
         currentSettings: null,
-        /** @type {Array.<Object>} */
-        currentItems: [],
 
         _create: function() {
             this.elementUrl = [
@@ -344,7 +342,6 @@
             this._replaceItemData(schema, dataItem, responseData.dataItem);
             if (!originalId) {
                 // new item
-                this.currentItems.push(dataItem);
                 this.tableRenderer.addRow(schema, dataItem, true);
             } else {
                 this.tableRenderer.refreshRow(schema, dataItem, true);
@@ -645,11 +642,11 @@
             var widget = this;
             return this.getJSON('select', this._getSelectRequestParams(schema))
                 .then(function(dataItems) {
-                    widget.currentItems = dataItems.map(function(itemData) {
+                    var preparedItems = dataItems.map(function(itemData) {
                         return widget._prepareDataItem(schema, itemData);
                     });
-                    widget.tableRenderer.replaceRows(schema, widget.currentItems);
-                    return widget.currentItems;
+                    widget.tableRenderer.replaceRows(schema, preparedItems);
+                    return preparedItems;
                 })
             ;
         },
@@ -728,7 +725,6 @@
          * @private
          */
         _afterRemove: function(schema, dataItem, id) {
-            this.currentItems = _.without(this.currentItems, dataItem);
             this.tableRenderer.removeRow(schema, dataItem);
             this._deleteEvent(schema, dataItem, id);
             $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info');
