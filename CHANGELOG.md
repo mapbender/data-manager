@@ -1,3 +1,6 @@
+# 1.1.1
+- Fix undesirable table pagination reset after deletion
+
 # 1.1.0
 - Adopt basic Mapbender 3.2 design sensibilities
 - Drop support hacks for legacy vis-ui versions <0.1.80
