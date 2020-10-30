@@ -734,13 +734,6 @@
             $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info');
         },
         /**
-         * @param schema
-         * @todo 1.1: remove this method
-         */
-        redrawTable: function(schema) {
-            this.tableRenderer.replaceRows(schema, this.currentItems);
-        },
-        /**
          * @param {DataManagerSchemaConfig} schema
          * @return {String}
          * @private
