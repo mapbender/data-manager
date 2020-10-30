@@ -49,6 +49,22 @@
             }
         },
         /**
+         * Deletes the row corresponding to item from the table.
+         * Will maintain current pagination if there are still items on the current page.
+         * NOTE: If the current page becomes empty, dataTables will automatically switch to the previous page.
+         *
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} item
+         */
+        removeRow: function(schema, item) {
+            var dt = this.getDatatablesInstance_(schema);
+            var dtRow = dt.row(function(_, data) {
+                return data === item;
+            });
+            dtRow.remove();
+            dt.draw(false);
+        },
+        /**
          * @param {DataManagerSchemaConfig} schema
          * @param {Object} item
          * @param {Boolean} show to automatically update pagination

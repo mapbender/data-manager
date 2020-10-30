@@ -729,7 +729,7 @@
          */
         _afterRemove: function(schema, dataItem, id) {
             this.currentItems = _.without(this.currentItems, dataItem);
-            this.tableRenderer.replaceRows(schema, this.currentItems);
+            this.tableRenderer.removeRow(schema, dataItem);
             this._deleteEvent(schema, dataItem, id);
             $.notify(Mapbender.trans('mb.data.store.remove.successfully'), 'info');
         },
