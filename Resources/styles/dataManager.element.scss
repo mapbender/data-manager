@@ -13,6 +13,8 @@
   }
   .loading-indicator {
     text-align: right;
+    // move spinning icon content slightly left to prevent horizontal overflow and flickering scrollbar
+    padding-right: 0.25em;
   }
   // Independence from quirky vis-ui ".modal-body" rules; this Element is not a modal body
   color: #555;
