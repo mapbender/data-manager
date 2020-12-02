@@ -1,5 +1,6 @@
 # 1.1.2
 - Fix uploads integration
+- Fix loading indicator producing undesired horizontal scrollbars in certain container types
 
 # 1.1.1
 - Fix undesirable table pagination reset after deletion
