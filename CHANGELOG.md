@@ -6,6 +6,10 @@
 - Drop support hacks for legacy vis-ui versions <0.1.80
 - Replace vis-ui.js-built.js dependency (provided by abandonware robloach/component-installer) with individual vendor-sourced file references
 
+# 1.0.9
+- Fix uploads integration
+- Fix undesirable table pagination reset after deletion
+
 # 1.0.8
 - Localize table filtering / result count language
 - Fix errors finding item id in file upload fields

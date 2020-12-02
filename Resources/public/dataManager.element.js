@@ -360,8 +360,10 @@
             var formData = $form.formData();
             var $allNamedInputs = $(':input[name]', $form);
             var $invalidInputs = $allNamedInputs.filter(function() {
+                // NOTE: hidden inputs must be explicitly excluded from jQuery validation
+                //       see https://stackoverflow.com/questions/51534473/jquery-validate-not-working-on-hidden-input
                 // NOTE: jQuery pseudo-selector :valid can not be chained into a single .find (or snytactic variant)
-                return $(this).is(':not(:valid)');
+                return this.type !== 'hidden' && !$(this).is(':valid');
             });
             // @todo vis-ui: some inputs (with ".mandatory") are made invalid only visually when
             //               empty, but do not have the HTML required or pattern property to
