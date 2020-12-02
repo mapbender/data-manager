@@ -1,3 +1,6 @@
+# 1.1.2
+- Fix uploads integration
+
 # 1.1.1
 - Fix undesirable table pagination reset after deletion
 
