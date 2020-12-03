@@ -265,7 +265,7 @@ class DataManagerElement extends BaseElement
             return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
         }
         $repository = $this->getDataStoreBySchemaName($schemaName);
-        return new JsonResponse($this->getUploadHandlerResponseData($repository, $schemaName, $request->query->get('fid'), $request->query->get('field')));
+        return new JsonResponse($this->getUploadHandlerResponseData($repository, $request->query->get('field')));
     }
 
     /**
@@ -513,35 +513,29 @@ class DataManagerElement extends BaseElement
 
     /**
      * @param DataStore $store
-     * @param string $schemaName
-     * @param mixed $itemId
      * @param string $fieldName
      * @return mixed[]
      * @todo: this is pretty much an exact match of the same logic in digitizer 1.1. Fold.
      * @todo: Digitizer already has a method uploadFileAction, but it has FeatureType interactions built in and
      *        returns the response immediately. Cannot safely have a method with incompatible signature.
      */
-    protected function getUploadHandlerResponseData(DataStore $store, $schemaName, $itemId, $fieldName)
+    protected function getUploadHandlerResponseData(DataStore $store, $fieldName)
     {
-        $urlParameters = $this->getUploadUrlParameters($store, $schemaName, $itemId, $fieldName);
-        $uploadHandler = $this->getUploadHandler($store, $fieldName, $urlParameters);
-        // @todo: TBD why we merge the url parameters into the response. This brings in a lot of dependencies for ... what?
-        return array_merge($uploadHandler->get_response(), $urlParameters);
+        $uploadHandler = $this->getUploadHandler($store, $fieldName);
+        return $uploadHandler->get_response();
     }
 
     /**
      * @param DataStore $store
      * @param string $fieldName
-     * @param string[] $urlParameters
      * @return Uploader
      */
-    protected function getUploadHandler(DataStore $store, $fieldName, $urlParameters)
+    protected function getUploadHandler(DataStore $store, $fieldName)
     {
         $uploadDir = $store->getFilePath($fieldName);
         $uploadUrl = $store->getFileUrl($fieldName) . "/";
         return new Uploader(array(
             'upload_dir' => $uploadDir . "/",
-            'script_url' => $this->getUploadServerUrl($urlParameters),
             'upload_url' => $uploadUrl,
             'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
             'print_response' => false,
@@ -555,40 +549,6 @@ class DataManagerElement extends BaseElement
                 //                        'DELETE'
             ),
         ));
-    }
-
-    /**
-     * @param DataStore $store
-     * @param string $schemaName
-     * @param mixed $itemId
-     * @param string $fieldName
-     * @return array
-     * @todo: this seems like a lot of work to generate something a)the UploadHandler does not even care about; b)the client
-     *        code does not even look at
-     *        => Determine safety of removal
-     */
-    protected function getUploadUrlParameters(DataStore $store, $schemaName, $itemId, $fieldName)
-    {
-        return array(
-            'schema' => $schemaName,
-            'fid' => $itemId,
-            'field' => $fieldName,
-            'uploadUrl' => $store->getFileUrl($fieldName) . "/",
-        );
-    }
-
-    /**
-     * @param string[] $params
-     * @return string
-     * @todo: this seems like a lot of work to generate something a)the UploadHandler does not even care about; b)the client
-     *        code does not even look at
-     *        => Determine safety of removal
-     */
-    protected function getUploadServerUrl($params)
-    {
-        unset($params['uploadUrl']);
-        // really? $_SERVER?
-        return preg_replace('/\\?.+$/', "", $_SERVER["REQUEST_URI"]) . "?" . http_build_query($params);
     }
 
     /**

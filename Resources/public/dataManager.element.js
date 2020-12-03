@@ -583,10 +583,8 @@
                     }
                     break;
                 case 'file':
-                    // @todo: cannot upload file properly to new data item (no id to target); disable file inputs, or use proper forms
-                    itemId = dataItem[this._getUniqueItemIdProperty(schema)];
                     itemOut = itemOut || $.extend({}, item);
-                    itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + itemId + "&field=" + item.name;
+                    itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&field=" + item.name;
                     // @todo: form inputs without a name attribute should be an error condition
                     if (item.name && dataItem[item.name]) {
                         itemOut.dbSrc = dataItem[item.name];
