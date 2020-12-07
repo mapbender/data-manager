@@ -1,3 +1,7 @@
+# 1.0.10
+- Prevent attribute editing dialog from becoming narrower than configured while resizing
+- Fix row button alignment dependency on table column width configuration
+
 # 1.0.9
 - Fix uploads integration
 - Fix undesirable table pagination reset after deletion
