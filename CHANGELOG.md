@@ -14,6 +14,10 @@
 - Drop support hacks for legacy vis-ui versions <0.1.80
 - Replace vis-ui.js-built.js dependency (provided by abandonware robloach/component-installer) with individual vendor-sourced file references
 
+# 1.0.10
+- Prevent attribute editing dialog from becoming narrower than configured while resizing
+- Fix row button alignment dependency on table column width configuration
+
 # 1.0.9
 - Fix uploads integration
 - Fix undesirable table pagination reset after deletion
