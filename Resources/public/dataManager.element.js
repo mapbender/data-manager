@@ -462,9 +462,16 @@
          * @private
          */
         _getEditDialogPopupConfig: function(schema, dataItem) {
+            var width = schema.popup.width;
+            // NOTE: unlike width, which allows CSS units, minWidth option is expected to be a pure pixel number
+            var minWidth = 550;
+            if (/\d+px/.test(width || '')) {
+                minWidth = parseInt(width.replace(/px$/, '')) || minWidth
+            }
             return {
                 title: schema.popup.title || Mapbender.trans('mb.data.store.edit.title'),
                 width: schema.popup.width,
+                minWidth: minWidth,
                 classes: {
                     'ui-dialog-content': 'ui-dialog-content data-manager-edit-data'
                 },

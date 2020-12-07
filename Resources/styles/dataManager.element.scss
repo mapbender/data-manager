@@ -58,6 +58,10 @@
       }
     }
   }
+  // Right-align buttons even if columns have no (configured!) CSS width
+  td.interface {
+    text-align: right;
+  }
 }
 
 // Pop-up dialogs
