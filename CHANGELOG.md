@@ -1,3 +1,7 @@
+# 1.1.3
+- Prevent attribute editing dialog from becoming narrower than configured while resizing
+- Fix row button alignment dependency on table column width configuration
+
 # 1.1.2
 - Fix uploads integration
 - Fix loading indicator producing undesired horizontal scrollbars in certain container types
