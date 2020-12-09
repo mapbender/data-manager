@@ -14,6 +14,11 @@
 - Drop support hacks for legacy vis-ui versions <0.1.80
 - Replace vis-ui.js-built.js dependency (provided by abandonware robloach/component-installer) with individual vendor-sourced file references
 
+# 1.0.11
+- Fix backend form browser text searchability through off-screen portions of "schemes" area
+- Fix backend form sizing
+- Extract backend form block "schemes_row" for customization
+
 # 1.0.10
 - Prevent attribute editing dialog from becoming narrower than configured while resizing
 - Fix row button alignment dependency on table column width configuration
