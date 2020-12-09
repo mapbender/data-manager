@@ -1,3 +1,8 @@
+# 1.1.4
+- Fix backend form browser text searchability through off-screen portions of "schemes" area
+- Fix backend form sizing
+- Extract backend form block "schemes_row" for customization
+
 # 1.1.3
 - Prevent attribute editing dialog from becoming narrower than configured while resizing
 - Fix row button alignment dependency on table column width configuration
