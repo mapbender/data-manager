@@ -1,11 +1,12 @@
 <div class="elementForm elementFormDataManager">
     <style media="all">
-        .elementFormDataManager {
-           width: 100%;
-        }
         .elementFormDataManager label.block {
             display: block;
             margin: 0;
+        }
+        .elementFormDataManager label.block + .inputWrapper {
+            /* defeat .inputWrapper default width limitation */
+            width: 100%;
         }
 
         .elementFormDataManager .code-yaml {
