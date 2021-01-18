@@ -379,9 +379,8 @@
          * @private
          */
         _getFormData: function($form) {
-            // @todo vis-ui: make form validation and form data extraction available separately
-            //               validation is currently only performed implicitly on extraction
-            var formData = $form.formData();
+            // Call vis-ui .formData ONLY to trigger its custom validation. Ignore return values entirely.
+            $form.formData();
             var $allNamedInputs = $(':input[name]', $form);
             var $invalidInputs = $allNamedInputs.filter(function() {
                 // NOTE: hidden inputs must be explicitly excluded from jQuery validation
@@ -393,7 +392,37 @@
             //               empty, but do not have the HTML required or pattern property to
             //               support selector detection. Work around that here.
             $invalidInputs = $invalidInputs.add($('.has-error :input', $form));
-            // return false if any inputs are invalid
+            var formData = {};
+            var radioMap = {};
+            $allNamedInputs.get().forEach(function(input) {
+                var type = input.type;
+                var value;
+                switch (type) {
+                    case 'radio':
+                        // Radio inputs repeat with the same name. Do not evaluate them individually. Evaluate the
+                        // whole group.
+                        if (radioMap[input.name]) {
+                            // already done
+                            return;
+                        }
+                        value = $allNamedInputs.filter('[type="radio"][name="' + input.name + '"]:checked').val();
+                        radioMap[input.name] = true;
+                        // Work around vis-ui.js generating invalid radio groups where nothing is checked, by simply
+                        // extracting nothing
+                        if (!value) {
+                            return;
+                        }
+                        break;
+                    case 'checkbox':
+                        value = input.checked && input.value;
+                        break;
+                    default:
+                        // Delegate to jQuery (only differs from input.value for multi-selects)
+                        value = $(input).val();
+                        break;
+                }
+                formData[input.name] = value;
+            });
             return !$invalidInputs.length && formData;
         },
         /**
