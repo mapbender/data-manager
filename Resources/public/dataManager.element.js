@@ -350,14 +350,74 @@
             $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
         },
         /**
+         * @param {jQuery} $scope
+         * @param {Object} values
+         * @private
+         */
+        _setFormData: function($scope, values) {
+            var valueKeys = Object.keys(values);
+            for (var i = 0; i < valueKeys.length; ++i) {
+                var inputName = valueKeys[i];
+                var value = values[inputName];
+                var $input = $(':input[name="' + inputName + '"]');
+                if (!$input.length) {
+                    continue;
+                }
+                switch ($input.get(0).type) {
+                    case 'select-multiple':
+                        if (!Array.isArray(value)) {
+                            var separator = $input.attr('data-visui-multiselect-separator') || ',';
+                            value = (value || '').split(separator);
+                        }
+                        $input.val(value);
+                        break;
+                    case 'radio':
+                        var $check = $input.filter(function() {
+                            return this.value === value;
+                        });
+                        $check.prop('checked', true);
+                        break;
+                    case 'checkbox':
+                        // Legacy fun time: database may contain stringified booleans "false" or even "off"
+                        value = !!value && (value !== 'false') && (value !== 'off');
+                        $input.prop('checked', value);
+                        break;
+                    default:
+                        $input.val(value);
+                        $input.trigger('change.colorpicker');
+                        break;
+                }
+                $input.trigger('change.select2');
+                // Custom vis-ui event shenanigans (use originally passed value for multi-selects)
+                $input.trigger('filled', {data: values, value: values[inputName]});
+            }
+        },
+        _fixEmptyRadioGroups: function($scope) {
+            var groups = {};
+            var names = [];
+            $('input[type="radio"]', $scope).each(function() {
+                var name = this.name;
+                if (!groups[name]) {
+                    groups[name] = [];
+                    names.push(name);
+                }
+                groups[name].push(this);
+            });
+            for (var i = 0; i < names.length; ++i) {
+                var $group = $(groups[names[i]]);
+                if (!$group.filter(':checked').length) {
+                    $group.first().prop('checked', true);
+                }
+            }
+        },
+        /**
          * @param {jQuery} $form
          * @return {Object|boolean} false on any invalid form inputs
          * @private
          */
         _getFormData: function($form) {
-            // @todo vis-ui: make form validation and form data extraction available separately
-            //               validation is currently only performed implicitly on extraction
-            var formData = $form.formData();
+            // Call vis-ui .formData ONLY to trigger its custom validation. Ignore return values entirely.
+            $form.formData();
             var $allNamedInputs = $(':input[name]', $form);
             var $invalidInputs = $allNamedInputs.filter(function() {
                 // NOTE: hidden inputs must be explicitly excluded from jQuery validation
@@ -369,7 +429,37 @@
             //               empty, but do not have the HTML required or pattern property to
             //               support selector detection. Work around that here.
             $invalidInputs = $invalidInputs.add($('.has-error :input', $form));
-            // return false if any inputs are invalid
+            var formData = {};
+            var radioMap = {};
+            $allNamedInputs.get().forEach(function(input) {
+                var type = input.type;
+                var value;
+                switch (type) {
+                    case 'radio':
+                        // Radio inputs repeat with the same name. Do not evaluate them individually. Evaluate the
+                        // whole group.
+                        if (radioMap[input.name]) {
+                            // already done
+                            return;
+                        }
+                        value = $allNamedInputs.filter('[type="radio"][name="' + input.name + '"]:checked').val();
+                        radioMap[input.name] = true;
+                        break;
+                    case 'checkbox':
+                        value = input.checked && input.value;
+                        break;
+                    case 'select-multiple':
+                        var separator = $(input).attr('data-visui-multiselect-separator') || ',';
+                        /** @var {Array<String>|null} valueList */
+                        var valueList = $(input).val();
+                        value = valueList && valueList.join(separator) || null;
+                        break;
+                    default:
+                        value = input.value;
+                        break;
+                }
+                formData[input.name] = value;
+            });
             return !$invalidInputs.length && formData;
         },
         /**
@@ -441,12 +531,8 @@
             ;
             dialog.popupDialog(this._getEditDialogPopupConfig(schema, dataItem));
             widget.currentPopup = dialog;
-
-            // Work around vis-ui quirk where item creation may be asynchrnous (selects in particular),
-            // and form data can only be set after waiting for all pending events to complete
-            setTimeout(function() {
-                dialog.formData(itemValues);
-            }, 30);
+            this._fixEmptyRadioGroups(dialog);
+            this._setFormData(dialog, itemValues);
 
             dialog.one('popupdialogclose', function() {
                 widget._cancelForm(schema, dataItem);
