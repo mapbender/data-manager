@@ -416,6 +416,24 @@
                 $input.trigger('filled', {data: values, value: values[inputName]});
             }
         },
+        _fixEmptyRadioGroups: function($scope) {
+            var groups = {};
+            var names = [];
+            $('input[type="radio"]', $scope).each(function() {
+                var name = this.name;
+                if (!groups[name]) {
+                    groups[name] = [];
+                    names.push(name);
+                }
+                groups[name].push(this);
+            });
+            for (var i = 0; i < names.length; ++i) {
+                var $group = $(groups[names[i]]);
+                if (!$group.filter(':checked').length) {
+                    $group.first().prop('checked', true);
+                }
+            }
+        },
         /**
          * @param {jQuery} $form
          * @return {Object|boolean} false on any invalid form inputs
@@ -450,11 +468,6 @@
                         }
                         value = $allNamedInputs.filter('[type="radio"][name="' + input.name + '"]:checked').val();
                         radioMap[input.name] = true;
-                        // Work around vis-ui.js generating invalid radio groups where nothing is checked, by simply
-                        // extracting nothing
-                        if (!value) {
-                            return;
-                        }
                         break;
                     case 'checkbox':
                         value = input.checked && input.value;
@@ -541,6 +554,7 @@
             ;
             dialog.popupDialog(this._getEditDialogPopupConfig(schema, dataItem));
             widget.currentPopup = dialog;
+            this._fixEmptyRadioGroups(dialog);
             this._setFormData(dialog, itemValues);
 
             dialog.one('popupdialogclose', function() {
