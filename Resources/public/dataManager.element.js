@@ -474,7 +474,9 @@
                         break;
                     case 'select-multiple':
                         var separator = $(input).attr('data-visui-multiselect-separator') || ',';
-                        value = $(input).val().join(separator) || null;
+                        /** @var {Array<String>|null} valueList */
+                        var valueList = $(input).val();
+                        value = valueList && valueList.join(separator) || null;
                         break;
                     default:
                         value = input.value;
