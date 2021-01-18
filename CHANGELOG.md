@@ -1,3 +1,7 @@
+# 1.1.5
+- Fix multi-select data extraction (convert to scalar by joining with separator)
+- Fix radio groups initializing with no radio button checked
+
 # 1.1.4
 - Fix backend form browser text searchability through off-screen portions of "schemes" area
 - Fix backend form sizing
