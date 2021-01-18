@@ -416,9 +416,12 @@
                     case 'checkbox':
                         value = input.checked && input.value;
                         break;
+                    case 'select-multiple':
+                        var separator = $(input).attr('data-visui-multiselect-separator') || ',';
+                        value = $(input).val().join(separator) || null;
+                        break;
                     default:
-                        // Delegate to jQuery (only differs from input.value for multi-selects)
-                        value = $(input).val();
+                        value = input.value;
                         break;
                 }
                 formData[input.name] = value;
