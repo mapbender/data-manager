@@ -183,6 +183,8 @@ class DataManagerElement extends BaseElement
                             'code' => $exception->getCode()
                         )
                     );
+                } else if ($result == null) {
+                    $result["dataItem"] = null;
                 } else {
                     $results["dataItem"] = $result->toArray();
                 }

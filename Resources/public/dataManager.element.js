@@ -520,7 +520,8 @@
 
                 var processedFormItems = widget.processFormItems(dataItem, formItems);
 
-                dialog.generateElements({children: processedFormItems});
+                var declarations = Mapbender && Mapbender.Digitizer && Mapbender.Digitizer.PopupConfiguration && Mapbender.Digitizer.PopupConfiguration.prototype.declarations;
+                dialog.generateElements({children: processedFormItems}, declarations);
                 dialog.popupDialog(popupConfig);
                 dialog.addClass("data-manager-edit-data");
                 widget.currentPopup = dialog;
