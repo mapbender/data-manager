@@ -273,11 +273,14 @@
                 // Merge buttons
                 resultTableSettings.buttons = resultTableSettings.buttons ? _.flatten(buttons, resultTableSettings.buttons) : buttons;
 
-                if(options.tableTranslation) {
-                    resultTableSettings.oLanguage = options.tableTranslation;
-                }
+                // use Digitizer functionality
+                resultTableSettings.oLanguage = Mapbender.DigitizerTranslator && Mapbender.DigitizerTranslator.tableTranslations();
 
                 var table = schema.table = $("<div/>").resultTable(resultTableSettings).data('settings', resultTableSettings);
+
+                // use Digitizer functionality
+                table.resultTable("instance").initializeColumnTitles && table.resultTable("instance").initializeColumnTitles();
+
                 schema.schemaName = schemaName;
 
                 var toolBarButtons = [];
