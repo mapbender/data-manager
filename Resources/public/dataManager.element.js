@@ -807,11 +807,13 @@
                     onClick: onEditClick
                 });
 
-                buttons.push({
-                    title: Mapbender.trans('mb.data.store.feature.remove.title'),
-                    className: 'remove',
-                    onClick: onRemoveClick
-                });
+                if (item.allowDelete) {
+                    buttons.push({
+                        title: Mapbender.trans('mb.data.store.feature.remove.title'),
+                        className: 'remove',
+                        onClick: onRemoveClick
+                    });
+                }
 
                 cloneItem.buttons = buttons;
 
