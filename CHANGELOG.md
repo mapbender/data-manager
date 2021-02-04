@@ -1,3 +1,7 @@
+# 1.1.6
+- Fix DataTables initialization error when showing column values with null values with filtering enabled
+- Default to listing object id if no table columns are defined
+
 # 1.1.5
 - Fix multi-select data extraction (convert to scalar by joining with separator)
 - Fix radio groups initializing with no radio button checked
