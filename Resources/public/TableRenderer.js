@@ -244,8 +244,22 @@
                 return $button.get(0);
             });
         },
+        getDefaultColumnConfigs: function(schema) {
+            var tableFields = [];
+
+            tableFields.push({
+                data: this.owner._getUniqueItemIdProperty(schema),
+                title: 'Nr.',
+                width: '20%'
+            });
+            return tableFields;
+        },
         getColumnsConfigs: function(schema) {
-            return (schema.table || {}).columns || [];
+            var fieldConfigs = (schema.table || {}).columns || [];
+            if (!fieldConfigs.length) {
+                fieldConfigs = this.getDefaultColumnConfigs(schema);
+            }
+            return fieldConfigs;
         },
         getButtonColumnOptions: function(schema) {
             var interfaceElement = this.renderButtonColumnContent(schema).outerHTML;
