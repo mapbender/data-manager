@@ -194,7 +194,7 @@
                             default:
                                 return rowData[fieldSettings.data];
                             case 'filter':
-                                return ('' + rowData[fieldSettings.data]) || undefined;
+                                return ('' + rowData[fieldSettings.data]) || '';
                             case 'display':
                                 return escapeHtml('' + rowData[fieldSettings.data]);
                         }
