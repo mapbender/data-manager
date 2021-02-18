@@ -164,11 +164,6 @@ class DataManagerElement extends BaseElement
                     );
                 }
 
-                $uniqueIdKey = $dataStore->getDriver()->getUniqueId();
-                if (empty($request['dataItem'][$uniqueIdKey])) {
-                    unset($request['dataItem'][$uniqueIdKey]);
-                }
-
                 $dataItem = $dataStore->create($request['dataItem']);
                 $result = $dataStore->save($dataItem);
                 if (!is_object($result) && isset($result["exception"])
