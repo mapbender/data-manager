@@ -392,6 +392,15 @@
                 $input.trigger('filled', {data: values, value: values[inputName]});
             }
         },
+        _updateCalculatedText: function($elements, data) {
+            $elements.each(function() {
+                var expression = $(this).attr('data-expression');
+                var textContent = function(data) {
+                    return eval(expression);
+                }(data);
+                $(this).text(textContent);
+            });
+        },
         _fixEmptyRadioGroups: function($scope) {
             var groups = {};
             var names = [];
@@ -533,6 +542,15 @@
             widget.currentPopup = dialog;
             this._fixEmptyRadioGroups(dialog);
             this._setFormData(dialog, itemValues);
+            var $calculatedTexts = $('.-fn-calculated-text[data-expression]', dialog);
+            if ($calculatedTexts.length) {
+                var updateHandler = function() {
+                    var values = widget._getFormData(dialog);
+                    widget._updateCalculatedText($calculatedTexts, values)
+                };
+                updateHandler();
+                dialog.on('change', updateHandler);
+            }
 
             dialog.one('popupdialogclose', function() {
                 widget._cancelForm(schema, dataItem);
@@ -628,15 +646,15 @@
          * Preprocess form items from schema before passing off to vis-ui
          * @param {DataManagerSchemaConfig} schema
          * @param {Array<Object>} items
-         * @param {Object} dataItem
+         * @param {Object} values
          * @return {Object}
          * @private
          * @todo: this could also be a postprocess on the finished form
          */
-        _processFormItems: function(schema, items, dataItem) {
+        _processFormItems: function(schema, items, values) {
             var self = this;
             var itemsOut = items.map(function(item) {
-                return self._processFormItem(schema, item, dataItem);
+                return self._processFormItem(schema, item, values);
             });
             // strip trailing "breakline"
             for (var i = itemsOut.length - 1; i >= 0; --i) {
@@ -648,14 +666,21 @@
             }
             return itemsOut;
         },
-        _processFormItem: function(schema, item, dataItem) {
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} item
+         * @param {Object} values
+         * @return {Element|Object}
+         * @private
+         */
+        _processFormItem: function(schema, item, values) {
             // shallow copy only. Sub-attributes that need patching will be replaced recursively anyway.
             var itemOut;
             var self = this;
             var files;
             if (item.children && item.children.length) {
                 itemOut = $.extend({}, item, {
-                    children: self._processFormItems(schema, item.children, dataItem)
+                    children: self._processFormItems(schema, item.children, values)
                 });
             }
             var itemId;
@@ -674,6 +699,19 @@
                         // Setting a title attribute on a DOM Element creates a tooltip
                         itemOut.className = 'temp-form-substitute';
                     }
+                    break;
+                case 'text':
+                    itemOut = document.createElement('div');
+                    var $textContainer = $(document.createElement('div'))
+                        .addClass('-fn-calculated-text')
+                        .attr('data-expression', item.text)
+                    ;
+                    $(itemOut)
+                        .addClass('form-group text')
+                        // Delegate label generation to vis-ui (mostly for consistent infoText support)
+                        .generateElements({children: [{type: 'label', title: item.title, infoText: item.infoText}]})
+                        .append($textContainer)
+                    ;
                     break;
                 case 'file':
                     itemOut = itemOut || $.extend({}, item);
