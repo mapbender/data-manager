@@ -416,6 +416,15 @@
                 $input.trigger('filled', {data: values, value: values[inputName]});
             }
         },
+        _updateCalculatedText: function($elements, data) {
+            $elements.each(function() {
+                var expression = $(this).attr('data-expression');
+                var textContent = function(data) {
+                    return eval(expression);
+                }(data);
+                $(this).text(textContent);
+            });
+        },
         _fixEmptyRadioGroups: function($scope) {
             var groups = {};
             var names = [];
@@ -699,6 +708,20 @@
                         // Setting a title attribute on a DOM Element creates a tooltip
                         itemOut.className = 'temp-form-substitute';
                     }
+                    break;
+                case 'text':
+                    itemOut = document.createElement('div');
+                    var $textContainer = $(document.createElement('div'))
+                        .addClass('-fn-calculated-text')
+                        .attr('data-expression', item.text)
+                    ;
+                    $(itemOut)
+                        .addClass('form-group text')
+                        // Delegate label generation to vis-ui (mostly for consistent infoText support)
+                        .generateElements({children: [{type: 'label', title: item.title, infoText: item.infoText}]})
+                        .append($textContainer)
+                    ;
+                    this._updateCalculatedText($textContainer, dataItem);
                     break;
                 case 'file':
                     // @todo: cannot upload file properly to new data item (no id to target); disable file inputs, or use proper forms
