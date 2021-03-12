@@ -542,15 +542,6 @@
             widget.currentPopup = dialog;
             this._fixEmptyRadioGroups(dialog);
             this._setFormData(dialog, itemValues);
-            var $calculatedTexts = $('.-fn-calculated-text[data-expression]', dialog);
-            if ($calculatedTexts.length) {
-                var updateHandler = function() {
-                    var values = widget._getFormData(dialog);
-                    widget._updateCalculatedText($calculatedTexts, values)
-                };
-                updateHandler();
-                dialog.on('change', updateHandler);
-            }
 
             dialog.one('popupdialogclose', function() {
                 widget._cancelForm(schema, dataItem);
@@ -712,6 +703,7 @@
                         .generateElements({children: [{type: 'label', title: item.title, infoText: item.infoText}]})
                         .append($textContainer)
                     ;
+                    this._updateCalculatedText($textContainer, values);
                     break;
                 case 'file':
                     itemOut = itemOut || $.extend({}, item);
