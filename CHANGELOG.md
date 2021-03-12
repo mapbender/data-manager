@@ -1,3 +1,6 @@
+# 1.0.13
+- Fix missing content in "type: text" fields ([Mapbender #1319](https://github.com/mapbender/mapbender/issues/1319); also affects Digitizer 1.4)
+
 # 1.0.12
 - Fix multi-select data extraction (convert to scalar by joining with separator)
 - Fix radio groups initializing with no radio button checked
