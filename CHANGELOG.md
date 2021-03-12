@@ -1,3 +1,6 @@
+# 1.1.7
+- Fix missing content in "type: text" fields ([Mapbender #1319](https://github.com/mapbender/mapbender/issues/1319); also affects Digitizer 1.4)
+
 # 1.1.6
 - Fix DataTables initialization error when showing column values with null values with filtering enabled
 - Default to listing object id if no table columns are defined
