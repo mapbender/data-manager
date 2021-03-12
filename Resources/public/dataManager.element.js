@@ -662,15 +662,15 @@
          * Preprocess form items from schema before passing off to vis-ui
          * @param {DataManagerSchemaConfig} schema
          * @param {Array<Object>} items
-         * @param {Object} dataItem
+         * @param {Object} values
          * @return {Object}
          * @private
          * @todo: this could also be a postprocess on the finished form
          */
-        _processFormItems: function(schema, items, dataItem) {
+        _processFormItems: function(schema, items, values) {
             var self = this;
             var itemsOut = items.map(function(item) {
-                return self._processFormItem(schema, item, dataItem);
+                return self._processFormItem(schema, item, values);
             });
             // strip trailing "breakline"
             for (var i = itemsOut.length - 1; i >= 0; --i) {
@@ -682,14 +682,21 @@
             }
             return itemsOut;
         },
-        _processFormItem: function(schema, item, dataItem) {
+        /**
+         * @param {DataManagerSchemaConfig} schema
+         * @param {Object} item
+         * @param {Object} values
+         * @return {Element|Object}
+         * @private
+         */
+        _processFormItem: function(schema, item, values) {
             // shallow copy only. Sub-attributes that need patching will be replaced recursively anyway.
             var itemOut;
             var self = this;
             var files;
             if (item.children && item.children.length) {
                 itemOut = $.extend({}, item, {
-                    children: self._processFormItems(schema, item.children, dataItem)
+                    children: self._processFormItems(schema, item.children, values)
                 });
             }
             var itemId;
@@ -721,7 +728,7 @@
                         .generateElements({children: [{type: 'label', title: item.title, infoText: item.infoText}]})
                         .append($textContainer)
                     ;
-                    this._updateCalculatedText($textContainer, dataItem);
+                    this._updateCalculatedText($textContainer, values);
                     break;
                 case 'file':
                     // @todo: cannot upload file properly to new data item (no id to target); disable file inputs, or use proper forms
