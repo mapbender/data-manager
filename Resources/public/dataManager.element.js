@@ -727,6 +727,8 @@
                         // Delegate label generation to vis-ui (mostly for consistent infoText support)
                         .generateElements({children: [{type: 'label', title: item.title, infoText: item.infoText}]})
                         .append($textContainer)
+                        .css(item.css || {})
+                        .addClass(item.cssClass)
                     ;
                     this._updateCalculatedText($textContainer, values);
                     break;
