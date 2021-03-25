@@ -738,8 +738,8 @@
                     itemOut = itemOut || $.extend({}, item);
                     itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + itemId + "&field=" + item.name;
                     // @todo: form inputs without a name attribute should be an error condition
-                    if (item.name && dataItem[item.name]) {
-                        itemOut.dbSrc = dataItem[item.name];
+                    if (item.name && values[item.name]) {
+                        itemOut.dbSrc = values[item.name];
                         // @todo: figure out who even populates this value (not data source, not data manager)
                         files = this._getDataStoreFromSchema(schema).files || [];
                         $.each(files, function(k, fileInfo) {
@@ -751,7 +751,7 @@
                     break;
                 case 'image':
                     var origSrc = item.origSrc || item.src;
-                    var dbSrc = item.name && dataItem[item.name];
+                    var dbSrc = item.name && values[item.name];
                     if (dbSrc) {
                         // @todo: figure out who even populates this value (not data source, not data manager)
                         files = this._getDataStoreFromSchema(schema).files || [];
