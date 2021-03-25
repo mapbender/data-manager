@@ -428,7 +428,7 @@
             // Call vis-ui .formData ONLY to trigger its custom validation. Ignore return values entirely.
             $form.formData();
             var $allNamedInputs = $(':input[name]', $form);
-            var $invalidInputs = $allNamedInputs.filter(function() {
+            var $invalidInputs = $allNamedInputs.add($('.has-error :input', $form)).filter(function() {
                 // NOTE: hidden inputs must be explicitly excluded from jQuery validation
                 //       see https://stackoverflow.com/questions/51534473/jquery-validate-not-working-on-hidden-input
                 // NOTE: jQuery pseudo-selector :valid can not be chained into a single .find (or snytactic variant)
@@ -437,7 +437,6 @@
             // @todo vis-ui: some inputs (with ".mandatory") are made invalid only visually when
             //               empty, but do not have the HTML required or pattern property to
             //               support selector detection. Work around that here.
-            $invalidInputs = $invalidInputs.add($('.has-error :input', $form));
             var formData = {};
             var radioMap = {};
             $allNamedInputs.get().forEach(function(input) {
