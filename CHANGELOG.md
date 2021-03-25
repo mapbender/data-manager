@@ -1,3 +1,6 @@
+# 1.0.14
+- Fix file input regression
+
 # 1.0.13
 - Fix missing content in "type: text" fields ([Mapbender #1319](https://github.com/mapbender/mapbender/issues/1319); also affects Digitizer 1.4)
 
