@@ -452,7 +452,7 @@
             // Call vis-ui .formData ONLY to trigger its custom validation. Ignore return values entirely.
             $form.formData();
             var $allNamedInputs = $(':input[name]', $form);
-            var $invalidInputs = $allNamedInputs.filter(function() {
+            var $invalidInputs = $allNamedInputs.add($('.has-error :input', $form)).filter(function() {
                 // NOTE: hidden inputs must be explicitly excluded from jQuery validation
                 //       see https://stackoverflow.com/questions/51534473/jquery-validate-not-working-on-hidden-input
                 // NOTE: jQuery pseudo-selector :valid can not be chained into a single .find (or snytactic variant)
@@ -461,7 +461,6 @@
             // @todo vis-ui: some inputs (with ".mandatory") are made invalid only visually when
             //               empty, but do not have the HTML required or pattern property to
             //               support selector detection. Work around that here.
-            $invalidInputs = $invalidInputs.add($('.has-error :input', $form));
             var formData = {};
             var radioMap = {};
             $allNamedInputs.get().forEach(function(input) {
@@ -733,10 +732,8 @@
                     this._updateCalculatedText($textContainer, values);
                     break;
                 case 'file':
-                    // @todo: cannot upload file properly to new data item (no id to target); disable file inputs, or use proper forms
-                    itemId = dataItem[this._getUniqueItemIdProperty(schema)];
                     itemOut = itemOut || $.extend({}, item);
-                    itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&fid=" + itemId + "&field=" + item.name;
+                    itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&field=" + item.name;
                     // @todo: form inputs without a name attribute should be an error condition
                     if (item.name && values[item.name]) {
                         itemOut.dbSrc = values[item.name];
