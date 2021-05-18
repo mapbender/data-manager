@@ -1,3 +1,6 @@
+# 1.1.9
+- Fix incomplete client-side configuration for central "dataStore" / "featureType" referenced by name
+
 # 1.1.8
 - Fix file input regression
 
