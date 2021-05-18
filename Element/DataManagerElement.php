@@ -118,12 +118,9 @@ class DataManagerElement extends BaseElement
     }
 
     /**
-     * Prepare form items for each scheme definition
-     * Optional: get featureType by name from global context.
-     *
      * @inheritdoc
      */
-    public function getConfiguration()
+    public function getPublicConfiguration()
     {
         $configuration = $this->entity->getConfiguration();
         $configuration['schemes'] = $this->getSchemaConfigs();
