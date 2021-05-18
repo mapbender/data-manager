@@ -448,6 +448,8 @@ class DataManagerElement extends BaseElement
         if (isset($rawConfig['formItems'])) {
             $prepared['formItems'] = $this->prepareItems($rawConfig['formItems']);
         }
+        $dsKey = $this->getDataStoreKeyInSchemaConfig();
+        $prepared[$dsKey] = $this->resolveDataStoreConfig($prepared[$dsKey]);
         return $prepared;
     }
 
