@@ -481,17 +481,12 @@
             var formData = this._getFormData($scope);
 
             if (formData) {
-                $scope.disableForm();
                 var uniqueIdAttribute = this._getUniqueItemIdProperty(schema);
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
                     console.warn("Form contains an input field for the object id", schema);
                 }
                 delete formData[uniqueIdAttribute];
-                return this._saveItem(schema, dataItem, formData)
-                    .always(function() {
-                        $scope.enableForm();
-                    })
-                ;
+                return this._saveItem(schema, dataItem, formData);
             } else {
                 return false;
             }
