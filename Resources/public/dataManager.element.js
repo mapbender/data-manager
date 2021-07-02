@@ -425,50 +425,8 @@
          * @private
          */
         _getFormData: function($form) {
-            // Call vis-ui .formData ONLY to trigger its custom validation. Ignore return values entirely.
-            $form.formData();
-            var $allNamedInputs = $(':input[name]', $form);
-            var $invalidInputs = $allNamedInputs.add($('.has-error :input', $form)).filter(function() {
-                // NOTE: hidden inputs must be explicitly excluded from jQuery validation
-                //       see https://stackoverflow.com/questions/51534473/jquery-validate-not-working-on-hidden-input
-                // NOTE: jQuery pseudo-selector :valid can not be chained into a single .find (or snytactic variant)
-                return this.type !== 'hidden' && !$(this).is(':valid');
-            });
-            // @todo vis-ui: some inputs (with ".mandatory") are made invalid only visually when
-            //               empty, but do not have the HTML required or pattern property to
-            //               support selector detection. Work around that here.
-            var formData = {};
-            var radioMap = {};
-            $allNamedInputs.get().forEach(function(input) {
-                var type = input.type;
-                var value;
-                switch (type) {
-                    case 'radio':
-                        // Radio inputs repeat with the same name. Do not evaluate them individually. Evaluate the
-                        // whole group.
-                        if (radioMap[input.name]) {
-                            // already done
-                            return;
-                        }
-                        value = $allNamedInputs.filter('[type="radio"][name="' + input.name + '"]:checked').val();
-                        radioMap[input.name] = true;
-                        break;
-                    case 'checkbox':
-                        value = input.checked && input.value;
-                        break;
-                    case 'select-multiple':
-                        var separator = $(input).attr('data-visui-multiselect-separator') || ',';
-                        /** @var {Array<String>|null} valueList */
-                        var valueList = $(input).val();
-                        value = valueList && valueList.join(separator) || null;
-                        break;
-                    default:
-                        value = input.value;
-                        break;
-                }
-                formData[input.name] = value;
-            });
-            return !$invalidInputs.length && formData;
+            var valid = Mapbender.DataManager.FormUtil.validateForm($form);
+            return valid && Mapbender.DataManager.FormUtil.extractValues($form);
         },
         /**
          * @param {DataManagerSchemaConfig} schema
