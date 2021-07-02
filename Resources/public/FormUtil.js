@@ -47,6 +47,49 @@
         },
         /**
          * @param {(HTMLElement|jQuery)} form
+         * @param {Object} values
+         * @private
+         */
+        setValues: function(form, values) {
+            var valueKeys = Object.keys(values);
+            for (var i = 0; i < valueKeys.length; ++i) {
+                var inputName = valueKeys[i];
+                var value = values[inputName];
+                var $input = $(':input[name="' + inputName + '"]', form);
+                if (!$input.length) {
+                    continue;
+                }
+                switch ($input.get(0).type) {
+                    case 'select-multiple':
+                        if (!Array.isArray(value)) {
+                            var separator = $input.attr('data-visui-multiselect-separator') || ',';
+                            value = (value || '').split(separator);
+                        }
+                        $input.val(value);
+                        break;
+                    case 'radio':
+                        var $check = $input.filter(function() {
+                            return this.value === value;
+                        });
+                        $check.prop('checked', true);
+                        break;
+                    case 'checkbox':
+                        // Legacy fun time: database may contain stringified booleans "false" or even "off"
+                        value = !!value && (value !== 'false') && (value !== 'off');
+                        $input.prop('checked', value);
+                        break;
+                    default:
+                        $input.val(value);
+                        $input.trigger('change.colorpicker');
+                        break;
+                }
+                $input.trigger('change.select2');
+                // Custom vis-ui event shenanigans (use originally passed value for multi-selects)
+                $input.trigger('filled', {data: values, value: values[inputName]});
+            }
+        },
+        /**
+         * @param {(HTMLElement|jQuery)} form
          * @return {boolean}
          */
         validateForm: function(form) {
