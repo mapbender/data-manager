@@ -77,10 +77,12 @@
                     console.warn("Not rendering top-level type: form, skipping directly into children. Move your form field configurations up directly into your 'formItems' list", settings);
                     // Completely ignore forms. Skip into children
                     return $(this.renderElements(settings.children));
-                case 'html':
-                    return this.html_(settings);
                 case 'tabs':
                     return this.tabs_(settings);
+                case 'html':
+                    return this.html_(settings);
+                case 'text':
+                    return this.text_(settings);
             }
         },
         tabs_: function(settings) {
@@ -130,6 +132,38 @@
                 .append(settings.html)
             ;
             return $wrapper;
+        },
+        text_: function(settings) {
+            /** https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L823 */
+            var $wrapper = $(document.createElement('div')).addClass('form-group text');
+            var $textContainer = $(document.createElement('div'))
+                .addClass('-fn-calculated-text')
+                .attr('data-expression', settings.text)
+            ;
+            $wrapper
+                .append(this.fieldLabel_({title: settings.title, infoText: settings.infoText}))
+                .append($textContainer)
+                .css(settings.css || {})
+                .addClass(settings.cssClass)
+            ;
+            return $wrapper;
+        },
+        fieldLabel_: function(settings) {
+            var $label = $(document.createElement('label'))
+                .attr({'for': settings.name || null })
+                .attr(settings.attr || {})
+                .css(settings.css || {})
+                .addClass(settings.cssClass)
+                .text(settings.title || settings.text)
+            ;
+            if (settings.infoText) {
+                var $icon = $('<i/>')
+                    .addClass('fa fa-info-circle -visui-infotext')
+                    .attr('title', settings.infoText)
+                ;
+                label.append('&nbsp;', $icon);
+            }
+            return $label;
         },
         renderFallback_: function(settings) {
             var $wrapper = $(document.createElement('div'));
