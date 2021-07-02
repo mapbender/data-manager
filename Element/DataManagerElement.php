@@ -101,6 +101,7 @@ class DataManagerElement extends BaseElement
                 '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
             ),
             'js' => array(
+                '@MapbenderDataManagerBundle/Resources/public/FormRenderer.js',
                 '@MapbenderDataManagerBundle/Resources/public/FormUtil.js',
                 '../../vendor/mapbender/vis-ui.js/src/js/jquery.form.generator.js',
                 '../../vendor/mapbender/vis-ui.js/src/js/elements/date.selector.js',    // only for legacy browsers

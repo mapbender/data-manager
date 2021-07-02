@@ -57,9 +57,13 @@
                 ''  // produce trailing slash
             ].join('/');
             this.selector = $(this._renderSchemaSelector(this.element));
+            this.formRenderer_ = this._createFormRenderer();
             this.tableRenderer = this._createTableRenderer();
             this._initializeEvents();
             this._afterCreate();
+        },
+        _createFormRenderer: function() {
+            return new Mapbender.DataManager.FormRenderer();
         },
         _createTableRenderer: function() {
             return new Mapbender.DataManager.TableRenderer(this);
@@ -441,7 +445,7 @@
 
             var dialog = $("<div/>");
             var formItems = widget._processFormItems(schema, schema.formItems, itemValues);
-            dialog.generateElements({children: formItems});
+            dialog.append(this.formRenderer_.renderElements(formItems));
             // Undo collateral tooltips created by support HACK for vis-ui tab container
             $('.temp-form-substitute', dialog)
                 .removeClass('temp-form-substitute')
