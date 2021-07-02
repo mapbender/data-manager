@@ -83,6 +83,8 @@
                     return this.html_(settings);
                 case 'text':
                     return this.text_(settings);
+                case 'label':
+                    return this.label_(settings);
             }
         },
         tabs_: function(settings) {
@@ -121,6 +123,15 @@
                 }
             });
             return $container;
+        },
+        label_: function(settings) {
+            // NOT a field label. Ignore input-related stuff and
+            // emit a simple text paragraph.
+            return $(document.createElement('p'))
+                .attr(settings.attr || {})
+                .addClass(settings.cssClass)
+                .text(settings.text || settings.title)
+            ;
         },
         html_: function(settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L265 */
@@ -172,14 +183,16 @@
         }
     });
 
-    // @todo:
+    // Handled:
     // * 'form'
-    // * 'formGroup'
     // * 'tabs'
-    // * 'fieldSet'
-    // * 'breakLine'
     // * 'html'
     // * 'text'
+    // * 'label'
+
+    // @todo:
+    // * 'fieldSet'
+    // * 'breakLine'
     // * 'input'
     // * 'date'
     // * 'textArea'
@@ -188,7 +201,6 @@
     // * 'selectOptionList' ?
     // * 'radio'
     // * 'checkbox'
-    // * 'label'
     // * 'image'
     // * 'file'
     // * 'colorPicker'
@@ -198,6 +210,7 @@
     // * 'container'
     // * 'fluidContainer'
     // * 'inline'
+    // * 'formGroup'
     // * 'button'
     // * 'submit'
     // * 'resultTable'
