@@ -564,7 +564,12 @@
         _processFormItems: function(schema, items, values) {
             var self = this;
             var itemsOut = items.map(function(item) {
-                return self._processFormItem(schema, item, values);
+                // Prevent Digitizer from applying vis-ui workarounds
+                if (item.type !== 'colorPicker') {
+                    return self._processFormItem(schema, item, values);
+                } else {
+                    return item;
+                }
             });
             // strip trailing "breakline"
             for (var i = itemsOut.length - 1; i >= 0; --i) {

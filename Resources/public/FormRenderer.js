@@ -107,6 +107,8 @@
                     return this.handle_textArea_(settings);
                 case 'date':
                     return this.handle_date_(settings);
+                case 'colorPicker':
+                    return this.handle_colorPicker_(settings);
             }
         },
         handle_input_: function(settings) {
@@ -138,6 +140,16 @@
                 dp.dpDiv.addClass('popover data-manager-datepicker');
             }
             return $wrapper;
+        },
+        handle_colorPicker_: function(settings) {
+            var $input = this.textInput_(settings, 'text');
+            var $addonGroup = $(document.createElement('div'))
+                .addClass('input-group colorpicker-component')
+                .append($input)
+                .append($('<span class="input-group-addon"><i></i></span>'))
+            ;
+            $addonGroup.colorpicker({format: 'hex'});
+            return this.wrapInput_($addonGroup, settings);
         },
         textInput_: function(settings, type) {
             var $input = $('<input type="' + type + '"/>');
