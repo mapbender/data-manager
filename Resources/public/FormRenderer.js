@@ -211,7 +211,6 @@
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L265 */
             var $wrapper = $(document.createElement('div'))
                 .attr(settings.attr || {})
-                .addClass('html-element-container')
                 .addClass(settings.cssClass)
                 .css(settings.css || {})
                 .append(settings.html)
