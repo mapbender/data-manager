@@ -103,12 +103,22 @@
                     return this.handle_label_(settings);
                 case 'input':
                     return this.handle_input_(settings);
+                case 'textArea':
+                    return this.handle_textArea_(settings);
                 case 'date':
                     return this.handle_date_(settings);
             }
         },
         handle_input_: function(settings) {
             var $input = this.textInput_(settings, 'text');
+            this.addCustomEvents_($input, settings);
+            return this.wrapInput_($input, settings);
+        },
+        handle_textArea_: function(settings) {
+            var $input = $(document.createElement('textarea'))
+                .attr('rows', settings.rows || 3)
+            ;
+            this.configureTextInput_($input, settings);
             return this.wrapInput_($input, settings);
         },
         handle_date_: function(settings) {
@@ -130,7 +140,13 @@
             return $wrapper;
         },
         textInput_: function(settings, type) {
-            var $input = $('<input type="' + type + '"/>')
+            var $input = $('<input type="' + type + '"/>');
+            this.configureTextInput_($input, settings);
+            return $input;
+        },
+        configureTextInput_: function($input, settings) {
+            // Used for input type="text" and textarea
+            $input
                 .prop({
                     disabled: !!settings.disabled,
                     readonly: !!settings.readonly,
@@ -144,8 +160,6 @@
                 $input.data('warn', this.createValidationCallback_(settings.mandatory));
             }
             $input.attr('data-custom-validation-message', settings.mandatoryText || null);
-            this.addCustomEvents_($input, settings);
-            return $input;
         },
         handle_tabs_: function(settings) {
             /** https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L641 */
@@ -329,11 +343,11 @@
     // * 'text'
     // * 'label'
     // * 'input'
+    // * 'textArea'
     // * 'date'
 
     // @todo:
     // * 'breakLine'
-    // * 'textArea'
     // * 'select'
     // * 'selectOption' ?
     // * 'selectOptionList' ?
