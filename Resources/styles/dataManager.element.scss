@@ -87,4 +87,9 @@
       width: 100%;
     }
   }
+  .row.reduce-gutters {
+    > :nth-child(1n+2) {
+      padding-left: 0;
+    }
+  }
 }

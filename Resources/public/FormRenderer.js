@@ -104,12 +104,7 @@
                     .attr('href', ['#', $panel.attr('id')].join(''))
                     .text(title)
                 ;
-                var other = Object.keys(settings).filter(function(name) {
-                    return name !== 'children' && name !== 'title';
-                });
-                if (other.length) {
-                    console.warn("Ignoring extra properties on 'tabs' child: " + other.join(', ') + "; keep 'title' and 'children', remove everything else", settings);
-                }
+                this.checkExtraSettings_(sub, ['children', 'title'], 'tabs child');
                 $panel.append(this.renderElements(sub.children));
                 $tabList.append($(document.createElement('li')).append($tabLink));
                 $container.append($panel);
@@ -122,6 +117,24 @@
                     "ui-tabs-panel": "ui-tabs-panel tab-content"
                 }
             });
+            return $container;
+        },
+        fieldSet_: function(settings) {
+            this.checkExtraSettings_(settings, ['type', 'children']);
+            var $container = $(document.createElement('div'))
+                .addClass('row reduce-gutters')
+            ;
+            for (var i = 0; i < settings.children.length; ++i) {
+                var sub = settings.children[i];
+                var subSettings = Object.assign({}, sub);
+                delete(subSettings['css']);
+                var $column = $(document.createElement('div'))
+                    .addClass('col-4 col-xs-4')
+                    .css(sub.css || {})
+                    .append(this.renderElement(subSettings))
+                ;
+                $container.append($column);
+            }
             return $container;
         },
         label_: function(settings) {
@@ -180,7 +193,22 @@
             var $wrapper = $(document.createElement('div'));
             $wrapper.generateElements({children: [settings]});
             return $wrapper.children();
-        }
+        },
+        checkExtraSettings_: function(settings, expectedProps, description) {
+            var description_ = description || ['type ', '"', settings.type, '"'].join('');
+            var other = Object.keys(settings).filter(function(name) {
+                return -1 === expectedProps.indexOf(name);
+            });
+            if (other.length) {
+                console.warn(
+                    ["Ignoring extra properties on ", description_, ": ",
+                    other.join(', '),
+                    "; keep ", expectedProps.join(', '),
+                    "; remove everything else"].join(''),
+                    settings);
+            }
+        },
+        __dummy: null
     });
 
     // Handled:
