@@ -145,6 +145,7 @@
                 $input.data('warn', this.createValidationCallback_(settings.mandatory));
             }
             $input.attr('data-custom-validation-message', settings.mandatoryText || null);
+            this.addCustomEvents_($input, settings);
             return $input;
         },
         handle_tabs_: function(settings) {
@@ -282,6 +283,28 @@
                     return rxp.test(value);
                 }
             }());
+        },
+        addCustomEvents_: function($input, settings) {
+            /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L123 */
+            var names = ['filled', 'change'].filter(function(name) {
+                return settings[name];
+            });
+            for (var i = 0; i < names.length; ++i) {
+                var name = names[i];
+                var handler = settings[name];
+                $input.addClass('-js-custom-events');
+                if (typeof handler !== 'function') {
+                    console.error("Using eval'd Javascript in the configuration is deprecated. Add event handlers to your project code.", settings);
+                    handler = (function(code) {
+                        var element = $input;
+                        var el = element;
+                        return function() {
+                            eval(code);
+                        };
+                    })(handler);
+                }
+                $input.on(name, handler);
+            }
         },
         checkExtraSettings_: function(settings, expectedProps, description) {
             var description_ = description || ['type ', '"', settings.type, '"'].join('');

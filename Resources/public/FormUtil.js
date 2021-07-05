@@ -84,8 +84,6 @@
                         break;
                 }
                 $input.trigger('change.select2');
-                // Custom vis-ui event shenanigans (use originally passed value for multi-selects)
-                $input.trigger('filled', {data: values, value: values[inputName]});
             }
         },
         /**

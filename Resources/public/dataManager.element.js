@@ -450,7 +450,13 @@
             widget.currentPopup = dialog;
             this._fixEmptyRadioGroups(dialog);
             Mapbender.DataManager.FormUtil.setValues(dialog, itemValues);
+            // Legacy custom vis-ui event shenanigans
+            $('.-js-custom-events[name]', dialog).each(function() {
+                $(this).trigger('filled', {data: itemValues, value: itemValues[$(this).attr('name')]});
+            });
+
             this._updateCalculatedText($('.-fn-calculated-text', dialog), itemValues);
+
             dialog.on('click', '.form-group .-fn-copytoclipboard', function() {
                 var $input = $(':input', $(this).closest('.form-group'));
                 Mapbender.DataManager.FormUtil.copyToClipboard($input);
