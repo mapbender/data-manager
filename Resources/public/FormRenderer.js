@@ -260,10 +260,9 @@
                 $label.append('&nbsp;', $icon);
             }
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L345 */
-            if (settings.copyClipboard && settings.name) {
+            if (settings.copyClipboard) {
                 $label.append('&nbsp;', $('<i/>')
                     .addClass('fa fa-clipboard far-clipboard -fn-copytoclipboard')
-                    .attr('data-target-name', settings.name)
                     .attr('aria-hidden', 'true')
                 );
             }
