@@ -103,10 +103,33 @@
                     return this.handle_label_(settings);
                 case 'input':
                     return this.handle_input_(settings);
+                case 'date':
+                    return this.handle_date_(settings);
             }
         },
         handle_input_: function(settings) {
-            var type = (settings.type !== 'input' && settings.type) || 'text';
+            var $input = this.textInput_(settings, 'text');
+            return this.wrapInput_($input, settings);
+        },
+        handle_date_: function(settings) {
+            var type = browserSupportsHtml5Date && 'date' || 'text';
+            var $input = this.textInput_(settings, type);
+            if (settings.required || settings.mandatory) {
+                var now = new Date();
+                var defaultValue = now.toISOString().replace(/T.*$/, '');
+                $input.val(defaultValue);
+            }
+            var $wrapper = this.wrapInput_($input, settings);
+            if (!browserSupportsHtml5Date) {
+                var dp = $input.datepicker({
+                    dateFormat: 'yy-mm-dd', // format must be SQL compatible / HTML5 interchangeable
+                    firstDay: 1
+                }).data('datepicker');
+                dp.dpDiv.addClass('popover data-manager-datepicker');
+            }
+            return $wrapper;
+        },
+        textInput_: function(settings, type) {
             var $input = $('<input type="' + type + '"/>')
                 .prop({
                     disabled: !!settings.disabled,
@@ -114,15 +137,15 @@
                     required: !!settings.mandatory || settings.required
                 })
                 .attr(settings.attr || {})
-                .attr('name', settings.name)
+                .attr('name', settings.name || null)
                 .addClass('form-control')
                 .addClass(settings.cssClass)
             ;
-            if (settings.mandatory && (typeof settings.mandatory === 'string')) {
+            if (settings.name && settings.mandatory && (typeof settings.mandatory === 'string')) {
                 $input.data('warn', this.createValidationCallback_(settings.mandatory));
             }
             $input.attr('data-custom-validation-message', settings.mandatoryText || null);
-            return this.wrapInput_($input, settings);
+            return $input;
         },
         handle_tabs_: function(settings) {
             /** https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L641 */
@@ -214,8 +237,6 @@
             var $label = $(document.createElement('label'))
                 .attr({'for': settings.name || null })
                 .attr(settings.attr || {})
-                .css(settings.css || {})
-                .addClass(settings.cssClass)
                 .text(settings.title || settings.text)
             ;
             if (settings.infoText) {
@@ -282,15 +303,15 @@
     // Handled:
     // * 'form'
     // * 'tabs'
+    // * 'fieldSet'
     // * 'html'
     // * 'text'
     // * 'label'
-
-    // @todo:
-    // * 'fieldSet'
-    // * 'breakLine'
     // * 'input'
     // * 'date'
+
+    // @todo:
+    // * 'breakLine'
     // * 'textArea'
     // * 'select'
     // * 'selectOption' ?

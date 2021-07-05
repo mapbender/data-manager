@@ -92,4 +92,16 @@
       padding-left: 0;
     }
   }
+  .form-group.hasDatepicker {
+    position: relative;
+  }
+}
+
+.data-manager-datepicker {
+  padding: 10px;
+  width: 14em;
+  .ui-datepicker-title {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
 }
