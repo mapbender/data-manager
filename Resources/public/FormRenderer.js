@@ -92,20 +92,20 @@
                     // Completely ignore forms. Skip into children
                     return $(this.renderElements(settings.children));
                 case 'tabs':
-                    return this.tabs_(settings);
+                    return this.handle_tabs_(settings);
                 case 'fieldSet':
-                    return this.fieldSet_(settings);
+                    return this.handle_fieldSet_(settings);
                 case 'html':
-                    return this.html_(settings);
+                    return this.handle_html_(settings);
                 case 'text':
-                    return this.text_(settings);
+                    return this.handle_text_(settings);
                 case 'label':
-                    return this.label_(settings);
+                    return this.handle_label_(settings);
                 case 'input':
-                    return this.input_(settings);
+                    return this.handle_input_(settings);
             }
         },
-        input_: function(settings) {
+        handle_input_: function(settings) {
             var type = (settings.type !== 'input' && settings.type) || 'text';
             var $input = $('<input type="' + type + '"/>')
                 .prop({
@@ -124,7 +124,7 @@
             $input.attr('data-custom-validation-message', settings.mandatoryText || null);
             return this.wrapInput_($input, settings);
         },
-        tabs_: function(settings) {
+        handle_tabs_: function(settings) {
             /** https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L641 */
             var $tabList = $(document.createElement('ul'));
             var $container = $(document.createElement('div'));
@@ -156,7 +156,7 @@
             });
             return $container;
         },
-        fieldSet_: function(settings) {
+        handle_fieldSet_: function(settings) {
             this.checkExtraSettings_(settings, ['type', 'children']);
             var $container = $(document.createElement('div'))
                 .addClass('row reduce-gutters')
@@ -174,7 +174,7 @@
             }
             return $container;
         },
-        label_: function(settings) {
+        handle_label_: function(settings) {
             // NOT a field label. Ignore input-related stuff and
             // emit a simple text paragraph.
             return $(document.createElement('p'))
@@ -183,7 +183,7 @@
                 .text(settings.text || settings.title)
             ;
         },
-        html_: function(settings) {
+        handle_html_: function(settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L265 */
             var $wrapper = $(document.createElement('div'))
                 .attr(settings.attr || {})
@@ -194,7 +194,7 @@
             ;
             return $wrapper;
         },
-        text_: function(settings) {
+        handle_text_: function(settings) {
             /** https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L823 */
             var $wrapper = $(document.createElement('div')).addClass('form-group text');
             var $textContainer = $(document.createElement('div'))
