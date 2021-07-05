@@ -168,6 +168,9 @@
                 .attr('name', settings.name || null)
                 .addClass('form-control')
             ;
+            if (settings.value) {
+                $input.val(settings.value);
+            }
             if (settings.name && settings.mandatory && (typeof settings.mandatory === 'string')) {
                 $input.data('warn', this.createValidationCallback_(settings.mandatory));
             }
