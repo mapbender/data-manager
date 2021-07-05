@@ -139,7 +139,6 @@
                 .attr(settings.attr || {})
                 .attr('name', settings.name || null)
                 .addClass('form-control')
-                .addClass(settings.cssClass)
             ;
             if (settings.name && settings.mandatory && (typeof settings.mandatory === 'string')) {
                 $input.data('warn', this.createValidationCallback_(settings.mandatory));
