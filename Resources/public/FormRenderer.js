@@ -31,6 +31,20 @@
         return x && x.nodeType && x.nodeName;
     }
 
+    /**
+     * @param {String} expr
+     * @return {RegExp|null}
+     */
+    function expressionToRegex(expr) {
+        // for valid flags see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Advanced_searching_with_flags
+        var matches = expr.match(/^[/](.*?)[/]([gimsuy]*)$/);
+        if (matches) {
+            return new RegExp(matches[1], matches[2]);
+        } else {
+            return null;
+        }
+    }
+
 
     Mapbender.DataManager.FormRenderer = function FormRenderer() {
     };
@@ -79,13 +93,36 @@
                     return $(this.renderElements(settings.children));
                 case 'tabs':
                     return this.tabs_(settings);
+                case 'fieldSet':
+                    return this.fieldSet_(settings);
                 case 'html':
                     return this.html_(settings);
                 case 'text':
                     return this.text_(settings);
                 case 'label':
                     return this.label_(settings);
+                case 'input':
+                    return this.input_(settings);
             }
+        },
+        input_: function(settings) {
+            var type = (settings.type !== 'input' && settings.type) || 'text';
+            var $input = $('<input type="' + type + '"/>')
+                .prop({
+                    disabled: !!settings.disabled,
+                    readonly: !!settings.readonly,
+                    required: !!settings.mandatory || settings.required
+                })
+                .attr(settings.attr || {})
+                .attr('name', settings.name)
+                .addClass('form-control')
+                .addClass(settings.cssClass)
+            ;
+            if (settings.mandatory && (typeof settings.mandatory === 'string')) {
+                $input.data('warn', this.createValidationCallback_(settings.mandatory));
+            }
+            $input.attr('data-custom-validation-message', settings.mandatoryText || null);
+            return this.wrapInput_($input, settings);
         },
         tabs_: function(settings) {
             /** https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L641 */
@@ -173,6 +210,7 @@
             return $wrapper;
         },
         fieldLabel_: function(settings) {
+            /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L353 */
             var $label = $(document.createElement('label'))
                 .attr({'for': settings.name || null })
                 .attr(settings.attr || {})
@@ -185,14 +223,44 @@
                     .addClass('fa fa-info-circle -visui-infotext')
                     .attr('title', settings.infoText)
                 ;
-                label.append('&nbsp;', $icon);
+                $label.append('&nbsp;', $icon);
+            }
+            /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L345 */
+            if (settings.copyClipboard && settings.name) {
+                $label.append('&nbsp;', $('<i/>')
+                    .addClass('fa fa-clipboard far-clipboard -fn-copytoclipboard')
+                    .attr('data-target-name', settings.name)
+                    .attr('aria-hidden', 'true')
+                );
             }
             return $label;
+        },
+        wrapInput_: function($input, settings) {
+            var $group = $(document.createElement('div'))
+                .addClass('form-group')
+                .css(settings.css || {})
+            ;
+            if (settings.title) {
+                $group.append(this.fieldLabel_(settings));
+            }
+            $group.append($input);
+            return $group;
         },
         renderFallback_: function(settings) {
             var $wrapper = $(document.createElement('div'));
             $wrapper.generateElements({children: [settings]});
             return $wrapper.children();
+        },
+        createValidationCallback_: function(expression) {
+            // legacy fun fact: string runs through eval, but result of eval can only be used
+            // if it happens to have an method named .exec accepting a single parameter
+            // => this was never compatible with anything but regex literals
+            return (function() {
+                var rxp = expressionToRegex(expression);
+                return function(value) {
+                    return rxp.test(value);
+                }
+            }());
         },
         checkExtraSettings_: function(settings, expectedProps, description) {
             var description_ = description || ['type ', '"', settings.type, '"'].join('');

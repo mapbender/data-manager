@@ -136,15 +136,13 @@
             }
             return isValid;
         },
-        markValidationState: function($input, isValid)
-        {
+        markValidationState: function($input, isValid) {
             var $formGroup = $input.closest('.form-group');
             $formGroup.toggleClass('has-error', !isValid);
             $formGroup.toggleClass('has-success', isValid);
             /** @todo: ensure message container is always present in the right place */
             var $messageContainer = $('.invalid-feedback', $formGroup);
-            /** @todo: change data attribute name */
-            var invalidMessage = $input.attr('data-visui-validation-message');
+            var invalidMessage = $input.attr('data-custom-validation-message');
             if (!isValid && invalidMessage && $input.attr('type') !== 'checkbox') {
                 if (!$messageContainer.length) {
                     $messageContainer = $(document.createElement('div')).addClass('help-block invalid-feedback');
@@ -157,6 +155,34 @@
             // After validation, we always either .has-error or .has-success, so .has-warning needs to go
             /** @todo: remove has-warning from rendered form groups; use standard required hinting (in label) instead */
             $formGroup.removeClass('has-warning');
+        },
+        copyToClipboard: function($input) {
+            var text = $input.val() || '';
+            if (text && Array.isArray(text)) {
+                // select[multple]
+                var separator = $input.attr('data-visui-multiselect-separator') || ',';
+                /** @var {Array<String>|null} valueList */
+                text = text.join(separator) || '';
+            }
+            /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L157 */
+            if (window.clipboardData && window.clipboardData.setData) {
+                /** @see https://caniuse.com/mdn-api_clipboardevent_clipboarddata */
+                return clipboardData.setData("Text", text);
+            } else {
+                var textarea = document.createElement("textarea");
+                textarea.textContent = text;
+                textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+                } catch (ex) {
+                    console.warn("Copy to clipboard failed.", ex);
+                    return false;
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            }
         },
         /**
          * @param {jQuery} $input

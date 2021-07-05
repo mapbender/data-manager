@@ -451,6 +451,10 @@
             this._fixEmptyRadioGroups(dialog);
             Mapbender.DataManager.FormUtil.setValues(dialog, itemValues);
             this._updateCalculatedText($('.-fn-calculated-text', dialog), itemValues);
+            dialog.on('click', '.form-group .-fn-copytoclipboard', function() {
+                var $input = $(':input', $(this).closest('.form-group'));
+                Mapbender.DataManager.FormUtil.copyToClipboard($input);
+            });
 
             dialog.one('popupdialogclose', function() {
                 widget._cancelForm(schema, dataItem);
