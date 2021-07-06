@@ -117,6 +117,8 @@
                     return this.handle_checkbox_(settings);
                 case 'select':
                     return this.handle_select_(settings);
+                case 'breakLine':
+                    return this.handle_breakLine_(settings);
             }
         },
         handle_input_: function(settings) {
@@ -376,6 +378,12 @@
             $select.data('declaration', settings);
             this.addCustomEvents_($select, settings);
             return this.wrapInput_($select, settings);
+        },
+        handle_breakLine_: function(settings) {
+            return $(document.createElement('hr'))
+                .attr(settings.attr || {})
+                .addClass(settings.cssClass || null)
+            ;
         },
         fieldLabel_: function(settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L353 */
