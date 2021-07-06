@@ -111,6 +111,8 @@
                     return this.handle_colorPicker_(settings);
                 case 'file':
                     return this.handle_file_(settings);
+                case 'image':
+                    return this.handle_image_(settings);
             }
         },
         handle_input_: function(settings) {
@@ -196,6 +198,22 @@
                 }
             });
             return this.wrapInput_($group, settings);
+        },
+        handle_image_: function(settings) {
+            /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L496 */
+            /** @todo: support "enlargeImage"...? */
+            var $img = $(document.createElement('img'))
+                .addClass('img-responsive')
+                .attr('src', settings.src || null)
+                .attr('data-preview-for', settings.name || null)
+            ;
+            // Wrap in form-group (potentially with label), but
+            // remove input-related values (img is not an input)
+            return this.wrapInput_($img, {
+                title: settings.title,
+                infoText: settings.infoText,
+                css: settings.css
+            });
         },
         textInput_: function(settings, type) {
             var $input = $('<input type="' + type + '"/>');
@@ -405,6 +423,9 @@
     // * 'input'
     // * 'textArea'
     // * 'date'
+    // * 'colorPicker'
+    // * 'file'
+    // * 'image'
 
     // @todo:
     // * 'breakLine'
@@ -413,9 +434,6 @@
     // * 'selectOptionList' ?
     // * 'radio'
     // * 'checkbox'
-    // * 'image'
-    // * 'file'
-    // * 'colorPicker'
 
     // Not concerned / drop support (vs vis-ui):
     // * 'accordion'
