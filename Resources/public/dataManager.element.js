@@ -611,7 +611,6 @@
                     itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&field=" + item.name;
                     // @todo: form inputs without a name attribute should be an error condition
                     if (item.name && values[item.name]) {
-                        itemOut.dbSrc = values[item.name];
                         // @todo: figure out who even populates this value (not data source, not data manager)
                         files = this._getDataStoreFromSchema(schema).files || [];
                         $.each(files, function(k, fileInfo) {
