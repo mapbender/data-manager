@@ -487,14 +487,12 @@
     // * 'colorPicker'
     // * 'file'
     // * 'image'
+    // * 'checkbox'
+    // * 'select'
+    // * 'breakLine'
 
     // @todo:
-    // * 'breakLine'
-    // * 'select'
-    // * 'selectOption' ?
-    // * 'selectOptionList' ?
     // * 'radio'
-    // * 'checkbox'
 
     // Not concerned / drop support (vs vis-ui):
     // * 'accordion'
@@ -507,5 +505,8 @@
     // * 'resultTable'
     // * 'digitizingToolSet'
     // * 'popup'
+    // * 'slider' (=mockup, hardcoded [0..10] range; prefer <input type="range">)
+    // * 'selectOption'
+    // * 'selectOptionList'
 }(jQuery));
 
