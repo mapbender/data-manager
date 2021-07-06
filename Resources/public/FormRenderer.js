@@ -113,6 +113,8 @@
                     return this.handle_file_(settings);
                 case 'image':
                     return this.handle_image_(settings);
+                case 'checkbox':
+                    return this.handle_checkbox_(settings);
                 case 'select':
                     return this.handle_select_(settings);
             }
@@ -325,6 +327,21 @@
                 .addClass(settings.cssClass)
             ;
             return $wrapper;
+        },
+        handle_checkbox_: function(settings) {
+            var $label = this.fieldLabel_(settings);
+            var $checkbox = $('<input type="checkbox"/>')
+                .attr('name', settings.name || null)
+                .attr('value', settings.value || null)
+                .prop('disabled', settings.disabled || false)
+                .prop('required', !!settings.mandatory || settings.required || !!(settings.attr || {}).required)
+                .prop('checked', settings.checked)
+            ;
+            $label.prepend($checkbox);
+            return $(document.createElement('div'))
+                .addClass('form-group checkbox')
+                .append($label)
+            ;
         },
         handle_select_: function(settings) {
             var $select = $(document.createElement('select'))
