@@ -86,11 +86,19 @@
       top: 0;
       width: 100%;
     }
+    max-width: 100%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
   }
   .row.reduce-gutters {
     > :nth-child(1n+2) {
       padding-left: 0;
     }
+  }
+  .progress-bar {
+    float: none;
+    height: 3px;
+    transition: none;
   }
 }
 

@@ -109,6 +109,8 @@
                     return this.handle_date_(settings);
                 case 'colorPicker':
                     return this.handle_colorPicker_(settings);
+                case 'file':
+                    return this.handle_file_(settings);
             }
         },
         handle_input_: function(settings) {
@@ -150,6 +152,50 @@
             ;
             $addonGroup.colorpicker({format: 'hex'});
             return this.wrapInput_($addonGroup, settings);
+        },
+        handle_file_: function(settings) {
+            /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L545 */
+            var $inputReal = $('<input type="hidden" />')
+                // NOTE: do not attempt required / disabled etc on hidden inputs
+                .attr('name', settings.name)
+            ;
+            var $fileInput = $('<input type="file" />')
+                .attr('accept', settings.accept)
+                .attr(settings.attr || {})
+            ;
+            var $btnText = $('<span class="upload-button-text">')
+                .text(settings.text || 'Select')
+            ;
+            var $btn = $('<span class="btn btn-success button fileinput-button">')
+                .append($fileInput)
+                .append($inputReal)
+                .append('<i class="fa fa-upload" aria-hidden="true"/>')
+                .append($btnText)
+            ;
+            var $group = $(document.createElement('div'))
+                .append($btn)
+                .append('<div class="progress-bar"/>')
+            ;
+            $fileInput.fileupload({
+                dataType: 'json',
+                url: settings.uploadHanderUrl,      // SIC!
+                progressall: function(evt, data) {
+                    var progressPct = parseInt(data.loaded / data.total * 100, 10);
+                    $('.progress-bar', $group).css('width', [progressPct, '%'].join(''));
+                },
+                success: function(response) {
+                    var fileInfo = response.files && response.files[0];
+                    var $previewImage = $('img[data-preview-for="' + settings.name + '"]', $group.closest('.ui-dialog'));
+                    $previewImage.attr('src', fileInfo.thumbnailUrl);
+                    if (fileInfo.name) {
+                        $btnText.text(fileInfo.name);
+                        $btn.attr('title', fileInfo.name);
+                    }
+                    $inputReal.val(fileInfo.url);
+                    $('.progress-bar', $group).css('width', '0');
+                }
+            });
+            return this.wrapInput_($group, settings);
         },
         textInput_: function(settings, type) {
             var $input = $('<input type="' + type + '"/>');
