@@ -367,7 +367,7 @@
                     $select.data('select2-options', {placeholder: settings.placeholder});
                 }
             }
-            if (settings.value !== null && typeof (settings.value) !== undefined) {
+            if (settings.value !== null && typeof (settings.value) !== 'undefined') {
                 var initial = settings.value;
                 if (settings.multiple && !Array.isArray(initial)) {
                     initial = initial.toString().split(settings.separator || ',') || [];
