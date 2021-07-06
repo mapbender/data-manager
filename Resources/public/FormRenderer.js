@@ -359,7 +359,6 @@
             $select.data('declaration', settings);
             this.addCustomEvents_($select, settings);
             return this.wrapInput_($select, settings);
-
         },
         fieldLabel_: function(settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L353 */

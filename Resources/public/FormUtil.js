@@ -138,9 +138,10 @@
             ;
             this.markValidationState($input, isValid);
             if (!isValid) {
+                var self = this;
                 // Re-validate once on change, to make error message disappear
                 $input.one('change', function() {
-                    VisUi.validateInput(input);
+                    self.validateInput(input);
                 });
             }
             return isValid;
