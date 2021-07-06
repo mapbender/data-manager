@@ -11,5 +11,10 @@
             <argument type="service" id="service_container"/>
             <argument>%mb.data-manager.registry.declarations-param%</argument>
         </service>
+        <service id="mb.data-manager.form_item_filter" class="Mapbender\DataManagerBundle\Component\FormItemFilter">
+            <argument type="service" id="doctrine" />
+            <argument type="service" id="translator" />
+            <argument type="service" id="mb.data-manager.registry" />
+        </service>
     </services>
 </container>

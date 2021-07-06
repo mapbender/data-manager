@@ -113,6 +113,8 @@
                     return this.handle_file_(settings);
                 case 'image':
                     return this.handle_image_(settings);
+                case 'select':
+                    return this.handle_select_(settings);
             }
         },
         handle_input_: function(settings) {
@@ -323,6 +325,31 @@
                 .addClass(settings.cssClass)
             ;
             return $wrapper;
+        },
+        handle_select_: function(settings) {
+            var $select = $(document.createElement('select'))
+                .attr('name', settings.name)
+                .prop('multiple', !!settings.multiple)
+                .addClass('form-control')
+            ;
+            var options = settings.options || [];
+            for (var i = 0; i < options.length; ++i) {
+                var option = options[i];
+                var $option = $(document.createElement('option'))
+                    .attr(option.attr || {})
+                    .attr('value', option.value)
+                    .text(option.label)
+                ;
+                $select.append($option);
+            }
+            if ((settings.multiple || settings.select2) && (typeof ($select.select2) === 'function')) {
+                $select.select2(settings);
+            }
+            // Legacy amenities
+            $select.data('declaration', settings);
+            this.addCustomEvents_($select, settings);
+            return this.wrapInput_($select, settings);
+
         },
         fieldLabel_: function(settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L353 */

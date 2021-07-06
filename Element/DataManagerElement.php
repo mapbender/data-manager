@@ -3,12 +3,13 @@
 namespace Mapbender\DataManagerBundle\Element;
 
 use Doctrine\DBAL\DBALException;
+use Mapbender\CoreBundle\Component\Element;
+use Mapbender\DataManagerBundle\Component\FormItemFilter;
 use Mapbender\DataManagerBundle\Component\Uploader;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
 use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Component\DataStoreService;
-use Mapbender\DataSourceBundle\Element\BaseElement;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,7 @@ use Symfony\Component\Translation\TranslatorInterface;
  * @todo: support lazy-loading of single schema, to speed up initialization
  * @todo: verify file upload field interactions
  */
-class DataManagerElement extends BaseElement
+class DataManagerElement extends Element
 {
     /** @var mixed[] lazy-initialized entries */
     protected $schemaConfigs = array();
@@ -443,7 +444,7 @@ class DataManagerElement extends BaseElement
     {
         $prepared = $rawConfig;
         if (isset($rawConfig['formItems'])) {
-            $prepared['formItems'] = $this->prepareItems($rawConfig['formItems']);
+            $prepared['formItems'] = $this->getFormItemFilter()->prepareItems($rawConfig['formItems'] ?: array());
         }
         $dsKey = $this->getDataStoreKeyInSchemaConfig();
         $prepared[$dsKey] = $this->resolveDataStoreConfig($prepared[$dsKey]);
@@ -550,24 +551,6 @@ class DataManagerElement extends BaseElement
     }
 
     /**
-     * Override to support translated string scalars in form items.
-     *
-     * @param mixed[] $item
-     * @return mixed[]
-     */
-    protected function prepareItem($item)
-    {
-        $item = parent::prepareItem($item);
-        $translator = $this->getTranslator();
-        foreach ($item as $key => $value) {
-            if (is_string($value) && preg_match('#^trans:\w+([\.\-]\w+)*$#', $value)) {
-                $item[$key] = $translator->trans(substr($value, /* strlen('trans:') */ 6));
-            }
-        }
-        return $item;
-    }
-
-    /**
      * Names the key inside the schema top-level config where data store config
      * is located.
      * Override support for child classes (Digitizer uses featureType instead
@@ -601,5 +584,16 @@ class DataManagerElement extends BaseElement
         /** @var DataStoreService $service */
         $service = $this->container->get('mb.data-manager.registry');
         return $service;
+    }
+
+    /**
+     * @return FormItemFilter
+     */
+    protected function getFormItemFilter()
+    {
+        /** @var FormItemFilter $service */
+        $service = $this->container->get('mb.data-manager.form_item_filter');
+        return $service;
+
     }
 }
