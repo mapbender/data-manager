@@ -62,12 +62,18 @@ class FormItemFilter
     protected function prepareSelectItem(array $item)
     {
         $this->checkSelectItem($item);
-        if (!empty($item['sql'])) {
-            return $this->prepareSqlSelectItem($item);
+        if (!empty($item['options'])) {
+            $options = $this->formatStaticSelectItemOptions($item);
         } else {
-            $item['options'] = $this->formatStaticSelectItemOptions($item);
-            return $item;
+            $options = array();
         }
+        if (!empty($item['sql'])) {
+            $options = array_merge($options, $this->getSqlSelectItemOptions($item));
+        }
+        $item['options'] = $options;
+        unset($item['sql']);
+        unset($item['connection']);
+        return $item;
     }
 
     /**
@@ -88,7 +94,7 @@ class FormItemFilter
             foreach ($item['options'] as $key => $mapped) {
                 if (\is_array($mapped)) {
                     $option = $mapped + array(
-                        'label' => '',
+                        'label' => $key,
                         'value' => $key,
                     );
                 } else {
@@ -111,14 +117,13 @@ class FormItemFilter
      * @param mixed[] $item
      * @return mixed[]
      */
-    protected function prepareSqlSelectItem($item)
+    protected function getSqlSelectItemOptions($item)
     {
+        $options = array();
         $warnedSingleColumn = false;
         $connectionName = isset($item['connection']) ? $item['connection'] : 'default';
         /** @var Connection $connection */
         $connection = $this->connectionRegistry->getConnection($connectionName);
-        // Prepend statically defined options, if any
-        $item['options'] = $this->formatStaticSelectItemOptions($item);
         foreach ($connection->executeQuery($item['sql'])->fetchAll(FetchMode::ASSOCIATIVE) as $row) {
             // throw out resource-type columns (certain Oracle types)
             $row = \array_filter($row, function($column) {
@@ -130,14 +135,14 @@ class FormItemFilter
                     $warnedSingleColumn = true;
                 }
                 $both = array_values($row)[0];
-                $item['options'][] = array(
+                $options[] = array(
                     'label' => $both,
                     'value' => $both,
                     'properties' => $row,
                 );
             } else {
                 $flat = \array_values($row);
-                $item['options'][] = array(
+                $options[] = array(
                     'label' => $flat[0],
                     // Use LAST column, like legacy BaseElement
                     /** @see https://github.com/mapbender/data-source/blob/0.0.35/Element/BaseElement.php#L95 */
@@ -146,10 +151,7 @@ class FormItemFilter
                 );
             }
         }
-
-        unset($item['sql']);
-        unset($item['connection']);
-        return $item;
+        return $options;
     }
 
     /**
