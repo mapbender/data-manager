@@ -342,15 +342,18 @@
                 ;
                 $select.append($option);
             }
+            if (settings.multiple || settings.select2) {
+                $select.addClass('-js-init-select2');
+                if (settings.placeholder) {
+                    $select.data('select2-options', {placeholder: settings.placeholder});
+                }
+            }
             if (settings.value !== null && typeof (settings.value) !== undefined) {
                 var initial = settings.value;
                 if (settings.multiple && !Array.isArray(initial)) {
                     initial = initial.toString().split(settings.separator || ',') || [];
                 }
                 $select.val(initial);
-            }
-            if ((settings.multiple || settings.select2) && (typeof ($select.select2) === 'function')) {
-                $select.select2(settings);
             }
             // Legacy amenities
             $select.data('declaration', settings);

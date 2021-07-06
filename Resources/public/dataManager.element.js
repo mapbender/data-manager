@@ -462,6 +462,12 @@
                 Mapbender.DataManager.FormUtil.copyToClipboard($input);
             });
 
+            if ($.fn.select2) {
+                $('.-js-init-select2', dialog).each(function() {
+                    var $select = $(this);
+                    $(this).select2($select.data('select2-options') || {});
+                });
+            }
             dialog.one('popupdialogclose', function() {
                 widget._cancelForm(schema, dataItem);
             });
