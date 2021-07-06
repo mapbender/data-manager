@@ -6,7 +6,6 @@ namespace Mapbender\DataManagerBundle\Component;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
-use Mapbender\DataSourceBundle\Component\DataStoreService;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -16,16 +15,12 @@ class FormItemFilter
     protected $connectionRegistry;
     /** @var TranslatorInterface */
     protected $translator;
-    /** @var DataStoreService */
-    protected $dataStoreRegistry;
 
     public function __construct(RegistryInterface $connectionRegistry,
-                                TranslatorInterface $translator,
-                                DataStoreService $dataStoreRegistry)
+                                TranslatorInterface $translator)
     {
         $this->connectionRegistry = $connectionRegistry;
         $this->translator = $translator;
-        $this->dataStoreRegistry = $dataStoreRegistry;
     }
 
     public function prepareItems($items)
@@ -67,11 +62,7 @@ class FormItemFilter
     protected function prepareSelectItem(array $item)
     {
         $this->checkSelectItem($item);
-        $dsName = $this->findDataStoreReference($item);
-        if ($dsName) {
-            /** @todo: reimplement this...? */
-            return $this->prepareDataStoreSelectItem($item, $dsName);
-        } elseif (!empty($item['sql'])) {
+        if (!empty($item['sql'])) {
             return $this->prepareSqlSelectItem($item);
         } else {
             $item['options'] = $this->formatStaticSelectItemOptions($item);
@@ -170,28 +161,14 @@ class FormItemFilter
         if (!empty($item['service'])) {
             throw new \RuntimeException("Unsupported select item property 'service'");
         }
-        $dsName = $this->findDataStoreReference($item);
-        if ($dsName && !empty($item['sql'])) {
-            throw new \RuntimeException("Unsupported select item property combination sql + dataStore / featureType; use either / or");
+        foreach (array('dataStore', 'featureType') as $invalidMode) {
+            if (\array_key_exists($invalidMode, $item)) {
+                throw new \RuntimeException("Unsupported select item property '{$invalidMode}'. Use 'sql' instead.");
+            }
         }
         if (!empty($item['options']) && !\is_array($item['options'])) {
             throw new \RuntimeException("Invalid type " . gettype($item['options']) . " in select item options. Expected array. Item: " . print_r($item, true));
         }
-    }
-
-    /**
-     * @param array $values
-     * @return string|null
-     */
-    protected function findDataStoreReference(array $values)
-    {
-        if (!empty($values['dataStore'])) {
-            return $values['dataStore'];
-        }
-        if (!empty($values['featureType'])) {
-            return $values['featureType'];
-        }
-        return null;
     }
 
     /**
