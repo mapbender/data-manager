@@ -342,6 +342,13 @@
                 ;
                 $select.append($option);
             }
+            if (settings.value !== null && typeof (settings.value) !== undefined) {
+                var initial = settings.value;
+                if (settings.multiple && !Array.isArray(initial)) {
+                    initial = initial.toString().split(settings.separator || ',') || [];
+                }
+                $select.val(initial);
+            }
             if ((settings.multiple || settings.select2) && (typeof ($select.select2) === 'function')) {
                 $select.select2(settings);
             }
