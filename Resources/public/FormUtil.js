@@ -80,10 +80,21 @@
                         break;
                     default:
                         $input.val(value);
-                        $input.trigger('change.colorpicker');
                         break;
                 }
-                $input.trigger('change.select2');
+                switch ($input.get(0).type) {
+                    case 'text':
+                        $input.trigger('input.colorpicker').trigger('change.colorpicker');
+                        break;
+                    case 'select':
+                    case 'select-multiple':
+                        $input.trigger('change.select2');
+                        break;
+
+                    default:
+                        break;
+                }
+
             }
         },
         /**
