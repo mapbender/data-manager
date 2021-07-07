@@ -50,8 +50,9 @@
          * @param {Array<Object>} items
          * @param {String} uploadUrl
          * @param {Array<Object>} fileConfigs
+         * @param {Object} [parent]
          */
-        prepareItems: function(items, uploadUrl, fileConfigs) {
+        prepareItems: function(items, uploadUrl, fileConfigs, parent) {
             var dropped = [], i;
             for (i = 0; i < items.length; ++i) {
                 var item = items[i];
@@ -59,7 +60,7 @@
                     console.warn("Deprecated: plain string form item. Use {type: html, html: 'your content'}", item);
                     item = items[i] = {type: 'html', html: item};
                 }
-                if (!item || !item.type) {
+                if (!item || (!item.type && (!parent || parent.type !== 'tabs'))) {
                     console.error("Not an object or missing type", item);
                     dropped.push(item);
                     items[i] = null;
@@ -94,7 +95,7 @@
                     }
 
                     if ((item.children || []).length) {
-                        this.prepareItems(item.children, uploadUrl, fileConfigs);
+                        this.prepareItems(item.children, uploadUrl, fileConfigs, item);
                     }
                 }
             }
