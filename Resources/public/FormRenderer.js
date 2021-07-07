@@ -86,6 +86,13 @@
                 }
             }
         },
+        /**
+         * @param {Object} item
+         * @param {String} uploadUrl
+         * @param {Array<Object>} fileConfigs
+         * @return {Object}
+         * @private
+         */
         prepareLeaf_: function(item, uploadUrl, fileConfigs) {
             if (item.type === 'inline' || item.type === 'fieldSet') {
                 var reformedRadioGroup = this.reformRadioGroup_(item.children || [], item);
