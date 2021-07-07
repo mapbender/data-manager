@@ -117,6 +117,8 @@
                     return this.handle_checkbox_(settings);
                 case 'select':
                     return this.handle_select_(settings);
+                case 'radioGroup':
+                    return this.handle_radioGroup_(settings);
                 case 'breakLine':
                     return this.handle_breakLine_(settings);
             }
@@ -379,6 +381,44 @@
             this.addCustomEvents_($select, settings);
             return this.wrapInput_($select, settings);
         },
+        handle_radioGroup_: function(settings) {
+            var wrappedRadios = [];
+            if (!settings.options || !settings.options.length) {
+                console.error('Ignoring item type "radioGroup" with empty "options" list.', settings);
+                return $nothing;
+            }
+            var groupValue = settings.value || '';
+            for (var r = 0; r < settings.options.length; ++r) {
+                var radio = settings.options[r];
+                var $radio = $('<input type="radio">')
+                    .attr('name', settings.name)
+                    .attr('value', radio.value || '')
+                    // Browser magic: if multiple radios with same name have "checked" prop,
+                    // the last one (in DOM order) will win out
+                    .prop('checked', r === 0 || (radio.value || '') === groupValue)
+                    .prop('disabled', radio.disabled || settings.disabled)
+                ;
+                /** @see https://getbootstrap.com/docs/3.4/css/#checkboxes-and-radios */
+                var $label = $(document.createElement('label'))
+                    .text(radio.label)
+                    .prepend($radio)
+                ;
+                if (settings.inline) {
+                    wrappedRadios.push($label.addClass('radio-inline'));
+                } else {
+                    wrappedRadios.push($(document.createElement('div'))
+                        .addClass('radio')
+                        .append($label)
+                    );
+                }
+            }
+            if (settings.inline && (settings.title || settings.text)) {
+                wrappedRadios = $(document.createElement('div'))
+                    .append(wrappedRadios)
+                ;
+            }
+            return this.wrapInput_(wrappedRadios, settings);
+        },
         handle_breakLine_: function(settings) {
             return $(document.createElement('hr'))
                 .attr(settings.attr || {})
@@ -468,6 +508,44 @@
                     "; keep ", expectedProps.join(', '),
                     "; remove everything else"].join(''),
                     settings);
+            }
+        },
+        reformRadioGroup_: function(children, parent) {
+            var radioItems = children.filter(function(sub) {
+                return sub.type === 'radio';
+            });
+            var labelItem;
+            if (radioItems.length) {
+                console.warn('Detected legacy list of individual "radio" form items. Use a "radioGroup" item instead.', children);
+                labelItem = children.filter(function(sub) {
+                    return sub.type === 'label';
+                })[0] || {};
+                var value = radioItems[0].value;
+                var name = radioItems[0].name;
+                for (var r = 0; r < radioItems.length; ++r) {
+                    if (radioItems[r].checked) {
+                        value = radioItems[r].value;
+                        break;
+                    }
+                }
+
+                return {
+                    title: labelItem.text || labelItem.title,
+                    name: name,
+                    value: value,
+                    inline: parent.type === 'inline',
+                    disabled: false,
+                    options: radioItems.map(function(legacyRadio) {
+                        if (legacyRadio.name !== name) {
+                            console.error('Legacy radio item list mixes radios with different "name" property values. Behavior will be undefined. Use "radioGroup" items.');
+                        }
+                        return {
+                            value: legacyRadio.value,
+                            label: legacyRadio.title,
+                            disabled: legacyRadio.disabled
+                        }
+                    })
+                };
             }
         },
         __dummy: null
