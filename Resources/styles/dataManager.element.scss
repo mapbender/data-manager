@@ -70,6 +70,29 @@
   > .ui-tabs .ui-tabs-panel, &.content-padding {
     padding: 15px;
   }
+  .ui-tabs {
+    > .ui-tabs-nav {
+      line-height: 2.5;
+      .ui-tabs-tab {
+        list-style: none;
+        float: left;
+        cursor: pointer;
+        &.ui-state-active {
+          background-color: $buttonFirstActiveColor;
+        }
+        a {
+          padding: 0 1em;
+          &, &:hover {
+            text-decoration: none;
+          }
+        }
+        &:focus, a:focus {
+          outline: none;
+        }
+      }
+    }
+  }
+
   .ui-tabs-nav {
     padding: 0;
   }

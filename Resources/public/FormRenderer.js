@@ -342,9 +342,7 @@
             /** @todo: decouple rendering from widget init */
             $container.tabs({
                 classes: {
-                    "ui-tabs": "ui-tabs mapbender-element-tab-navigator",
-                    "ui-tabs-nav": "ui-tabs-nav nav nav-tabs",
-                    "ui-tabs-panel": "ui-tabs-panel tab-content"
+                    'ui-tabs-tab': 'ui-tabs-tab buttonColors'
                 }
             });
             return $container;
