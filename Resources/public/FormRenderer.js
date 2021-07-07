@@ -57,8 +57,40 @@
         renderElements: function(children) {
             var elements = [];
             for (var i = 0; i < children.length; ++i) {
-                var $element = this.renderElement(children[i]);
-                elements.push.apply(elements, $element.get());
+                var ch = children[i];
+                if (isNode(ch)) {
+                    console.warn("Fixme: HTMLElement passed to renderElement. This should not occur with integrated form rendering", ch);
+                    elements.push.apply(elements, $(ch).get());
+                } else {
+                    if (typeof ch === 'string') {
+                        console.warn("Deprecated: passing plain string. Use {type: html, html: 'your content'}", ch);
+                        ch = {type: 'html', html: ch};
+                    }
+                    if (!ch || !ch.type) {
+                        console.error("Not an object or missing type", ch);
+                    } else {
+                        if (ch.type === 'inline' || ch.type === 'fieldSet') {
+                            var reformedRadioGroup = this.reformRadioGroup_(ch.children || [], ch);
+                            if (reformedRadioGroup && reformedRadioGroup.__filtered__.length) {
+                                var spliceIndex = ch.children.indexOf(reformedRadioGroup.__filtered__[0]);
+                                var remaining = ch.children.filter(function(ch) {
+                                    return -1 === reformedRadioGroup.__filtered__.indexOf(ch);
+                                });
+                                delete(reformedRadioGroup['__filtered__']);
+                                if (ch.type === 'inline' || !remaining.length) {
+                                    // Replace entire parent item
+                                    children[i] = reformedRadioGroup;
+                                    ch = reformedRadioGroup;
+                                } else {
+                                    ch.children = remaining;
+                                    ch.children.splice(spliceIndex, 0, reformedRadioGroup);
+                                }
+                            }
+                        }
+                        var $element = this.renderElement(ch);
+                        elements.push.apply(elements, $element.get());
+                    }
+                }
             }
             return elements;
         },
@@ -67,19 +99,8 @@
          * @return {jQuery}
          */
         renderElement: function(settings) {
-            if (isNode(settings)) {
-                console.warn("Fixme: HTMLElement passed to renderElement. This should not occur with integrated form rendering", settings);
-                return $(settings);
-            }
-            if (typeof settings === 'string') {
-                console.warn("Deprecated: passing plain string. Use {type: html, html: 'your content'}", settings);
-                return this.renderElement({type: 'html', html: settings});
-            }
-            if (!settings || !settings.type) {
-                console.error("Not an object or missing type", settings);
-                return $nothing;
-            }
-            if (requireChildrenRxp.test(settings.type) && !(settings.children || []).length) {
+            var definedChildren = settings.children && settings.children.length && settings.children || null;
+            if (requireChildrenRxp.test(settings.type) && !definedChildren) {
                 console.error("Missing required 'children' on type " + settings.type + " => ignoring", settings);
                 return $nothing;
             }
@@ -514,12 +535,16 @@
             var radioItems = children.filter(function(sub) {
                 return sub.type === 'radio';
             });
-            var labelItem;
+
             if (radioItems.length) {
                 console.warn('Detected legacy list of individual "radio" form items. Use a "radioGroup" item instead.', children);
-                labelItem = children.filter(function(sub) {
+                var filtered = [];
+                var labelItems = children.filter(function(sub) {
                     return sub.type === 'label';
-                })[0] || {};
+                });
+                if (labelItems.length) {
+                    filtered.push(labelItems[0]);
+                }
                 var value = radioItems[0].value;
                 var name = radioItems[0].name;
                 for (var r = 0; r < radioItems.length; ++r) {
@@ -528,23 +553,30 @@
                         break;
                     }
                 }
-
-                return {
-                    title: labelItem.text || labelItem.title,
-                    name: name,
-                    value: value,
-                    inline: parent.type === 'inline',
-                    disabled: false,
-                    options: radioItems.map(function(legacyRadio) {
-                        if (legacyRadio.name !== name) {
-                            console.error('Legacy radio item list mixes radios with different "name" property values. Behavior will be undefined. Use "radioGroup" items.');
-                        }
+                var options = radioItems.map(function(legacyRadio) {
+                    if (legacyRadio.name === name) {
+                        filtered.push(legacyRadio);
                         return {
                             value: legacyRadio.value,
                             label: legacyRadio.title,
                             disabled: legacyRadio.disabled
-                        }
-                    })
+                        };
+                    } else {
+                        return null;
+                    }
+                }).filter(function(x) {
+                    return !!x;
+                });
+
+                return {
+                    title: (labelItems[0] || {}).text || (labelItems[0] || {}).title,
+                    type: 'radioGroup',
+                    name: name,
+                    value: value,
+                    inline: parent.type === 'inline',
+                    disabled: false,
+                    options: options,
+                    __filtered__: filtered
                 };
             }
         },
