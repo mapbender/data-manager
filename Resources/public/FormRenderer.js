@@ -231,9 +231,14 @@
         handle_image_: function(settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L496 */
             /** @todo: support "enlargeImage"...? */
+            var src = settings.src || null;
+            if (src && !/^(http[s]?)?:?\//.test(src)) {
+                src = [Mapbender.configuration.application.urls.asset, src].join('');
+            }
+
             var $img = $(document.createElement('img'))
                 .addClass('img-responsive')
-                .attr('src', settings.src || null)
+                .attr('src', src)
                 .attr('data-preview-for', settings.name || null)
             ;
             // Wrap in form-group (potentially with label), but

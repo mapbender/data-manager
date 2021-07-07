@@ -450,6 +450,7 @@
             widget.currentPopup = dialog;
             this._fixEmptyRadioGroups(dialog);
             Mapbender.DataManager.FormUtil.setValues(dialog, itemValues);
+            Mapbender.DataManager.FormUtil.updateImages(dialog, itemValues, _.toArray(schema.files || []));
             // Legacy custom vis-ui event shenanigans
             $('.-js-custom-events[name]', dialog).each(function() {
                 $(this).trigger('filled', {data: itemValues, value: itemValues[$(this).attr('name')]});
@@ -604,7 +605,6 @@
                     children: self._processFormItems(schema, item.children, values)
                 });
             }
-            var itemId;
             switch (item.type) {
                 case 'file':
                     itemOut = itemOut || $.extend({}, item);
@@ -617,29 +617,6 @@
                             if (fileInfo.field === item.name && fileInfo.formats) {
                                 itemOut.accept = fileInfo.formats;
                             }
-                        });
-                    }
-                    break;
-                case 'image':
-                    var origSrc = item.origSrc || item.src;
-                    var dbSrc = item.name && values[item.name];
-                    if (dbSrc) {
-                        // @todo: figure out who even populates this value (not data source, not data manager)
-                        files = this._getDataStoreFromSchema(schema).files || [];
-                        $.each(files, function(k, fileInfo) {
-                            if (fileInfo.field === item.name && fileInfo.uri) {
-                                dbSrc = fileInfo.uri + "/" + dbSrc;
-                            }
-                        });
-                    }
-                    var src = dbSrc || origSrc;
-                    // why do we support a distinct 'relative' image type if this means supporting both absolute and relative?
-                    if (item.relative && !src.test(/^(http[s]?:|\/{2})/)) {
-                        src = Mapbender.configuration.application.urls.asset + src;
-                    }
-                    if (src !== item.src) {
-                        itemOut = itemOut || $.extend({}, item, {
-                            src: src
                         });
                     }
                     break;
