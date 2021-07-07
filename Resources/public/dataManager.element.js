@@ -177,8 +177,10 @@
             return schema.dataStore;
         },
         _closeCurrentPopup: function() {
-            if (this.currentPopup){
-                this.currentPopup.popupDialog('destroy');
+            if (this.currentPopup) {
+                if (this.currentPopup.dialog('instance')) {
+                    this.currentPopup.dialog('destroy');
+                }
                 this.currentPopup = null;
             }
         },
@@ -454,7 +456,11 @@
 
             var dialog = $("<div/>");
             dialog.append(this.formRenderer_.renderElements(schema.formItems));
-            dialog.popupDialog(this._getEditDialogPopupConfig(schema, dataItem));
+            var dialogOptions = this._getEditDialogPopupConfig(schema, dataItem);
+            if (!$('> .ui-tabs', dialog).length) {
+                dialog.addClass('content-padding');
+            }
+            this.dialogFactory_.dialog(dialog, dialogOptions);
             widget.currentPopup = dialog;
             this._fixEmptyRadioGroups(dialog);
             Mapbender.DataManager.FormUtil.setValues(dialog, itemValues);
@@ -477,7 +483,7 @@
                     $(this).select2($select.data('select2-options') || {});
                 });
             }
-            dialog.one('popupdialogclose', function() {
+            dialog.one('dialogclose', function() {
                 widget._cancelForm(schema, dataItem);
             });
 

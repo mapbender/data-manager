@@ -16,7 +16,6 @@
     // move spinning icon content slightly left to prevent horizontal overflow and flickering scrollbar
     padding-right: 0.25em;
   }
-  // Independence from quirky vis-ui ".modal-body" rules; this Element is not a modal body
   color: #555;
   font-size: 0.85rem;
   select.selector, .dataTables_filter input {
@@ -66,16 +65,22 @@
 
 // Pop-up dialogs
 .ui-dialog-content.data-manager-edit-data {
-  &.modal-body {
-    // Undo legacy padding: 0, use Bootstrap default 15px
+  color: #707070;
+  font-size: 11px;
+  > .ui-tabs .ui-tabs-panel, &.content-padding {
     padding: 15px;
-    // Reposition vis-ui tab container (visually belongs to titlebar, but is always placed in body)
-    > .mapbender-element-tab-navigator > .nav-tabs {
-      margin-left: -15px;
-      margin-right: -15px;
-      margin-top: -15px;
-      margin-bottom: 10px;
-    }
+  }
+  .ui-tabs-nav {
+    padding: 0;
+  }
+  .form-group {
+    margin-bottom: 5px;
+  }
+  label, .form-control {
+    font-size: inherit;
+  }
+  .form-control {
+    border-radius: 0;
   }
 
   .fileinput-button {

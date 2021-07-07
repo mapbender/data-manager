@@ -16,13 +16,11 @@
                     'ui-dialog-buttonpane': 'ui-dialog-buttonpane modal-footer',
                     'ui-button': 'ui-button button btn'
                 },
-                resizable: false,
-                hide: {
-                    effect: 'fadeOut',
-                    duration: 200
-                }
+                resizable: false
             };
-            var options_ = Object.assign({}, defaults, options || {});
+            var options_ = Object.assign({}, defaults, options || {}, {
+                classes: Object.assign({}, defaults.classes, (options || {}).classes || {})
+            });
             $content.dialog(options_);
             // Hide text labels on .ui-button-icon-only, with or without jqueryui css
             $('.ui-dialog-titlebar .ui-button-icon-only', $content.closest('.ui-dialog')).each(function() {
@@ -72,6 +70,20 @@
                 ]
             });
             return deferred.promise();
+        },
+        dialog: function(content, options) {
+            var buttons = (options || {}).buttons || [];
+            for (var b = 0; b < buttons.length; ++b) {
+                var classes = buttons[b].class && buttons[b].class.split(/\s+/) || [];
+                if (!classes.length || -1 === classes.indexOf('btn')) {
+                    classes.push('button btn');
+                    buttons[b].class = classes.join(' ');
+                }
+            }
+            return this.baseDialog_(content, Object.assign(options, {
+                buttons: buttons,
+                resizable: true
+            }));
         },
         __dummy__: null
     };
