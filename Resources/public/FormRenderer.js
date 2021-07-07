@@ -641,9 +641,8 @@
     // * 'checkbox'
     // * 'select'
     // * 'breakLine'
-
-    // @todo:
-    // * 'radio'
+    // * 'radio' (legacy; individual items with repeating properties)
+    // * 'radioGroup' (recommended; single item with "options" list, each expecting "label" and "value" props)
 
     // Not concerned / drop support (vs vis-ui):
     // * 'accordion'
