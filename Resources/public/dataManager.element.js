@@ -373,24 +373,6 @@
                 $(this).text(textContent);
             });
         },
-        _fixEmptyRadioGroups: function($scope) {
-            var groups = {};
-            var names = [];
-            $('input[type="radio"]', $scope).each(function() {
-                var name = this.name;
-                if (!groups[name]) {
-                    groups[name] = [];
-                    names.push(name);
-                }
-                groups[name].push(this);
-            });
-            for (var i = 0; i < names.length; ++i) {
-                var $group = $(groups[names[i]]);
-                if (!$group.filter(':checked').length) {
-                    $group.first().prop('checked', true);
-                }
-            }
-        },
         /**
          * @param {jQuery} $form
          * @return {Object|boolean} false on any invalid form inputs
@@ -462,7 +444,6 @@
             }
             this.dialogFactory_.dialog(dialog, dialogOptions);
             widget.currentPopup = dialog;
-            this._fixEmptyRadioGroups(dialog);
             Mapbender.DataManager.FormUtil.setValues(dialog, itemValues);
             Mapbender.DataManager.FormUtil.updateImages(dialog, itemValues, _.toArray(schema.files || []));
             // Legacy custom vis-ui event shenanigans
