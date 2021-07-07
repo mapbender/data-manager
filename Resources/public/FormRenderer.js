@@ -25,12 +25,6 @@
         return dateInput.value !== invalidDate;
     })();
 
-    function isNode(x) {
-        // Minimum (DOM level 1) criteria for DOM Nodes or text nodes
-        // see https://www.w3.org/TR/REC-DOM-Level-1/ecma-script-language-binding.html
-        return x && x.nodeType && x.nodeName;
-    }
-
     /**
      * @param {String} expr
      * @return {RegExp|null}
@@ -126,18 +120,8 @@
         renderElements: function(children) {
             var elements = [];
             for (var i = 0; i < children.length; ++i) {
-                var ch = children[i];
-                if (isNode(ch)) {
-                    console.warn("Fixme: HTMLElement passed to renderElement. This should not occur with integrated form rendering", ch);
-                    elements.push.apply(elements, $(ch).get());
-                } else {
-                    if (!ch || !ch.type) {
-                        console.error("Not an object or missing type", ch);
-                    } else {
-                        var $element = this.renderElement(ch);
-                        elements.push.apply(elements, $element.get());
-                    }
-                }
+                var $element = this.renderElement(children[i]);
+                elements.push.apply(elements, $element.get());
             }
             return elements;
         },
