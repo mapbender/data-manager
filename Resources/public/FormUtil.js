@@ -32,7 +32,7 @@
                         value = input.checked && input.value;
                         break;
                     case 'select-multiple':
-                        var separator = $(input).attr('data-visui-multiselect-separator') || ',';
+                        var separator = $(input).attr('data-multiselect-separator') || ',';
                         /** @var {Array<String>|null} valueList */
                         var valueList = $(input).val();
                         value = valueList && valueList.join(separator) || null;
@@ -62,7 +62,7 @@
                 switch ($input.get(0).type) {
                     case 'select-multiple':
                         if (!Array.isArray(value)) {
-                            var separator = $input.attr('data-visui-multiselect-separator') || ',';
+                            var separator = $input.attr('data-multiselect-separator') || ',';
                             value = (value || '').split(separator);
                         }
                         $input.val(value);
@@ -187,7 +187,7 @@
             var text = $input.val() || '';
             if (text && Array.isArray(text)) {
                 // select[multple]
-                var separator = $input.attr('data-visui-multiselect-separator') || ',';
+                var separator = $input.attr('data-multiselect-separator') || ',';
                 /** @var {Array<String>|null} valueList */
                 text = text.join(separator) || '';
             }
