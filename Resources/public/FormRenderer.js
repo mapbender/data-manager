@@ -65,35 +65,7 @@
                     dropped.push(item);
                     items[i] = null;
                 } else {
-                    if (item.type === 'inline' || item.type === 'fieldSet') {
-                        var reformedRadioGroup = this.reformRadioGroup_(item.children || [], item);
-                        if (reformedRadioGroup && reformedRadioGroup.__filtered__.length) {
-                            var spliceIndex = item.children.indexOf(reformedRadioGroup.__filtered__[0]);
-                            var remainingChildren = item.children.filter(function(ch) {
-                                return -1 === reformedRadioGroup.__filtered__.indexOf(ch);
-                            });
-                            if (item.type === 'inline' || !remainingChildren.length) {
-                                // Replace entire parent item
-                                item = items[i] = reformedRadioGroup;
-                            } else {
-                                item.children = remainingChildren;
-                                item.children.splice(spliceIndex, 0, reformedRadioGroup);
-                            }
-                            delete(reformedRadioGroup['__filtered__']);
-                        }
-                    }
-                    if (item.type === 'file' && item.name) {
-                        var fileConfig = fileConfigs.filter(function(x) {
-                            return x.field === item.name;
-                        })[0];
-                        if (!item.accept && !(item.attr || {}).accept && fileConfig && fileConfig.formats) {
-                            console.warn('Deprecated: configuring file input "accept" attribute indirectly from schema "files". Prefer using e.g. attr: {accept: "image/*"} on the file input field.', item);
-                            item.attr = item.attr || {};
-                            item.attr.accept = fileConfig.formats;
-                        }
-                        item.__uploadUrl__ = [uploadUrl, '&field=', encodeURIComponent(item.name)].join('');
-                    }
-
+                    item = items[i] = this.prepareLeaf_(item, uploadUrl, fileConfigs, dropped) || item;
                     if ((item.children || []).length) {
                         this.prepareItems(item.children, uploadUrl, fileConfigs, item);
                     }
@@ -112,6 +84,38 @@
                 } else {
                     break;
                 }
+            }
+        },
+        prepareLeaf_: function(item, uploadUrl, fileConfigs) {
+            if (item.type === 'inline' || item.type === 'fieldSet') {
+                var reformedRadioGroup = this.reformRadioGroup_(item.children || [], item);
+                if (reformedRadioGroup && reformedRadioGroup.__filtered__.length) {
+                    var spliceIndex = item.children.indexOf(reformedRadioGroup.__filtered__[0]);
+                    var remainingChildren = item.children.filter(function(ch) {
+                        return -1 === reformedRadioGroup.__filtered__.indexOf(ch);
+                    });
+                    delete(reformedRadioGroup['__filtered__']);
+                    if (item.type === 'inline' || !remainingChildren.length) {
+                        // Replace entire parent item
+                        return reformedRadioGroup;
+                    } else {
+                        item.children = remainingChildren;
+                        item.children.splice(spliceIndex, 0, reformedRadioGroup);
+                        return item;
+                    }
+                }
+            }
+            if (item.type === 'file' && item.name) {
+                var fileConfig = fileConfigs.filter(function(x) {
+                    return x.field === item.name;
+                })[0];
+                if (!item.accept && !(item.attr || {}).accept && fileConfig && fileConfig.formats) {
+                    console.warn('Deprecated: configuring file input "accept" attribute indirectly from schema "files". Prefer using e.g. attr: {accept: "image/*"} on the file input field.', item);
+                    item.attr = item.attr || {};
+                    item.attr.accept = fileConfig.formats;
+                }
+                item.__uploadUrl__ = [uploadUrl, '&field=', encodeURIComponent(item.name)].join('');
+                return item;
             }
         },
         /**
