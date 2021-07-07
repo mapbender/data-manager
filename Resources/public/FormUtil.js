@@ -182,10 +182,6 @@
                 $messageContainer.text(invalidMessage || '');
             }
             $messageContainer.toggle(!isValid);
-            // .has-warning is set initially to required inputs but its styling conflicts with .has-error / .has-success.
-            // After validation, we always either .has-error or .has-success, so .has-warning needs to go
-            /** @todo: remove has-warning from rendered form groups; use standard required hinting (in label) instead */
-            $formGroup.removeClass('has-warning');
         },
         copyToClipboard: function($input) {
             var text = $input.val() || '';
