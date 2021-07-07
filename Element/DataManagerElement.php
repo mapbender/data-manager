@@ -104,6 +104,7 @@ class DataManagerElement extends Element
             'js' => array(
                 '@MapbenderDataManagerBundle/Resources/public/FormRenderer.js',
                 '@MapbenderDataManagerBundle/Resources/public/FormUtil.js',
+                '@MapbenderDataManagerBundle/Resources/public/DialogFactory.js',
                 '../../vendor/mapbender/vis-ui.js/src/js/elements/popup.dialog.js',
                 '../../vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js',
                 '../../vendor/blueimp/jquery-file-upload/js/jquery.iframe-transport.js',

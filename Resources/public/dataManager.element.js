@@ -58,6 +58,7 @@
             ].join('/');
             this.selector = $(this._renderSchemaSelector(this.element));
             this.formRenderer_ = this._createFormRenderer();
+            this.dialogFactory_ = Mapbender.DataManager.DialogFactory;
             var schemaNames = Object.keys(this.options.schemes);
             for (var s = 0; s < schemaNames.length; ++s) {
                 var schemaName = schemaNames[s];
@@ -742,41 +743,7 @@
          * @static
          */
         confirmDialog: function confirmDialog(title) {
-            // @todo: bypass vis-ui / jquerydialogextend auto-monkey-patching
-            var $dialog =$('<div/>').addClass('confirm-dialog');
-            var deferred = $.Deferred();
-            $dialog.popupDialog({
-                title: title,
-                maximizable: false,
-                dblclick:    false,
-                minimizable: false,
-                resizable:   false,
-                collapsable: false,
-                modal:       true,
-                buttons:     [{
-                    // @todo: translate
-                    text:  "OK",
-                    click: function() {
-                        // work around vis-ui forgetting to remove its invisible modal block
-                        $(this).popupDialog('close');
-                        // ... then do what we actually need to do
-                        $(this).popupDialog('destroy');
-                        deferred.resolveWith(true);
-                    }
-                }, {
-                    // @todo: translate
-                    text:    "Abbrechen",
-                    'class': 'critical',
-                    click:   function() {
-                        // work around vis-ui forgetting to remove its invisible modal block
-                        $(this).popupDialog('close');
-                        // ... then do what we actually need to do
-                        $(this).popupDialog('destroy');
-                        deferred.reject();
-                    }
-                }]
-            });
-            return deferred;
+            return this.dialogFactory_.confirm(title);
         },
         /**
          * Utility method to escape HTML chars
