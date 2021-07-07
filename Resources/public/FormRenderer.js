@@ -521,9 +521,14 @@
             return $group;
         },
         renderFallback_: function(settings) {
-            var $wrapper = $(document.createElement('div'));
-            $wrapper.generateElements({children: [settings]});
-            return $wrapper.children();
+            if ((settings.children || []).length) {
+                return $(document.createElement('div'))
+                    .append(this.renderElements(settings.children))
+                ;
+            } else {
+                console.error("Don't know how to render item type " + settings.type, settings);
+                return $nothing;
+            }
         },
         createValidationCallback_: function(expression) {
             // legacy fun fact: string runs through eval, but result of eval can only be used
