@@ -45,11 +45,80 @@
         }
     }
 
-
     Mapbender.DataManager.FormRenderer = function FormRenderer() {
     };
 
     Object.assign(Mapbender.DataManager.FormRenderer.prototype, {
+
+        /**
+         * Fixes / amends form items list (in place).
+         *
+         * @param {Array<Object>} items
+         * @param {String} uploadUrl
+         * @param {Array<Object>} fileConfigs
+         */
+        prepareItems: function(items, uploadUrl, fileConfigs) {
+            var dropped = [], i;
+            for (i = 0; i < items.length; ++i) {
+                var item = items[i];
+                if (typeof item === 'string') {
+                    console.warn("Deprecated: plain string form item. Use {type: html, html: 'your content'}", item);
+                    item = items[i] = {type: 'html', html: item};
+                }
+                if (!item || !item.type) {
+                    console.error("Not an object or missing type", item);
+                    dropped.push(item);
+                    items[i] = null;
+                } else {
+                    if (item.type === 'inline' || item.type === 'fieldSet') {
+                        var reformedRadioGroup = this.reformRadioGroup_(item.children || [], item);
+                        if (reformedRadioGroup && reformedRadioGroup.__filtered__.length) {
+                            var spliceIndex = item.children.indexOf(reformedRadioGroup.__filtered__[0]);
+                            var remainingChildren = item.children.filter(function(ch) {
+                                return -1 === reformedRadioGroup.__filtered__.indexOf(ch);
+                            });
+                            if (item.type === 'inline' || !remainingChildren.length) {
+                                // Replace entire parent item
+                                item = items[i] = reformedRadioGroup;
+                            } else {
+                                item.children = remainingChildren;
+                                item.children.splice(spliceIndex, 0, reformedRadioGroup);
+                            }
+                            delete(reformedRadioGroup['__filtered__']);
+                        }
+                    }
+                    if (item.type === 'file' && item.name) {
+                        var fileConfig = fileConfigs.filter(function(x) {
+                            return x.field === item.name;
+                        })[0];
+                        if (!item.accept && !(item.attr || {}).accept && fileConfig && fileConfig.formats) {
+                            console.warn('Deprecated: configuring file input "accept" attribute indirectly from schema "files". Prefer using e.g. attr: {accept: "image/*"} on the file input field.', item);
+                            item.attr = item.attr || {};
+                            item.attr.accept = fileConfig.formats;
+                        }
+                        item.__uploadUrl__ = [uploadUrl, '&field=', encodeURIComponent(item.name)].join('');
+                    }
+
+                    if ((item.children || []).length) {
+                        this.prepareItems(item.children, uploadUrl, fileConfigs);
+                    }
+                }
+            }
+            if (dropped.length) {
+                var remaining = items.filter(function(x) {
+                    return !!x;
+                });
+                items.splice.apply(items, [0, items.length].concat(remaining));
+            }
+            // strip trailing "breakLine" (sequence)
+            for (i = items.length - 1; i >= 0; --i) {
+                if (items[i].type === 'breakLine') {
+                    items.pop();
+                } else {
+                    break;
+                }
+            }
+        },
         /**
          * @param {Array<Object>} children
          * @return {Array<HTMLElement>}
@@ -62,31 +131,9 @@
                     console.warn("Fixme: HTMLElement passed to renderElement. This should not occur with integrated form rendering", ch);
                     elements.push.apply(elements, $(ch).get());
                 } else {
-                    if (typeof ch === 'string') {
-                        console.warn("Deprecated: passing plain string. Use {type: html, html: 'your content'}", ch);
-                        ch = {type: 'html', html: ch};
-                    }
                     if (!ch || !ch.type) {
                         console.error("Not an object or missing type", ch);
                     } else {
-                        if (ch.type === 'inline' || ch.type === 'fieldSet') {
-                            var reformedRadioGroup = this.reformRadioGroup_(ch.children || [], ch);
-                            if (reformedRadioGroup && reformedRadioGroup.__filtered__.length) {
-                                var spliceIndex = ch.children.indexOf(reformedRadioGroup.__filtered__[0]);
-                                var remaining = ch.children.filter(function(ch) {
-                                    return -1 === reformedRadioGroup.__filtered__.indexOf(ch);
-                                });
-                                delete(reformedRadioGroup['__filtered__']);
-                                if (ch.type === 'inline' || !remaining.length) {
-                                    // Replace entire parent item
-                                    children[i] = reformedRadioGroup;
-                                    ch = reformedRadioGroup;
-                                } else {
-                                    ch.children = remaining;
-                                    ch.children.splice(spliceIndex, 0, reformedRadioGroup);
-                                }
-                            }
-                        }
                         var $element = this.renderElement(ch);
                         elements.push.apply(elements, $element.get());
                     }
@@ -191,8 +238,8 @@
                 .attr('name', settings.name)
             ;
             var $fileInput = $('<input type="file" />')
-                .attr('accept', settings.accept)
                 .attr(settings.attr || {})
+                .attr('accept', (settings.attr || settings).accept || null)
             ;
             var $btnText = $('<span class="upload-button-text">')
                 .text(settings.text || 'Select')
@@ -209,7 +256,7 @@
             ;
             $fileInput.fileupload({
                 dataType: 'json',
-                url: settings.uploadHanderUrl,      // SIC!
+                url: settings.__uploadUrl__,
                 progressall: function(evt, data) {
                     var progressPct = parseInt(data.loaded / data.total * 100, 10);
                     $('.progress-bar', $group).css('width', [progressPct, '%'].join(''));
@@ -542,7 +589,6 @@
             });
 
             if (radioItems.length) {
-                console.warn('Detected legacy list of individual "radio" form items. Use a "radioGroup" item instead.', children);
                 var filtered = [];
                 var labelItems = children.filter(function(sub) {
                     return sub.type === 'label';
@@ -573,7 +619,7 @@
                     return !!x;
                 });
 
-                return {
+                var replacement = {
                     title: (labelItems[0] || {}).text || (labelItems[0] || {}).title,
                     type: 'radioGroup',
                     name: name,
@@ -583,6 +629,8 @@
                     options: options,
                     __filtered__: filtered
                 };
+                console.warn('Detected legacy list of individual "radio" form items. Use a "radioGroup" item instead.', radioItems, replacement);
+                return replacement;
             }
         },
         __dummy: null

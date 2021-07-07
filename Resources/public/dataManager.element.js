@@ -58,6 +58,14 @@
             ].join('/');
             this.selector = $(this._renderSchemaSelector(this.element));
             this.formRenderer_ = this._createFormRenderer();
+            var schemaNames = Object.keys(this.options.schemes);
+            for (var s = 0; s < schemaNames.length; ++s) {
+                var schemaName = schemaNames[s];
+                var schema = this.options.schemes[schemaName];
+                var fileConfigs = this._getDataStoreFromSchema(schema).files || [];
+                var uploadUrl = this.elementUrl + "file-upload?schema=" + schemaName;
+                this.formRenderer_.prepareItems(schema.formItems || [], uploadUrl, fileConfigs);
+            }
             this.tableRenderer = this._createTableRenderer();
             this._initializeEvents();
             this._afterCreate();
@@ -444,8 +452,7 @@
             var itemValues = this._getItemData(schema, dataItem);
 
             var dialog = $("<div/>");
-            var formItems = widget._processFormItems(schema, schema.formItems, itemValues);
-            dialog.append(this.formRenderer_.renderElements(formItems));
+            dialog.append(this.formRenderer_.renderElements(schema.formItems));
             dialog.popupDialog(this._getEditDialogPopupConfig(schema, dataItem));
             widget.currentPopup = dialog;
             this._fixEmptyRadioGroups(dialog);
@@ -558,73 +565,6 @@
         _cancelForm: function(schema, dataItem) {
             this._closeCurrentPopup();
             // @todo Digitizer: discard geometry modifications / discard entire item if it's new
-        },
-        /**
-         * Preprocess form items from schema before passing off to vis-ui
-         * @param {DataManagerSchemaConfig} schema
-         * @param {Array<Object>} items
-         * @param {Object} values
-         * @return {Object}
-         * @private
-         * @todo: this could also be a postprocess on the finished form
-         */
-        _processFormItems: function(schema, items, values) {
-            var self = this;
-            var itemsOut = items.map(function(item) {
-                // Prevent Digitizer from applying vis-ui workarounds
-                if (item.type !== 'colorPicker') {
-                    return self._processFormItem(schema, item, values);
-                } else {
-                    return item;
-                }
-            });
-            // strip trailing "breakline"
-            for (var i = itemsOut.length - 1; i >= 0; --i) {
-                if (itemsOut[i].type === 'breakLine') {
-                    itemsOut.pop();
-                } else {
-                    break;
-                }
-            }
-            return itemsOut;
-        },
-        /**
-         * @param {DataManagerSchemaConfig} schema
-         * @param {Object} item
-         * @param {Object} values
-         * @return {Element|Object}
-         * @private
-         */
-        _processFormItem: function(schema, item, values) {
-            // shallow copy only. Sub-attributes that need patching will be replaced recursively anyway.
-            var itemOut;
-            var self = this;
-            var files;
-            if (item.children && item.children.length) {
-                itemOut = $.extend({}, item, {
-                    children: self._processFormItems(schema, item.children, values)
-                });
-            }
-            switch (item.type) {
-                case 'file':
-                    itemOut = itemOut || $.extend({}, item);
-                    itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&field=" + item.name;
-                    // @todo: form inputs without a name attribute should be an error condition
-                    if (item.name && values[item.name]) {
-                        // @todo: figure out who even populates this value (not data source, not data manager)
-                        files = this._getDataStoreFromSchema(schema).files || [];
-                        $.each(files, function(k, fileInfo) {
-                            if (fileInfo.field === item.name && fileInfo.formats) {
-                                itemOut.accept = fileInfo.formats;
-                            }
-                        });
-                    }
-                    break;
-                default:
-                    // fall out
-                    break;
-            }
-            return itemOut || item;
         },
         /**
          * @param {DataManagerSchemaConfig} schema
