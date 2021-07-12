@@ -26,7 +26,7 @@
                 $button.empty().append($icon);
             });
             $content.on('dialogclose', function() {
-                window.setTimeout(function() { $content.dialog('destroy') }, 500);
+                window.setTimeout(function() { if ($content.dialog('instance')) { $content.dialog('destroy');} }, 500);
             });
             if (options_.resizable) {
                 $content.css('min-height', [$content.outerHeight(), 'px'].join(''));
