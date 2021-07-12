@@ -16,7 +16,6 @@
     // move spinning icon content slightly left to prevent horizontal overflow and flickering scrollbar
     padding-right: 0.25em;
   }
-  // Independence from quirky vis-ui ".modal-body" rules; this Element is not a modal body
   color: #555;
   font-size: 0.85rem;
   select.selector, .dataTables_filter input {
@@ -64,18 +63,103 @@
   }
 }
 
+.ui-dialog.data-manager-dialog {
+  &:focus {
+    outline: none;
+  }
+  background: #e4e4e4;
+  border: 1px solid #b3b3b3;
+  .ui-dialog-button-pane {
+    border-bottom: 5px solid #b3b3b3;
+  }
+  .ui-dialog-titlebar {
+    line-height: 2;
+    padding: 0 0 0 15px;
+    background-color: $buttonFirstActiveColor;
+    font-size: 16px;
+    > .ui-button, > .ui-dialog-titlebar-buttonpane {
+      font-size: inherit;
+      float: right;
+      border: none;
+      text-indent: 0;
+      outline: none;
+      background: transparent;
+    }
+    .ui-dialog-titlebar-close {
+      opacity: 0.8;
+      &:hover {
+        opacity: 1;
+      }
+      &:before {
+        content: "\f00d"; // =.fa-times
+        font-family: "FontAwesome", "Font Awesome 5 Free", "Font Awesome 5 Pro";
+      }
+      .ui-button-icon {
+        display: none;
+      }
+    }
+  }
+  .ui-dialog-title {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #fff;
+  }
+  .ui-dialog-content {
+    min-width: 100%;
+  }
+  a.ui-button {
+    // jquerydialogextendjs uses anchors instead of buttons
+    text-decoration: none;
+  }
+  .ui-dialog-buttonpane {
+    padding: 15px;
+    text-align: right;
+    .btn + .btn {
+      margin-left: 5px;
+    }
+  }
+}
+
 // Pop-up dialogs
 .ui-dialog-content.data-manager-edit-data {
-  &.modal-body {
-    // Undo legacy padding: 0, use Bootstrap default 15px
+  color: #707070;
+  font-size: 11px;
+  > .ui-tabs .ui-tabs-panel, &.content-padding {
     padding: 15px;
-    // Reposition vis-ui tab container (visually belongs to titlebar, but is always placed in body)
-    > .mapbender-element-tab-navigator > .nav-tabs {
-      margin-left: -15px;
-      margin-right: -15px;
-      margin-top: -15px;
-      margin-bottom: 10px;
+  }
+  .ui-tabs {
+    > .ui-tabs-nav {
+      line-height: 2.5;
+      .ui-tabs-tab {
+        list-style: none;
+        float: left;
+        cursor: pointer;
+        &.ui-state-active {
+          background-color: $buttonFirstActiveColor;
+        }
+        a {
+          padding: 0 1em;
+          &, &:hover {
+            text-decoration: none;
+          }
+        }
+        &:focus, a:focus {
+          outline: none;
+        }
+      }
     }
+  }
+
+  .ui-tabs-nav {
+    padding: 0;
+  }
+  .form-group {
+    margin-bottom: 5px;
+  }
+  label, .form-control {
+    font-size: inherit;
+  }
+  .form-control {
+    border-radius: 0;
   }
 
   .fileinput-button {
@@ -86,5 +170,35 @@
       top: 0;
       width: 100%;
     }
+    max-width: 100%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
+  .row.reduce-gutters {
+    > :nth-child(1n+2) {
+      padding-left: 0;
+    }
+  }
+  .progress-bar {
+    float: none;
+    height: 3px;
+    transition: none;
+  }
+  hr {
+    border: none;
+    background: #fff;
+    height: 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+}
+
+.data-manager-datepicker {
+  padding: 10px;
+  width: 14em;
+  .ui-datepicker-title {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
   }
 }

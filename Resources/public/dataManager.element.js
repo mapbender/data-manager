@@ -57,9 +57,22 @@
                 ''  // produce trailing slash
             ].join('/');
             this.selector = $(this._renderSchemaSelector(this.element));
+            this.formRenderer_ = this._createFormRenderer();
+            this.dialogFactory_ = Mapbender.DataManager.DialogFactory;
+            var schemaNames = Object.keys(this.options.schemes);
+            for (var s = 0; s < schemaNames.length; ++s) {
+                var schemaName = schemaNames[s];
+                var schema = this.options.schemes[schemaName];
+                var fileConfigs = this._getDataStoreFromSchema(schema).files || [];
+                var uploadUrl = this.elementUrl + "file-upload?schema=" + schemaName;
+                this.formRenderer_.prepareItems(schema.formItems || [], uploadUrl, fileConfigs);
+            }
             this.tableRenderer = this._createTableRenderer();
             this._initializeEvents();
             this._afterCreate();
+        },
+        _createFormRenderer: function() {
+            return new Mapbender.DataManager.FormRenderer();
         },
         _createTableRenderer: function() {
             return new Mapbender.DataManager.TableRenderer(this);
@@ -164,8 +177,10 @@
             return schema.dataStore;
         },
         _closeCurrentPopup: function() {
-            if (this.currentPopup){
-                this.currentPopup.popupDialog('destroy');
+            if (this.currentPopup) {
+                if (this.currentPopup.dialog('instance')) {
+                    this.currentPopup.dialog('destroy');
+                }
                 this.currentPopup = null;
             }
         },
@@ -349,49 +364,6 @@
             this._saveEvent(schema, dataItem, originalId);
             $.notify(Mapbender.trans('mb.data.store.save.successfully'), 'info');
         },
-        /**
-         * @param {jQuery} $scope
-         * @param {Object} values
-         * @private
-         */
-        _setFormData: function($scope, values) {
-            var valueKeys = Object.keys(values);
-            for (var i = 0; i < valueKeys.length; ++i) {
-                var inputName = valueKeys[i];
-                var value = values[inputName];
-                var $input = $(':input[name="' + inputName + '"]');
-                if (!$input.length) {
-                    continue;
-                }
-                switch ($input.get(0).type) {
-                    case 'select-multiple':
-                        if (!Array.isArray(value)) {
-                            var separator = $input.attr('data-visui-multiselect-separator') || ',';
-                            value = (value || '').split(separator);
-                        }
-                        $input.val(value);
-                        break;
-                    case 'radio':
-                        var $check = $input.filter(function() {
-                            return this.value === value;
-                        });
-                        $check.prop('checked', true);
-                        break;
-                    case 'checkbox':
-                        // Legacy fun time: database may contain stringified booleans "false" or even "off"
-                        value = !!value && (value !== 'false') && (value !== 'off');
-                        $input.prop('checked', value);
-                        break;
-                    default:
-                        $input.val(value);
-                        $input.trigger('change.colorpicker');
-                        break;
-                }
-                $input.trigger('change.select2');
-                // Custom vis-ui event shenanigans (use originally passed value for multi-selects)
-                $input.trigger('filled', {data: values, value: values[inputName]});
-            }
-        },
         _updateCalculatedText: function($elements, data) {
             $elements.each(function() {
                 var expression = $(this).attr('data-expression');
@@ -401,74 +373,14 @@
                 $(this).text(textContent);
             });
         },
-        _fixEmptyRadioGroups: function($scope) {
-            var groups = {};
-            var names = [];
-            $('input[type="radio"]', $scope).each(function() {
-                var name = this.name;
-                if (!groups[name]) {
-                    groups[name] = [];
-                    names.push(name);
-                }
-                groups[name].push(this);
-            });
-            for (var i = 0; i < names.length; ++i) {
-                var $group = $(groups[names[i]]);
-                if (!$group.filter(':checked').length) {
-                    $group.first().prop('checked', true);
-                }
-            }
-        },
         /**
          * @param {jQuery} $form
          * @return {Object|boolean} false on any invalid form inputs
          * @private
          */
         _getFormData: function($form) {
-            // Call vis-ui .formData ONLY to trigger its custom validation. Ignore return values entirely.
-            $form.formData();
-            var $allNamedInputs = $(':input[name]', $form);
-            var $invalidInputs = $allNamedInputs.add($('.has-error :input', $form)).filter(function() {
-                // NOTE: hidden inputs must be explicitly excluded from jQuery validation
-                //       see https://stackoverflow.com/questions/51534473/jquery-validate-not-working-on-hidden-input
-                // NOTE: jQuery pseudo-selector :valid can not be chained into a single .find (or snytactic variant)
-                return this.type !== 'hidden' && !$(this).is(':valid');
-            });
-            // @todo vis-ui: some inputs (with ".mandatory") are made invalid only visually when
-            //               empty, but do not have the HTML required or pattern property to
-            //               support selector detection. Work around that here.
-            var formData = {};
-            var radioMap = {};
-            $allNamedInputs.get().forEach(function(input) {
-                var type = input.type;
-                var value;
-                switch (type) {
-                    case 'radio':
-                        // Radio inputs repeat with the same name. Do not evaluate them individually. Evaluate the
-                        // whole group.
-                        if (radioMap[input.name]) {
-                            // already done
-                            return;
-                        }
-                        value = $allNamedInputs.filter('[type="radio"][name="' + input.name + '"]:checked').val();
-                        radioMap[input.name] = true;
-                        break;
-                    case 'checkbox':
-                        value = input.checked && input.value;
-                        break;
-                    case 'select-multiple':
-                        var separator = $(input).attr('data-visui-multiselect-separator') || ',';
-                        /** @var {Array<String>|null} valueList */
-                        var valueList = $(input).val();
-                        value = valueList && valueList.join(separator) || null;
-                        break;
-                    default:
-                        value = input.value;
-                        break;
-                }
-                formData[input.name] = value;
-            });
-            return !$invalidInputs.length && formData;
+            var valid = Mapbender.DataManager.FormUtil.validateForm($form);
+            return valid && Mapbender.DataManager.FormUtil.extractValues($form);
         },
         /**
          * @param {DataManagerSchemaConfig} schema
@@ -481,17 +393,12 @@
             var formData = this._getFormData($scope);
 
             if (formData) {
-                $scope.disableForm();
                 var uniqueIdAttribute = this._getUniqueItemIdProperty(schema);
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
                     console.warn("Form contains an input field for the object id", schema);
                 }
                 delete formData[uniqueIdAttribute];
-                return this._saveItem(schema, dataItem, formData)
-                    .always(function() {
-                        $scope.enableForm();
-                    })
-                ;
+                return this._saveItem(schema, dataItem, formData);
             } else {
                 return false;
             }
@@ -530,19 +437,31 @@
             var itemValues = this._getItemData(schema, dataItem);
 
             var dialog = $("<div/>");
-            var formItems = widget._processFormItems(schema, schema.formItems, itemValues);
-            dialog.generateElements({children: formItems});
-            // Undo collateral tooltips created by support HACK for vis-ui tab container
-            $('.temp-form-substitute', dialog)
-                .removeClass('temp-form-substitute')
-                .attr('title', null)
-            ;
-            dialog.popupDialog(this._getEditDialogPopupConfig(schema, dataItem));
+            dialog.append(this.formRenderer_.renderElements(schema.formItems));
+            var dialogOptions = this._getEditDialogPopupConfig(schema, dataItem);
+            if (!$('> .ui-tabs', dialog).length) {
+                dialog.addClass('content-padding');
+            }
+            this.dialogFactory_.dialog(dialog, dialogOptions);
             widget.currentPopup = dialog;
-            this._fixEmptyRadioGroups(dialog);
-            this._setFormData(dialog, itemValues);
+            Mapbender.DataManager.FormUtil.setValues(dialog, itemValues);
+            Mapbender.DataManager.FormUtil.updateImages(dialog, itemValues, _.toArray(schema.files || []));
+            // Legacy custom vis-ui event shenanigans
+            $('.-js-custom-events[name]', dialog).each(function() {
+                $(this).trigger('filled', {data: itemValues, value: itemValues[$(this).attr('name')]});
+            });
 
-            dialog.one('popupdialogclose', function() {
+            this._updateCalculatedText($('.-fn-calculated-text', dialog), itemValues);
+
+            dialog.on('click', '.form-group .-fn-copytoclipboard', function() {
+                var $input = $(':input', $(this).closest('.form-group'));
+                Mapbender.DataManager.FormUtil.copyToClipboard($input);
+            });
+            // Prevent Digitizer from initializing colorpickers multiple times
+            this._initColorpickers = function() {};
+            this.formRenderer_.initializeWidgets(dialog);
+
+            dialog.one('dialogclose', function() {
                 widget._cancelForm(schema, dataItem);
             });
 
@@ -631,124 +550,6 @@
         _cancelForm: function(schema, dataItem) {
             this._closeCurrentPopup();
             // @todo Digitizer: discard geometry modifications / discard entire item if it's new
-        },
-        /**
-         * Preprocess form items from schema before passing off to vis-ui
-         * @param {DataManagerSchemaConfig} schema
-         * @param {Array<Object>} items
-         * @param {Object} values
-         * @return {Object}
-         * @private
-         * @todo: this could also be a postprocess on the finished form
-         */
-        _processFormItems: function(schema, items, values) {
-            var self = this;
-            var itemsOut = items.map(function(item) {
-                return self._processFormItem(schema, item, values);
-            });
-            // strip trailing "breakline"
-            for (var i = itemsOut.length - 1; i >= 0; --i) {
-                if (itemsOut[i].type === 'breakLine') {
-                    itemsOut.pop();
-                } else {
-                    break;
-                }
-            }
-            return itemsOut;
-        },
-        /**
-         * @param {DataManagerSchemaConfig} schema
-         * @param {Object} item
-         * @param {Object} values
-         * @return {Element|Object}
-         * @private
-         */
-        _processFormItem: function(schema, item, values) {
-            // shallow copy only. Sub-attributes that need patching will be replaced recursively anyway.
-            var itemOut;
-            var self = this;
-            var files;
-            if (item.children && item.children.length) {
-                itemOut = $.extend({}, item, {
-                    children: self._processFormItems(schema, item.children, values)
-                });
-            }
-            var itemId;
-            switch (item.type) {
-                case 'form':
-                    // Do not allow forms. Inputs in forms react to enter.
-                    // Replace all forms with div tags
-                    var children = itemOut.children || [];
-                    var title = itemOut.title;
-                    itemOut = document.createElement('div');
-                    $(itemOut).generateElements({children: children});
-                    // Support HACK for vis-ui tab container looking for a title attribute on the child element...
-                    if (title) {
-                        itemOut.title = title;
-                        // Add a class to support remove the title again later.
-                        // Setting a title attribute on a DOM Element creates a tooltip
-                        itemOut.className = 'temp-form-substitute';
-                    }
-                    break;
-                case 'text':
-                    itemOut = document.createElement('div');
-                    var $textContainer = $(document.createElement('div'))
-                        .addClass('-fn-calculated-text')
-                        .attr('data-expression', item.text)
-                    ;
-                    $(itemOut)
-                        .addClass('form-group text')
-                        // Delegate label generation to vis-ui (mostly for consistent infoText support)
-                        .generateElements({children: [{type: 'label', title: item.title, infoText: item.infoText}]})
-                        .append($textContainer)
-                        .css(item.css || {})
-                        .addClass(item.cssClass)
-                    ;
-                    this._updateCalculatedText($textContainer, values);
-                    break;
-                case 'file':
-                    itemOut = itemOut || $.extend({}, item);
-                    itemOut.uploadHanderUrl = self.elementUrl + "file-upload?schema=" + schema.schemaName + "&field=" + item.name;
-                    // @todo: form inputs without a name attribute should be an error condition
-                    if (item.name && values[item.name]) {
-                        itemOut.dbSrc = values[item.name];
-                        // @todo: figure out who even populates this value (not data source, not data manager)
-                        files = this._getDataStoreFromSchema(schema).files || [];
-                        $.each(files, function(k, fileInfo) {
-                            if (fileInfo.field === item.name && fileInfo.formats) {
-                                itemOut.accept = fileInfo.formats;
-                            }
-                        });
-                    }
-                    break;
-                case 'image':
-                    var origSrc = item.origSrc || item.src;
-                    var dbSrc = item.name && values[item.name];
-                    if (dbSrc) {
-                        // @todo: figure out who even populates this value (not data source, not data manager)
-                        files = this._getDataStoreFromSchema(schema).files || [];
-                        $.each(files, function(k, fileInfo) {
-                            if (fileInfo.field === item.name && fileInfo.uri) {
-                                dbSrc = fileInfo.uri + "/" + dbSrc;
-                            }
-                        });
-                    }
-                    var src = dbSrc || origSrc;
-                    // why do we support a distinct 'relative' image type if this means supporting both absolute and relative?
-                    if (item.relative && !src.test(/^(http[s]?:|\/{2})/)) {
-                        src = Mapbender.configuration.application.urls.asset + src;
-                    }
-                    if (src !== item.src) {
-                        itemOut = itemOut || $.extend({}, item, {
-                            src: src
-                        });
-                    }
-                    break;
-                default:
-                    // fall out
-                    break;
-            }
-            return itemOut || item;
         },
         /**
          * @param {DataManagerSchemaConfig} schema
@@ -926,41 +727,7 @@
          * @static
          */
         confirmDialog: function confirmDialog(title) {
-            // @todo: bypass vis-ui / jquerydialogextend auto-monkey-patching
-            var $dialog =$('<div/>').addClass('confirm-dialog');
-            var deferred = $.Deferred();
-            $dialog.popupDialog({
-                title: title,
-                maximizable: false,
-                dblclick:    false,
-                minimizable: false,
-                resizable:   false,
-                collapsable: false,
-                modal:       true,
-                buttons:     [{
-                    // @todo: translate
-                    text:  "OK",
-                    click: function() {
-                        // work around vis-ui forgetting to remove its invisible modal block
-                        $(this).popupDialog('close');
-                        // ... then do what we actually need to do
-                        $(this).popupDialog('destroy');
-                        deferred.resolveWith(true);
-                    }
-                }, {
-                    // @todo: translate
-                    text:    "Abbrechen",
-                    'class': 'critical',
-                    click:   function() {
-                        // work around vis-ui forgetting to remove its invisible modal block
-                        $(this).popupDialog('close');
-                        // ... then do what we actually need to do
-                        $(this).popupDialog('destroy');
-                        deferred.reject();
-                    }
-                }]
-            });
-            return deferred;
+            return this.dialogFactory_.confirm(title);
         },
         /**
          * Utility method to escape HTML chars

@@ -9,7 +9,6 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "mapbender/vis-ui.js": "^0.1.80 || ~0.2.0",
         "blueimp/jquery-file-upload": "9.*",
         "mapbender/data-source": "~0.1.15"
     },
