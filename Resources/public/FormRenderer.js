@@ -187,6 +187,50 @@
                     return this.handle_breakLine_(settings);
             }
         },
+        initializeWidgets: function(scope) {
+            $('.-js-colorpicker', scope).each(function() {
+                $(this).colorpicker({format: 'hex'});
+            });
+            $('.-js-datepicker', scope).each(function() {
+                var dp = $(this).datepicker({
+                    dateFormat: 'yy-mm-dd', // format must be SQL compatible / HTML5 interchangeable
+                    firstDay: 1
+                }).data('datepicker');
+                dp.dpDiv.addClass('popover data-manager-datepicker');
+            });
+            if ($.fn.select2) {
+                $('.-js-init-select2', scope).each(function() {
+                    var $select = $(this);
+                    $(this).select2($select.data('select2-options') || {});
+                });
+            }
+            $('input[type="file"][data-upload-url][data-name]', scope).each(function() {
+                var $input = $(this);
+                var name = $input.attr('data-name');
+                var $group = $input.closest('.form-group');
+                var $realInput = $('input[name="' + name + '"]', $group);
+                var url = $input.attr('data-upload-url');
+                $input.fileupload({
+                    dataType: 'json',
+                    url: url,
+                    progressall: function(evt, data) {
+                        var progressPct = parseInt(data.loaded / data.total * 100, 10);
+                        $('.progress-bar', $group).css('width', [progressPct, '%'].join(''));
+                    },
+                    success: function(response) {
+                        var fileInfo = response.files && response.files[0];
+                        var $previewImage = $('img[data-preview-for="' + name + '"]', $group.closest('.ui-dialog'));
+                        $('.progress-bar', $group).css('width', '0');
+                        $previewImage.attr('src', fileInfo.thumbnailUrl);
+                        if (fileInfo.name) {
+                            $('.upload-button-text', $group).text(fileInfo.name);
+                            $('.btn', $group).attr('title', fileInfo.name);
+                        }
+                        $realInput.val(fileInfo.url);
+                    }
+                });
+            });
+        },
         handle_input_: function(settings) {
             var $input = this.textInput_(settings, 'text');
             this.addCustomEvents_($input, settings);
@@ -209,22 +253,17 @@
             }
             var $wrapper = this.wrapInput_($input, settings);
             if (!browserSupportsHtml5Date) {
-                var dp = $input.datepicker({
-                    dateFormat: 'yy-mm-dd', // format must be SQL compatible / HTML5 interchangeable
-                    firstDay: 1
-                }).data('datepicker');
-                dp.dpDiv.addClass('popover data-manager-datepicker');
+                $input.addClass('-js-datepicker');
             }
             return $wrapper;
         },
         handle_colorPicker_: function(settings) {
             var $input = this.textInput_(settings, 'text');
             var $addonGroup = $(document.createElement('div'))
-                .addClass('input-group colorpicker-component')
+                .addClass('input-group colorpicker-component -js-colorpicker')
                 .append($input)
                 .append($('<span class="input-group-addon"><i></i></span>'))
             ;
-            $addonGroup.colorpicker({format: 'hex'});
             return this.wrapInput_($addonGroup, settings);
         },
         handle_file_: function(settings) {
@@ -236,6 +275,8 @@
             var $fileInput = $('<input type="file" />')
                 .attr(settings.attr || {})
                 .attr('accept', (settings.attr || settings).accept || null)
+                .attr('data-upload-url', settings.__uploadUrl__)
+                .attr('data-name', settings.name)
             ;
             var $btnText = $('<span class="upload-button-text">')
                 .text(settings.text || 'Select')
@@ -250,25 +291,6 @@
                 .append($btn)
                 .append('<div class="progress-bar"/>')
             ;
-            $fileInput.fileupload({
-                dataType: 'json',
-                url: settings.__uploadUrl__,
-                progressall: function(evt, data) {
-                    var progressPct = parseInt(data.loaded / data.total * 100, 10);
-                    $('.progress-bar', $group).css('width', [progressPct, '%'].join(''));
-                },
-                success: function(response) {
-                    var fileInfo = response.files && response.files[0];
-                    var $previewImage = $('img[data-preview-for="' + settings.name + '"]', $group.closest('.ui-dialog'));
-                    $previewImage.attr('src', fileInfo.thumbnailUrl);
-                    if (fileInfo.name) {
-                        $btnText.text(fileInfo.name);
-                        $btn.attr('title', fileInfo.name);
-                    }
-                    $inputReal.val(fileInfo.url);
-                    $('.progress-bar', $group).css('width', '0');
-                }
-            });
             return this.wrapInput_($group, settings);
         },
         handle_image_: function(settings) {

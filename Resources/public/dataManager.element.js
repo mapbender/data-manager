@@ -457,13 +457,10 @@
                 var $input = $(':input', $(this).closest('.form-group'));
                 Mapbender.DataManager.FormUtil.copyToClipboard($input);
             });
+            // Prevent Digitizer from initializing colorpickers multiple times
+            this._initColorpickers = function() {};
+            this.formRenderer_.initializeWidgets(dialog);
 
-            if ($.fn.select2) {
-                $('.-js-init-select2', dialog).each(function() {
-                    var $select = $(this);
-                    $(this).select2($select.data('select2-options') || {});
-                });
-            }
             dialog.one('dialogclose', function() {
                 widget._cancelForm(schema, dataItem);
             });
