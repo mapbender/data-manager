@@ -10,10 +10,7 @@
             var $content = $((typeof content === 'string') ? $.parseHTML(content) : content);
             var defaults = {
                 classes: {
-                    'ui-dialog': 'ui-dialog mb-element-popup-dialog modal-content',
-                    'ui-dialog-titlebar': 'ui-dialog-titlebar modal-header',
-                    'ui-dialog-titlebar-close': 'ui-dialog-titlebar-close close',
-                    'ui-dialog-buttonpane': 'ui-dialog-buttonpane modal-footer',
+                    'ui-dialog': 'ui-dialog data-manager-dialog',
                     'ui-button': 'ui-button button btn'
                 },
                 resizable: false
@@ -83,6 +80,9 @@
                 if (!classes.length || -1 === classes.indexOf('btn')) {
                     classes.push('button btn');
                     buttons[b].class = classes.join(' ');
+                }
+                if (-1 === classes.indexOf('button') && -1 === classes.indexOf('btn')) {
+                    classes.push('button');
                 }
             }
             return this.baseDialog_(content, Object.assign(options, {

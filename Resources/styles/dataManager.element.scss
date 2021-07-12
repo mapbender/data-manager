@@ -63,6 +63,62 @@
   }
 }
 
+.ui-dialog.data-manager-dialog {
+  &:focus {
+    outline: none;
+  }
+  background: #e4e4e4;
+  border: 1px solid #b3b3b3;
+  .ui-dialog-button-pane {
+    border-bottom: 5px solid #b3b3b3;
+  }
+  .ui-dialog-titlebar {
+    line-height: 2;
+    padding: 0 0 0 15px;
+    background-color: $buttonFirstActiveColor;
+    font-size: 16px;
+    > .ui-button, > .ui-dialog-titlebar-buttonpane {
+      font-size: inherit;
+      float: right;
+      border: none;
+      text-indent: 0;
+      outline: none;
+      background: transparent;
+    }
+    .ui-dialog-titlebar-close {
+      opacity: 0.8;
+      &:hover {
+        opacity: 1;
+      }
+      &:before {
+        content: "\f00d"; // =.fa-times
+        font-family: "FontAwesome", "Font Awesome 5 Free", "Font Awesome 5 Pro";
+      }
+      .ui-button-icon {
+        display: none;
+      }
+    }
+  }
+  .ui-dialog-title {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #fff;
+  }
+  .ui-dialog-content {
+    min-width: 100%;
+  }
+  a.ui-button {
+    // jquerydialogextendjs uses anchors instead of buttons
+    text-decoration: none;
+  }
+  .ui-dialog-buttonpane {
+    padding: 15px;
+    text-align: right;
+    .btn + .btn {
+      margin-left: 5px;
+    }
+  }
+}
+
 // Pop-up dialogs
 .ui-dialog-content.data-manager-edit-data {
   color: #707070;
