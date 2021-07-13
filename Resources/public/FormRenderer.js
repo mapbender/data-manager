@@ -188,9 +188,11 @@
             }
         },
         initializeWidgets: function(scope) {
-            $('.-js-colorpicker', scope).each(function() {
-                $(this).colorpicker({format: 'hex'});
-            });
+            if ($.fn.colorpicker) {
+                $('.-js-colorpicker', scope).each(function() {
+                    $(this).colorpicker({format: 'hex'});
+                });
+            }
             $('.-js-datepicker', scope).each(function() {
                 var dp = $(this).datepicker({
                     dateFormat: 'yy-mm-dd', // format must be SQL compatible / HTML5 interchangeable
@@ -259,12 +261,16 @@
         },
         handle_colorPicker_: function(settings) {
             var $input = this.textInput_(settings, 'text');
-            var $addonGroup = $(document.createElement('div'))
-                .addClass('input-group colorpicker-component -js-colorpicker')
-                .append($input)
-                .append($('<span class="input-group-addon"><i></i></span>'))
-            ;
-            return this.wrapInput_($addonGroup, settings);
+            if ($.fn.colorpicker) {
+                var $addonGroup = $(document.createElement('div'))
+                    .addClass('input-group colorpicker-component -js-colorpicker')
+                    .append($input)
+                    .append($('<span class="input-group-addon"><i></i></span>'))
+                ;
+                return this.wrapInput_($addonGroup, settings);
+            } else {
+                return this.wrapInput_($input, settings);
+            }
         },
         handle_file_: function(settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L545 */
