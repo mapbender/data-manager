@@ -13,7 +13,8 @@
         "mapbender/data-source": "~0.1.15"
     },
     "conflict": {
-        "mapbender/mapbender": "<3.2"
+        "mapbender/mapbender": "<3.2",
+        "mapbender/digitizer": "<1.4.6"
     },
     "autoload": {
         "psr-4": {
