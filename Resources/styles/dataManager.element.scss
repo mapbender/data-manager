@@ -148,6 +148,11 @@
       }
     }
   }
+  .input-group .colorpicker.dropdown-menu {
+    // .dropdown-menu: position: absolute; left: 0
+    left: initial;
+    right: 1%;  // =width of .input-group-addon
+  }
 
   .ui-tabs-nav {
     padding: 0;

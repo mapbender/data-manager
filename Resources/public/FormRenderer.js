@@ -190,7 +190,10 @@
         initializeWidgets: function(scope) {
             if ($.fn.colorpicker) {
                 $('.-js-init-colorpicker', scope).each(function() {
-                    $(this).colorpicker({format: 'hex'});
+                    $(this).colorpicker({
+                        format: 'hex',
+                        container: $('.input-group', $(this).closest('.form-group'))
+                    });
                 });
             }
             $('.-js-datepicker', scope).each(function() {
