@@ -197,6 +197,10 @@
     margin-bottom: 10px;
   }
 
+  span.select2-container {
+    display: block;
+    width: auto !important; // overrule inline style
+  }
 }
 
 .data-manager-datepicker {
