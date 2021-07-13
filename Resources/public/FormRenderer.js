@@ -236,6 +236,40 @@
                 });
             });
         },
+        updateFileInputs: function(scope, values, fileConfigs) {
+            var fileInputs = $('.fileinput-button input[name]', scope).get();
+            var dataImages = $('img[data-preview-for]', scope).get();
+            var i;
+            for (i = 0; i < fileInputs.length; ++i) {
+                var fileInput = fileInputs[i];
+                var displayValue = fileInput.value.split('/').pop();
+                if (displayValue) {
+                    var $group = fileInput.closest('.form-group');
+                    $('.upload-button-text', $group).text(displayValue);
+                    $('.upload-button', $group).attr('title', displayValue);
+                }
+            }
+
+            for (i = 0; i < dataImages.length; ++i) {
+                var $img = $(dataImages[i]);
+                var dataProp = $img.attr('data-preview-for');
+                var fileConfig = fileConfigs.filter(function(x) {
+                    return x.field === dataProp;
+                })[0];
+
+                var value = values[dataProp];
+                if (typeof value !== 'undefined') {
+                    if (!/^(http[s]?)?:?\/\//.test(value || '')) {
+                        if (fileConfig && fileConfig.uri) {
+                            value = [fileConfig.uri, value].join('/');
+                        }
+                        $img.attr('src', Mapbender.configuration.application.urls.asset + value);
+                    } else {
+                        $img.attr('src', value || '');
+                    }
+                }
+            }
+        },
         handle_input_: function(settings) {
             var $input = this.textInput_(settings, 'text');
             this.addCustomEvents_($input, settings);

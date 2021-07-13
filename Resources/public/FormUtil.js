@@ -96,28 +96,6 @@
                 }
             }
         },
-        updateImages: function(form, values, fileConfigs) {
-            var dataImages = $('img[data-preview-for]', form).get();
-            for (var i = 0; i < dataImages.length; ++i) {
-                var $img = $(dataImages[i]);
-                var dataProp = $img.attr('data-preview-for');
-                var fileConfig = fileConfigs.filter(function(x) {
-                    return x.field === dataProp;
-                })[0];
-
-                var value = values[dataProp];
-                if (typeof value !== 'undefined') {
-                    if (!/^(http[s]?)?:?\/\//.test(value || '')) {
-                        if (fileConfig && fileConfig.uri) {
-                            value = [fileConfig.uri, value].join('/');
-                        }
-                        $img.attr('src', Mapbender.configuration.application.urls.asset + value);
-                    } else {
-                        $img.attr('src', value || '');
-                    }
-                }
-            }
-        },
         /**
          * @param {(HTMLElement|jQuery)} form
          * @return {boolean}

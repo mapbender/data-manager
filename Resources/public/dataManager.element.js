@@ -445,7 +445,7 @@
             this.dialogFactory_.dialog(dialog, dialogOptions);
             widget.currentPopup = dialog;
             Mapbender.DataManager.FormUtil.setValues(dialog, itemValues);
-            Mapbender.DataManager.FormUtil.updateImages(dialog, itemValues, _.toArray(schema.files || []));
+            this.formRenderer_.updateFileInputs(dialog, itemValues, _.toArray(schema.files || []));
             // Legacy custom vis-ui event shenanigans
             $('.-js-custom-events[name]', dialog).each(function() {
                 $(this).trigger('filled', {data: itemValues, value: itemValues[$(this).attr('name')]});
