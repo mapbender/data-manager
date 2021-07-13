@@ -189,7 +189,7 @@
         },
         initializeWidgets: function(scope) {
             if ($.fn.colorpicker) {
-                $('.-js-colorpicker', scope).each(function() {
+                $('.-js-init-colorpicker', scope).each(function() {
                     $(this).colorpicker({format: 'hex'});
                 });
             }
@@ -263,7 +263,7 @@
             var $input = this.textInput_(settings, 'text');
             if ($.fn.colorpicker) {
                 var $addonGroup = $(document.createElement('div'))
-                    .addClass('input-group colorpicker-component -js-colorpicker')
+                    .addClass('input-group colorpicker-component -js-init-colorpicker')
                     .append($input)
                     .append($('<span class="input-group-addon"><i></i></span>'))
                 ;

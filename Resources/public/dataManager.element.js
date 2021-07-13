@@ -457,8 +457,6 @@
                 var $input = $(':input', $(this).closest('.form-group'));
                 Mapbender.DataManager.FormUtil.copyToClipboard($input);
             });
-            // Prevent Digitizer from initializing colorpickers multiple times
-            this._initColorpickers = function() {};
             this.formRenderer_.initializeWidgets(dialog);
 
             dialog.one('dialogclose', function() {
