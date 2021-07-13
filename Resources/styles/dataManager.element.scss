@@ -121,6 +121,7 @@
 
 // Pop-up dialogs
 .ui-dialog-content.data-manager-edit-data {
+  overflow-y: auto;
   color: #707070;
   font-size: 11px;
   > .ui-tabs .ui-tabs-panel, &.content-padding {

@@ -28,11 +28,6 @@
             $content.on('dialogclose', function() {
                 window.setTimeout(function() { if ($content.dialog('instance')) { $content.dialog('destroy');} }, 500);
             });
-            if (options_.resizable) {
-                $content.css('min-height', [$content.outerHeight(), 'px'].join(''));
-                var $wrapper = $content.closest('.ui-dialog')
-                $wrapper.css('min-height', [$wrapper.outerHeight(), 'px'].join(''));
-            }
 
             return $content;
         },
