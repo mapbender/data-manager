@@ -460,7 +460,6 @@ class DataManagerElement extends Element
         return array(
             'allowEdit' => false,
             'allowRefresh' => false,
-            'fileUri' => $this->getDefaultUploadsPath(),
             'allowCreate' => true,
             'allowDelete' => true,
             'maxResults' => 5000,
@@ -472,16 +471,6 @@ class DataManagerElement extends Element
                 'pageLength' => 16,
             ),
         );
-    }
-
-    /**
-     * Returns web-relative base path for uploads. Used in schema defaults.
-     * @return string
-     * @since 1.0.7
-     */
-    protected function getDefaultUploadsPath()
-    {
-        return $this->container->getParameter("mapbender.uploads_dir") . "/data-store";
     }
 
     /**
