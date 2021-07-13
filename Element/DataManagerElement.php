@@ -5,6 +5,7 @@ namespace Mapbender\DataManagerBundle\Element;
 use Doctrine\DBAL\DBALException;
 use Mapbender\CoreBundle\Component\Element;
 use Mapbender\DataManagerBundle\Component\FormItemFilter;
+use Mapbender\DataManagerBundle\Component\SchemaFilter;
 use Mapbender\DataManagerBundle\Component\Uploader;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
@@ -13,7 +14,6 @@ use Mapbender\DataSourceBundle\Component\DataStoreService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * @author  Andriy Oblivantsev <eslider@gmail.com>
@@ -25,8 +25,9 @@ class DataManagerElement extends Element
 {
     /** @var mixed[] lazy-initialized entries */
     protected $schemaConfigs = array();
-    /** @var null|TranslatorInterface */
-    protected $translator;
+
+    /** @var SchemaFilter|null */
+    private $schemaFilter;
 
     /**
      * @inheritdoc
@@ -424,15 +425,19 @@ class DataManagerElement extends Element
      * @param string $schemaName
      * @return mixed[]
      * @throws ConfigurationErrorException
+     * @deprecated
      */
     protected function getDataStoreConfigForSchema($schemaName)
     {
         $schemaConfig = $this->getSchemaBaseConfig($schemaName);
-        $dsConfigKey = $this->getDataStoreKeyInSchemaConfig();
-        if (empty($schemaConfig[$dsConfigKey])) {
-            throw new ConfigurationErrorException("Missing dataStore configuration for schema " . print_r($schemaName, true));
+        $fakeConfig = array();
+        foreach (array('dataStore', 'featureType') as $dsKey) {
+            if (!empty($schemaConfig[$dsKey])) {
+                $fakeConfig['dataStore'] = $schemaConfig[$dsKey];
+            }
         }
-        return $this->resolveDataStoreConfig($schemaConfig[$dsConfigKey]);
+        $resolved = $this->getSchemaFilter()->resolveDatastoreReferences($fakeConfig, $this->getDataStoreService(), $schemaName);
+        return $resolved['dataStore'];
     }
 
     /**
@@ -441,13 +446,7 @@ class DataManagerElement extends Element
      */
     protected function prepareSchemaConfig($rawConfig)
     {
-        $prepared = $rawConfig;
-        if (isset($rawConfig['formItems'])) {
-            $prepared['formItems'] = $this->getFormItemFilter()->prepareItems($rawConfig['formItems'] ?: array());
-        }
-        $dsKey = $this->getDataStoreKeyInSchemaConfig();
-        $prepared[$dsKey] = $this->resolveDataStoreConfig($prepared[$dsKey]);
-        return $prepared;
+        return $this->getSchemaFilter()->prepareConfig($rawConfig, $this->getDataStoreService());
     }
 
     /**
@@ -457,45 +456,21 @@ class DataManagerElement extends Element
      */
     protected function getSchemaConfigDefaults()
     {
-        return array(
-            'allowEdit' => false,
-            'allowRefresh' => false,
-            'allowCreate' => true,
-            'allowDelete' => true,
-            'maxResults' => 5000,
-            'popup' => array(
-                'width' => '550px',
-            ),
-            'table' => array(
-                'searching' => true,
-                'pageLength' => 16,
-            ),
-        );
+        return $this->getSchemaFilter()->getConfigDefaults();
     }
 
     /**
      * @param string|array $value
      * @return mixed[]
+     * @deprecated
      */
     protected function resolveDataStoreConfig($value)
     {
-        if ($value && is_array($value)) {
-            return $value;
-        } elseif ($value && is_string($value)) {
-            return $this->getDataStoreDefinition($value);
-        } else {
-            throw new \RuntimeException("Invalid dataStore setting " . var_export($value, true));
-        }
-    }
-
-    /**
-     * @param string $storeId
-     * @return mixed
-     */
-    protected function getDataStoreDefinition($storeId)
-    {
-        $storeConfigs = $this->getDataStoreService()->getDataStoreDeclarations();
-        return $storeConfigs[$storeId];
+        $fakeConfig = array(
+            'dataStore' => $value,
+        );
+        $resolved = $this->getSchemaFilter()->resolveDataStoreReferences($fakeConfig, $this->getDataStoreService());
+        return $resolved['dataStore'];
     }
 
     /**
@@ -540,32 +515,6 @@ class DataManagerElement extends Element
     }
 
     /**
-     * Names the key inside the schema top-level config where data store config
-     * is located.
-     * Override support for child classes (Digitizer uses featureType instead
-     * of the default dataStore).
-     * @return string
-     * @todo: remove duplicated implementation (will require data-source ^0.1.17)
-     * @since 1.0.7
-     */
-    protected function getDataStoreKeyInSchemaConfig()
-    {
-        return 'dataStore';
-    }
-
-    /**
-     * @return TranslatorInterface
-     * @since 1.0.7
-     */
-    protected function getTranslator()
-    {
-        if (!$this->translator) {
-            $this->translator = $this->container->get('translator');
-        }
-        return $this->translator;
-    }
-
-    /**
      * @return DataStoreService
      */
     protected function getDataStoreService()
@@ -576,13 +525,11 @@ class DataManagerElement extends Element
     }
 
     /**
-     * @return FormItemFilter
+     * @return SchemaFilter
      */
-    protected function getFormItemFilter()
+    private function getSchemaFilter()
     {
-        /** @var FormItemFilter $service */
-        $service = $this->container->get('mb.data-manager.form_item_filter');
-        return $service;
-
+        $this->schemaFilter = $this->schemaFilter ?: $this->container->get('mb.data-manager.schema_filter');
+        return $this->schemaFilter;
     }
 }
