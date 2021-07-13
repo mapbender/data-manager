@@ -67,6 +67,15 @@
   &:focus {
     outline: none;
   }
+  display: flex;
+  flex-direction: column;
+  .ui-dialog-content {
+    flex: 1 1 auto;
+    height: initial !important; // Overrule inline style
+  }
+  .ui-dialog-titlebar, .ui-dialog-buttonpane {
+    flex: 1 0 auto;
+  }
   background: #e4e4e4;
   border: 1px solid #b3b3b3;
   .ui-dialog-button-pane {
