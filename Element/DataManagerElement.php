@@ -535,6 +535,7 @@ class DataManagerElement extends Element
                 'PATCH',
                 //                        'DELETE'
             ),
+            'image_versions' => array('' => array()),
         ));
     }
 
