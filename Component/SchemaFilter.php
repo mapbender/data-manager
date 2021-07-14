@@ -4,6 +4,7 @@
 namespace Mapbender\DataManagerBundle\Component;
 
 
+use Mapbender\CoreBundle\Entity\Element;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataSourceBundle\Component\DataStoreService;
 
@@ -70,5 +71,35 @@ class SchemaFilter
             $schemaConfigs[$schemaName] = $schemaConfig;
         }
         return $schemaConfigs;
+    }
+
+    /**
+     * @param Element $element
+     * @param string $schemaName
+     * @return boolean
+     */
+    public function checkAllowDelete(Element $element, $schemaName)
+    {
+        $elementConfig = $element->getConfiguration();
+        $baseConfig = $elementConfig['schemes'][$schemaName] + $this->getConfigDefaults();
+        return !empty($baseConfig['allowDelete']);
+    }
+
+    /**
+     * @param Element $element
+     * @param string $schemaName
+     * @param boolean $isNew
+     * @return boolean
+     */
+    public function checkAllowSave(Element $element, $schemaName, $isNew)
+    {
+        $elementConfig = $element->getConfiguration();
+        $baseConfig = $elementConfig['schemes'][$schemaName] + $this->getConfigDefaults();
+        if ($isNew || !\array_key_exists('allowCreate', $baseConfig)) {
+            // "allowEditData": Digitizer quirk
+            return !empty($baseConfig['allowEdit']) || !empty($baseConfig['allowEditData']);
+        } else {
+            return !empty($baseConfig['allowCreate']);
+        }
     }
 }

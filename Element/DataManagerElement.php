@@ -201,7 +201,7 @@ class DataManagerElement extends Element
     {
         $itemId = $request->query->get('id', null);
         $schemaName = $request->query->get('schema');
-        if (!$this->checkAllowSave($schemaName, !$itemId, 'save')) {
+        if (!$this->getSchemaFilter()->checkAllowSave($this->entity, $schemaName, !$itemId)) {
             return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
         }
         return new JsonResponse($this->getSaveActionResponseData($request));
@@ -237,7 +237,7 @@ class DataManagerElement extends Element
     protected function deleteAction(Request $request)
     {
         $schemaName = $request->query->get('schema');
-        if (!$this->checkAllowDelete($schemaName)) {
+        if (!$this->getSchemaFilter()->checkAllowDelete($this->entity, $schemaName)) {
             return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
         }
         $repository = $this->getDataStoreBySchemaName($schemaName);
@@ -252,38 +252,12 @@ class DataManagerElement extends Element
     protected function fileUploadAction(Request $request)
     {
         $schemaName = $request->query->get('schema');
-        if (!$this->checkAllowSave($schemaName, false, 'file-upload')) {
+
+        if (!$this->getSchemaFilter()->checkAllowSave($this->entity, $schemaName, false)) {
             return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
         }
         $repository = $this->getDataStoreBySchemaName($schemaName);
         return new JsonResponse($this->getUploadHandlerResponseData($repository, $request->query->get('field')));
-    }
-
-    /**
-     * Checks save access.
-     *
-     * @param string $schemaName
-     * @param boolean $isNew
-     * @param string $actionName 'save' or 'file-upload'
-     * @return boolean
-     * @since 1.0.7
-     */
-    protected function checkAllowSave($schemaName, $isNew, $actionName)
-    {
-        $config = $this->getSchemaBaseConfig($schemaName);
-        return $this->getSchemaFilter()->checkAllowSaveInConfig($config, $isNew);
-    }
-
-    /**
-     * Checks delete access
-     * @param string $schemaName
-     * @return boolean
-     * @since 1.0.7
-     */
-    protected function checkAllowDelete($schemaName)
-    {
-        $config = $this->getSchemaBaseConfig($schemaName);
-        return !empty($config['allowDelete']);
     }
 
     /**
