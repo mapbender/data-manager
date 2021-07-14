@@ -71,11 +71,11 @@ class BaseHttpHandler
         if ($itemId) {
             // update existing item
             $dataItem = $repository->getById($itemId);
-            $dataItem->setAttributes($requestData['dataItem']);
         } else {
             // store new item
-            $dataItem = $repository->create($requestData['dataItem']);
+            $dataItem = $repository->itemFactory();
         }
+        $dataItem->setAttributes($requestData['dataItem']);
         return array(
             'dataItem' => $repository->save($dataItem)->toArray(),
         );
