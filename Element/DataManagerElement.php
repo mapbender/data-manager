@@ -212,18 +212,6 @@ class DataManagerElement extends Element
     }
 
     /**
-     * @param string $schemaName
-     * @return DataStore
-     * @throws ConfigurationErrorException
-     * @since 1.0.7
-     * @deprecated
-     */
-    protected function getDataStoreBySchemaName($schemaName)
-    {
-        return $this->getSchemaFilter()->getDataStore($this->entity, $schemaName);
-    }
-
-    /**
      * Get a mapping of ALL schema configurations, transformed. Transformed means
      * * formItems prepared
      *
