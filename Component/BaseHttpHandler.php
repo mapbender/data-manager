@@ -5,7 +5,6 @@ namespace Mapbender\DataManagerBundle\Component;
 
 
 use Mapbender\CoreBundle\Entity\Element;
-use Mapbender\DataSourceBundle\Component\DataStore;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -109,24 +108,25 @@ class BaseHttpHandler
         if (!$this->schemaFilter->checkAllowSave($element, $schemaName, false)) {
             return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
         }
-        $repository = $this->schemaFilter->getDataStore($element, $schemaName);
+        $fieldName = $request->query->get('field');
         // @todo: eliminate blueimp/jqueryfileupload client + server
-        $handler = $this->getUploadHandler($repository, $request->query->get('field'));
+        $handler = $this->getUploadHandler($element, $schemaName, $fieldName);
         return new JsonResponse($handler->get_response());
     }
 
     /**
-     * @param DataStore $store
+     * @param Element $element
+     * @param string $schemaName
      * @param string $fieldName
      * @return Uploader
      */
-    protected function getUploadHandler(DataStore $store, $fieldName)
+    protected function getUploadHandler(Element $element, $schemaName, $fieldName)
     {
-        $uploadDir = $store->getFilePath($fieldName);
-        $uploadUrl = $store->getFileUrl($fieldName) . "/";
+        $uploadDir = $this->schemaFilter->getUploadPath($element, $schemaName, $fieldName);
+
         return new Uploader(array(
             'upload_dir' => $uploadDir . "/",
-            'upload_url' => $uploadUrl,
+            'upload_url' => $uploadDir . "/",
             'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
             'print_response' => false,
             'access_control_allow_methods' => array(

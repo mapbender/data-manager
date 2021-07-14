@@ -226,7 +226,7 @@
                         var fileInfo = response.files && response.files[0];
                         var $previewImage = $('img[data-preview-for="' + name + '"]', $group.closest('.ui-dialog'));
                         $('.progress-bar', $group).css('width', '0');
-                        $previewImage.attr('src', fileInfo.url);
+                        $previewImage.attr('src', [Mapbender.configuration.application.urls.asset, fileInfo.url].join(''));
                         if (fileInfo.name) {
                             $('.upload-button-text', $group).text(fileInfo.name);
                             $('.btn', $group).attr('title', fileInfo.name);

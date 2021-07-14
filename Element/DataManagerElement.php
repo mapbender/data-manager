@@ -331,9 +331,10 @@ class DataManagerElement extends Element
     private function getSchemaFilter()
     {
         if (!$this->schemaFilter) {
+            $uploadsBasePath = $this->container->getParameter('mapbender.uploads_dir');
             /** @var FormItemFilter $formItemFilter */
             $formItemFilter = $this->container->get('mb.data-manager.form_item_filter');
-            $this->schemaFilter = new SchemaFilterLegacy($this->getDataStoreService(), $formItemFilter);
+            $this->schemaFilter = new SchemaFilterLegacy($this->getDataStoreService(), $formItemFilter, $uploadsBasePath);
         }
         return $this->schemaFilter;
     }

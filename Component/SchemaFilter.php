@@ -15,12 +15,17 @@ class SchemaFilter
     protected $registry;
     /** @var FormItemFilter */
     protected $formItemFilter;
+    /** @var string */
+    protected $uploadsBasePath;
 
     public function __construct(DataStoreService $registry,
-                                FormItemFilter $formItemFilter)
+                                FormItemFilter $formItemFilter,
+                                $uploadsBasePath)
     {
         $this->registry = $registry;
         $this->formItemFilter = $formItemFilter;
+        $this->uploadsBasePath = trim($uploadsBasePath, '/\\');
+
     }
 
     /**
@@ -140,5 +145,19 @@ class SchemaFilter
             $rawSchemaConfig += $this->getConfigDefaults();
         }
         return $rawSchemaConfig;
+    }
+
+    /**
+     * Returns web-relative path to file uploads.
+     *
+     * @param Element $element
+     * @param string $schemaName
+     * @param string $fieldName
+     * @return mixed|string
+     */
+    public function getUploadPath(Element $element, $schemaName, $fieldName)
+    {
+        $storeConfig = $this->getDataStoreConfig($element, $schemaName);
+        return DataStoreUtil::getUploadPath($this->registry, $storeConfig, $this->uploadsBasePath, $fieldName);
     }
 }

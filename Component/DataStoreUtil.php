@@ -8,6 +8,7 @@ use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Component\DataStoreService;
 use Mapbender\DataSourceBundle\Component\FeatureTypeService;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Collection of static methods to deal with DataStoreService /
@@ -106,6 +107,78 @@ class DataStoreUtil
             if (empty($storeConfig)) {
                 throw new ConfigurationErrorException("Empty dataStore / featureType in schema {$schemaName}");
             }
+        }
+    }
+
+    /**
+     * @param array $storeConfig
+     * @return array keys = "field" entries
+     * @throws ConfigurationErrorException
+     */
+    public static function getFileConfigOverrides(array $storeConfig)
+    {
+        $overrides = array();
+        if (\array_key_exists('files', $storeConfig)) {
+            $filesConfigs = $storeConfig['files'];
+            if (!\is_array($filesConfigs)) {
+                throw new ConfigurationErrorException("DataStore / FeatureType 'files' setting must be an array (value: " . var_export($filesConfigs, true) . ")");
+            }
+            foreach ($filesConfigs as $filesConfig) {
+                if (empty($filesConfig['field']) || !\is_string($filesConfig['field'])) {
+                    throw new ConfigurationErrorException("DataStore / FeatureType 'files' settings must contain a string-type 'field' entry");
+                }
+                $uri = !empty($filesConfig['uri']) ? ($filesConfig['uri'] ?: null) : null;
+                $path = !empty($filesConfig['path']) ? ($filesConfig['path'] ?: null) : null;
+                $fs = new Filesystem();
+                if ($path) {
+                    if ($fs->isAbsolutePath($path) || preg_match('#^(\.\.)?/#', $path)) {
+                        throw new ConfigurationErrorException("DataStore / FeatureType 'files' 'path' setting be web-relative");
+                    }
+                }
+                if ($uri) {
+                    if ($fs->isAbsolutePath($uri) || preg_match('#^(\.\.)?/#', $path)) {
+                        throw new ConfigurationErrorException("DataStore / FeatureType 'files' 'uri' setting be web-relative");
+                    }
+                }
+                if ($uri && $path && $uri !== $path) {
+                    throw new ConfigurationErrorException("Ambiguous DataStore / FeatureType 'files' settings 'uri' and 'path'. Remove 'uri'.");
+                }
+                unset($filesConfig['uri']);
+                $filesConfig['path'] = $path ?: $uri ?: null;
+                $overrides[$filesConfig['field']] = $filesConfig;
+            }
+        }
+        return $overrides;
+    }
+
+    /**
+     * @param DataStoreService $registry
+     * @param mixed[] $storeConfig
+     * @param string $basePath
+     * @param string $fieldName
+     * @return string
+     */
+    public static function getUploadPath(DataStoreService $registry, $storeConfig, $basePath, $fieldName)
+    {
+        $overrides = DataStoreUtil::getFileConfigOverrides($storeConfig);
+        if (!empty($overrides[$fieldName]['path'])) {
+            return $overrides[$fieldName]['path'];
+        } else {
+            if ($registry instanceof FeatureTypeService) {
+                $path = 'featureTypes';
+            } else {
+                $path = 'ds-uploads';
+            }
+            if (!empty($basePath)) {
+                $path = "{$basePath}/{$path}";
+            }
+            if (!empty($storeConfig['table'])) {
+                $path = "{$path}/{$storeConfig['table']}";
+            }
+            if (!empty($fieldName)) {
+                $path = "{$path}/{$fieldName}";
+            }
+            return $path;
         }
     }
 }
