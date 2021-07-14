@@ -6,6 +6,7 @@ namespace Mapbender\DataManagerBundle\Component;
 
 use Mapbender\CoreBundle\Entity\Element;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
+use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Component\DataStoreService;
 
 class SchemaFilter
@@ -112,6 +113,17 @@ class SchemaFilter
         $schemaConfigs = $elementConfig['schemes'];
         $storeConfigs = DataStoreUtil::configsFromSchemaConfigs($this->registry, $schemaConfigs);
         return $storeConfigs[$schemaName];
+    }
+
+    /**
+     * @param Element $element
+     * @param string $schemaName
+     * @return DataStore
+     */
+    public function getDataStore(Element $element, $schemaName)
+    {
+        $config = $this->getDataStoreConfig($element, $schemaName);
+        return DataStoreUtil::storeFromConfig($this->registry, $config);
     }
 
     /**
