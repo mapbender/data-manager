@@ -15,9 +15,5 @@
             <argument type="service" id="doctrine" />
             <argument type="service" id="translator" />
         </service>
-        <service id="mb.data-manager.schema_filter" class="Mapbender\DataManagerBundle\Component\SchemaFilter">
-            <argument type="service" id="mb.data-manager.registry" />
-            <argument type="service" id="mb.data-manager.form_item_filter" />
-        </service>
     </services>
 </container>

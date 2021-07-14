@@ -5,7 +5,8 @@ namespace Mapbender\DataManagerBundle\Element;
 use Doctrine\DBAL\DBALException;
 use Mapbender\CoreBundle\Component\Element;
 use Mapbender\DataManagerBundle\Component\DataStoreUtil;
-use Mapbender\DataManagerBundle\Component\SchemaFilter;
+use Mapbender\DataManagerBundle\Component\FormItemFilter;
+use Mapbender\DataManagerBundle\Component\SchemaFilterLegacy;
 use Mapbender\DataManagerBundle\Component\Uploader;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
@@ -23,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DataManagerElement extends Element
 {
-    /** @var SchemaFilter|null */
+    /** @var SchemaFilterLegacy|null */
     private $schemaFilter;
 
     /**
@@ -270,11 +271,7 @@ class DataManagerElement extends Element
     protected function checkAllowSave($schemaName, $isNew, $actionName)
     {
         $config = $this->getSchemaBaseConfig($schemaName);
-        if ($isNew) {
-            return !empty($config['allowCreate']);
-        } else {
-            return !empty($config['allowEdit']);
-        }
+        return $this->getSchemaFilter()->checkAllowSaveInConfig($config, $isNew);
     }
 
     /**
@@ -317,7 +314,7 @@ class DataManagerElement extends Element
         foreach (\array_keys($entityConfig['schemes']) as $schemaName) {
             $schemaConfigs[$schemaName] = $this->getSchemaBaseConfig($schemaName);
         }
-        return $this->getSchemaFilter()->prepareConfigs($schemaConfigs, $this->getDataStoreService());
+        return $this->getSchemaFilter()->prepareConfigs($schemaConfigs);
     }
 
     /**
@@ -446,11 +443,15 @@ class DataManagerElement extends Element
     }
 
     /**
-     * @return SchemaFilter
+     * @return SchemaFilterLegacy
      */
     private function getSchemaFilter()
     {
-        $this->schemaFilter = $this->schemaFilter ?: $this->container->get('mb.data-manager.schema_filter');
+        if (!$this->schemaFilter) {
+            /** @var FormItemFilter $formItemFilter */
+            $formItemFilter = $this->container->get('mb.data-manager.form_item_filter');
+            $this->schemaFilter = new SchemaFilterLegacy($this->getDataStoreService(), $formItemFilter);
+        }
         return $this->schemaFilter;
     }
 }

@@ -42,10 +42,13 @@ class SchemaFilter
         );
     }
 
-    public function prepareConfigs($schemaConfigs, DataStoreService $registry = null)
+    /**
+     * @param mixed[][] $schemaConfigs
+     * @return mixed[][]
+     */
+    public function prepareConfigs($schemaConfigs)
     {
-        $registry = $registry ?: $this->registry;
-        $storeConfigs = DataStoreUtil::configsFromSchemaConfigs($registry, $schemaConfigs);
+        $storeConfigs = DataStoreUtil::configsFromSchemaConfigs($this->registry, $schemaConfigs);
 
         foreach ($schemaConfigs as $schemaName => $schemaConfig) {
             $haveDs = false;
