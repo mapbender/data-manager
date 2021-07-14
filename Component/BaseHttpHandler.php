@@ -59,6 +59,47 @@ class BaseHttpHandler
     /**
      * @param Element $element
      * @param Request $request
+     * @return array
+     * @throws \Exception
+     */
+    protected function getSaveActionResponseData(Element $element, Request $request)
+    {
+        $itemId = $request->query->get('id', null);
+        $schemaName = $request->query->get('schema');
+        $repository = $this->schemaFilter->getDataStore($element, $schemaName);
+        $requestData = json_decode($request->getContent(), true);
+        if ($itemId) {
+            // update existing item
+            $dataItem = $repository->getById($itemId);
+            $dataItem->setAttributes($requestData['dataItem']);
+        } else {
+            // store new item
+            $dataItem = $repository->create($requestData['dataItem']);
+        }
+        return array(
+            'dataItem' => $repository->save($dataItem)->toArray(),
+        );
+    }
+
+    /**
+     * @param Element $element
+     * @param Request $request
+     * @return array
+     */
+    protected function getSelectActionResponseData(Element $element, Request $request)
+    {
+        $schemaName = $request->query->get('schema');
+        $repository = $this->schemaFilter->getDataStore($element, $schemaName);
+        $results = array();
+        foreach ($repository->search() as $dataItem) {
+            $results[] = $dataItem->toArray();
+        }
+        return $results;
+    }
+
+    /**
+     * @param Element $element
+     * @param Request $request
      * @return JsonResponse
      */
     protected function fileUploadAction(Element $element, Request $request)

@@ -185,13 +185,7 @@ class DataManagerElement extends Element
      */
     protected function getSelectActionResponseData(Request $request)
     {
-        $schemaName = $request->query->get('schema');
-        $repository = $this->getSchemaFilter()->getDataStore($this->entity, $schemaName);
-        $results = array();
-        foreach ($repository->search() as $dataItem) {
-            $results[] = $dataItem->toArray();
-        }
-        return $results;
+        return $this->getHttpHandler()->getSelectActionResponseData($this->entity, $request);
     }
 
     /**
@@ -214,21 +208,7 @@ class DataManagerElement extends Element
      */
     protected function getSaveActionResponseData(Request $request)
     {
-        $itemId = $request->query->get('id', null);
-        $schemaName = $request->query->get('schema');
-        $repository = $this->getSchemaFilter()->getDataStore($this->entity, $schemaName);
-        $requestData = json_decode($request->getContent(), true);
-        if ($itemId) {
-            // update existing item
-            $dataItem = $repository->getById($itemId);
-            $dataItem->setAttributes($requestData['dataItem']);
-        } else {
-            // store new item
-            $dataItem = $repository->create($requestData['dataItem']);
-        }
-        return array(
-            'dataItem' => $repository->save($dataItem)->toArray(),
-        );
+        return $this->getHttpHandler()->getSaveActionResponseData($this->entity, $request);
     }
 
     /**
