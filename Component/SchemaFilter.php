@@ -80,8 +80,7 @@ class SchemaFilter
      */
     public function checkAllowDelete(Element $element, $schemaName)
     {
-        $elementConfig = $element->getConfiguration();
-        $baseConfig = $elementConfig['schemes'][$schemaName] + $this->getConfigDefaults();
+        $baseConfig = $this->getRawSchemaConfig($element, $schemaName, true);
         return !empty($baseConfig['allowDelete']);
     }
 
@@ -93,13 +92,41 @@ class SchemaFilter
      */
     public function checkAllowSave(Element $element, $schemaName, $isNew)
     {
-        $elementConfig = $element->getConfiguration();
-        $baseConfig = $elementConfig['schemes'][$schemaName] + $this->getConfigDefaults();
+        $baseConfig = $this->getRawSchemaConfig($element, $schemaName, true);
         if ($isNew || !\array_key_exists('allowCreate', $baseConfig)) {
             // "allowEditData": Digitizer quirk
             return !empty($baseConfig['allowEdit']) || !empty($baseConfig['allowEditData']);
         } else {
             return !empty($baseConfig['allowCreate']);
         }
+    }
+
+    /**
+     * @param Element $element
+     * @param string $schemaName
+     * @return mixed[]
+     */
+    public function getDataStoreConfig(Element $element, $schemaName)
+    {
+        $elementConfig = $element->getConfiguration();
+        $schemaConfigs = $elementConfig['schemes'];
+        $storeConfigs = DataStoreUtil::configsFromSchemaConfigs($this->registry, $schemaConfigs);
+        return $storeConfigs[$schemaName];
+    }
+
+    /**
+     * @param Element $element
+     * @param string $schemaName
+     * @param bool $addDefaults
+     * @return mixed[]
+     */
+    protected function getRawSchemaConfig(Element $element, $schemaName, $addDefaults = false)
+    {
+        $elementConfig = $element->getConfiguration();
+        $rawSchemaConfig = $elementConfig['schemes'][$schemaName];
+        if ($addDefaults) {
+            $rawSchemaConfig += $this->getConfigDefaults();
+        }
+        return $rawSchemaConfig;
     }
 }

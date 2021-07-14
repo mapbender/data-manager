@@ -44,16 +44,6 @@ class DataStoreUtil
         }
     }
 
-    public static function configFromSchemaConfig(DataStoreService $registry, array $schemaConfig, $schemaName)
-    {
-        $fakeSchemaConfigs = array($schemaName => $schemaConfig);
-        $storeConfigs = static::configsFromSchemaConfigs($registry, $fakeSchemaConfigs);
-        if (empty($storeConfigs[$schemaName])) {
-            throw new ConfigurationErrorException("Missing dataStore / featureType entry in schema {$schemaName}");
-        }
-        return $storeConfigs[$schemaName];
-    }
-
     /**
      * Merges and reference-expands all dataStore / featureType configs
      * from DataStoreService global config plus passed-in schema configs.

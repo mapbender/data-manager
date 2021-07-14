@@ -268,7 +268,7 @@ class DataManagerElement extends Element
      */
     protected function getDataStoreBySchemaName($schemaName)
     {
-        $config = $this->getDataStoreConfigForSchema($schemaName);
+        $config = $this->getSchemaFilter()->getDataStoreConfig($this->entity, $schemaName);
         return DataStoreUtil::storeFromConfig($this->getDataStoreService(), $config);
     }
 
@@ -336,8 +336,7 @@ class DataManagerElement extends Element
      */
     protected function getDataStoreConfigForSchema($schemaName)
     {
-        $schemaConfig = $this->getSchemaBaseConfig($schemaName);
-        return DataStoreUtil::configFromSchemaConfig($this->getDataStoreService(), $schemaConfig, $schemaName);
+        return $this->getSchemaFilter()->getDataStoreConfig($this->entity, $schemaName);
     }
 
     /**
