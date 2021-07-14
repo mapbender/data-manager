@@ -258,7 +258,7 @@
                 })[0];
 
                 var value = values[dataProp];
-                if (typeof value !== 'undefined') {
+                if (value) {
                     if (!/^(http[s]?)?:?\/\//.test(value || '')) {
                         if (fileConfig && fileConfig.uri) {
                             value = [fileConfig.uri, value].join('/');
