@@ -6,7 +6,6 @@ namespace Mapbender\DataManagerBundle\Component;
 
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataSourceBundle\Component\DataStoreService;
-use Mapbender\DataSourceBundle\Component\FeatureTypeService;
 
 class SchemaFilter
 {
@@ -43,50 +42,30 @@ class SchemaFilter
         );
     }
 
-    /**
-     * @param mixed[] $config
-     * @param DataStoreService|null $registry
-     * @return mixed[]
-     */
-    public function prepareConfig($config, $registry = null)
+    public function prepareConfigs($schemaConfigs, DataStoreService $registry = null)
     {
-        if (isset($config['formItems'])) {
-            $config['formItems'] = $this->formItemFilter->prepareItems($config['formItems'] ?: array());
-        }
-        $config = $this->resolveDatastoreReferences($config, $registry);
-        return $config;
-    }
+        $registry = $registry ?: $this->registry;
+        $storeConfigs = DataStoreUtil::configsFromSchemaConfigs($registry, $schemaConfigs);
 
-    /**
-     * @param mixed[] $schemaConfig
-     * @param DataStoreService|null $registry
-     * @param string|null $errorName
-     * @return mixed[]
-     */
-    public function resolveDataStoreReferences(array $schemaConfig, $registry = null, $errorName = null)
-    {
-        $schemaMsg = $errorName ? " in schema " . print_r($errorName, true) : '';
-        $validDs = false;
-        foreach (array('dataStore', 'featureType') as $dsKey) {
-            if (!empty($schemaConfig[$dsKey])) {
-                $validDs = true;
-                if (\is_string($schemaConfig[$dsKey])) {
-                    $registry = $registry ?: $this->registry;
-                    if ($registry instanceof FeatureTypeService) {
-                        /** @todo data-source: use the same method name! */
-                        $storeConfigs = $registry->getFeatureTypeDeclarations();
-                    } else {
-                        $storeConfigs = $registry->getDataStoreDeclarations();
-                    }
-                    $schemaConfig[$dsKey] = $storeConfigs[$schemaConfig[$dsKey]];
-                } elseif (!\is_array($schemaConfig[$dsKey])) {
-                    throw new ConfigurationErrorException("Invalid dataStore setting{$schemaMsg}: " . var_export(array($dsKey => $schemaConfig[$dsKey]), true));
+        foreach ($schemaConfigs as $schemaName => $schemaConfig) {
+            $haveDs = false;
+            foreach (array('dataStore', 'featureType') as $dsKey) {
+                if (\array_key_exists($dsKey, $schemaConfig)) {
+                    $schemaConfig[$dsKey] = $storeConfigs[$schemaName];
+                    $haveDs = true;
                 }
             }
+            if (!$haveDs) {
+                throw new ConfigurationErrorException("No dataStore / featureType in schema {$schemaName}");
+            }
+            if (!empty($schemaConfig['formItems'])) {
+                $schemaConfig['formItems'] = $this->formItemFilter->prepareItems($schemaConfig['formItems']);
+            } else {
+                @trigger_error("WARNING: no formItems in schema {$schemaName}. Object detail view will not work", E_USER_DEPRECATED);
+                $schemaConfig['formItems'] = array();
+            }
+            $schemaConfigs[$schemaName] = $schemaConfig;
         }
-        if (!$validDs) {
-            throw new ConfigurationErrorException("Missing dataStore configuration" . ($errorName ? "for schema " . print_r($errorName, true) : ''));
-        }
-        return $schemaConfig;
+        return $schemaConfigs;
     }
 }

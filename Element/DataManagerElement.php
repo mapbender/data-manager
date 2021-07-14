@@ -4,7 +4,7 @@ namespace Mapbender\DataManagerBundle\Element;
 
 use Doctrine\DBAL\DBALException;
 use Mapbender\CoreBundle\Component\Element;
-use Mapbender\DataManagerBundle\Component\FormItemFilter;
+use Mapbender\DataManagerBundle\Component\DataStoreUtil;
 use Mapbender\DataManagerBundle\Component\SchemaFilter;
 use Mapbender\DataManagerBundle\Component\Uploader;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
@@ -23,9 +23,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DataManagerElement extends Element
 {
-    /** @var mixed[] lazy-initialized entries */
-    protected $schemaConfigs = array();
-
     /** @var SchemaFilter|null */
     private $schemaFilter;
 
@@ -301,7 +298,7 @@ class DataManagerElement extends Element
     protected function getDataStoreBySchemaName($schemaName)
     {
         $config = $this->getDataStoreConfigForSchema($schemaName);
-        return $this->getDataStoreService()->dataStoreFactory($config);
+        return DataStoreUtil::storeFromConfig($this->getDataStoreService(), $config);
     }
 
     /**
@@ -312,72 +309,15 @@ class DataManagerElement extends Element
      */
     protected function getSchemaConfigs()
     {
-        $schemaNames = $this->getValidSchemaNames();
-        $preparedConfigs = $this->schemaConfigs;
-        foreach (array_diff($schemaNames, array_keys($preparedConfigs)) as $missingSchemaName) {
-            // use get... instead of prepare... to buffer result for next time
-            $preparedConfigs[$missingSchemaName] = $this->getSchemaConfig($missingSchemaName, false);
-        }
-        return $preparedConfigs;
-    }
-
-    /**
-     * @return string[]
-     * @throws ConfigurationErrorException if config values are completly unsalvagable
-     */
-    protected function getValidSchemaNames()
-    {
         $entityConfig = $this->entity->getConfiguration();
         if (empty($entityConfig['schemes'])) {
             throw new ConfigurationErrorException("Schema configuration completely empty");
         }
-        $names = array();
-        $invalid = array();
-        foreach (array_keys($entityConfig['schemes']) as $schemaName) {
-            try {
-                // data store must be configured properly as well
-                $this->getDataStoreConfigForSchema($schemaName);
-                $names[] = $schemaName;
-            } catch (ConfigurationErrorException $e) {
-                $invalid[] = $schemaName;
-            }
+        $schemaConfigs = array();
+        foreach (\array_keys($entityConfig['schemes']) as $schemaName) {
+            $schemaConfigs[$schemaName] = $this->getSchemaBaseConfig($schemaName);
         }
-        if (!$names && $invalid) {
-            throw new ConfigurationErrorException("All schema configurations are invalid");
-        }
-        if ($invalid) {
-            @trigger_error("WARNING: " . get_class($this) . '#' . $this->entity->getId() . ' contains invalid schema configuration for schemes ' . implode(', ', $invalid), E_USER_DEPRECATED);
-        }
-        return $names;
-    }
-
-    /**
-     * Get a single (default: transformed) schema configuration. Transformed means
-     * * formItems prepared
-     * * featureType string reference resolved to full featureType configuration + featureTypeName entry
-     *
-     * Pass $raw = true to skip prepareItems / dataStore / featureType resolution
-     *
-     * @param string $schemaName
-     * @param bool $raw
-     * @return mixed[]
-     * @throws UnknownSchemaException
-     */
-    protected function getSchemaConfig($schemaName, $raw = false)
-    {
-        if (!array_key_exists($schemaName, $this->schemaConfigs)) {
-            $schemaConfig = $this->getSchemaBaseConfig($schemaName);
-            if (!$raw) {
-                $schemaConfig = $this->prepareSchemaConfig($schemaConfig);
-                // buffer for next invocation
-                $this->schemaConfigs[$schemaName] = $schemaConfig;
-            } else {
-                return $schemaConfig;
-            }
-        }
-        // NOTE: this may return a prepared config with $raw = true, if it was already prepared fully. This should be
-        //       transparent to callers.
-        return $this->schemaConfigs[$schemaName];
+        return $this->getSchemaFilter()->prepareConfigs($schemaConfigs, $this->getDataStoreService());
     }
 
     /**
@@ -426,23 +366,7 @@ class DataManagerElement extends Element
     protected function getDataStoreConfigForSchema($schemaName)
     {
         $schemaConfig = $this->getSchemaBaseConfig($schemaName);
-        $fakeConfig = array();
-        foreach (array('dataStore', 'featureType') as $dsKey) {
-            if (!empty($schemaConfig[$dsKey])) {
-                $fakeConfig['dataStore'] = $schemaConfig[$dsKey];
-            }
-        }
-        $resolved = $this->getSchemaFilter()->resolveDatastoreReferences($fakeConfig, $this->getDataStoreService(), $schemaName);
-        return $resolved['dataStore'];
-    }
-
-    /**
-     * @param mixed[] $rawConfig
-     * @return mixed[]
-     */
-    protected function prepareSchemaConfig($rawConfig)
-    {
-        return $this->getSchemaFilter()->prepareConfig($rawConfig, $this->getDataStoreService());
+        return DataStoreUtil::configFromSchemaConfig($this->getDataStoreService(), $schemaConfig, $schemaName);
     }
 
     /**
@@ -462,11 +386,12 @@ class DataManagerElement extends Element
      */
     protected function resolveDataStoreConfig($value)
     {
-        $fakeConfig = array(
-            'dataStore' => $value,
-        );
-        $resolved = $this->getSchemaFilter()->resolveDataStoreReferences($fakeConfig, $this->getDataStoreService());
-        return $resolved['dataStore'];
+        if (\is_string($value)) {
+            $storeConfigs = DataStoreUtil::getGlobalConfigs($this->getDataStoreService());
+            return $storeConfigs[$value];
+        } else {
+            return $value;
+        }
     }
 
     /**
