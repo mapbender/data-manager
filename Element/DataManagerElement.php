@@ -6,8 +6,8 @@ use Doctrine\DBAL\DBALException;
 use Mapbender\CoreBundle\Component\Element;
 use Mapbender\DataManagerBundle\Component\DataStoreUtil;
 use Mapbender\DataManagerBundle\Component\FormItemFilter;
+use Mapbender\DataManagerBundle\Component\LegacyHttpHandler;
 use Mapbender\DataManagerBundle\Component\SchemaFilterLegacy;
-use Mapbender\DataManagerBundle\Component\Uploader;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
 use Mapbender\DataSourceBundle\Component\DataStore;
@@ -24,6 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DataManagerElement extends Element
 {
+    /** @var LegacyHttpHandler|null */
+    private $httpHandler;
     /** @var SchemaFilterLegacy|null */
     private $schemaFilter;
 
@@ -161,9 +163,8 @@ class DataManagerElement extends Element
             case 'save':
                 return $this->saveAction($request);
             case 'delete':
-                return $this->deleteAction($request);
             case 'file-upload':
-                return $this->fileUploadAction($request);
+                return $this->getHttpHandler()->dispatchRequest($this->entity, $request);
             default:
                 return null;
         }
@@ -185,7 +186,7 @@ class DataManagerElement extends Element
     protected function getSelectActionResponseData(Request $request)
     {
         $schemaName = $request->query->get('schema');
-        $repository = $this->getDataStoreBySchemaName($schemaName);
+        $repository = $this->getSchemaFilter()->getDataStore($this->entity, $schemaName);
         $results = array();
         foreach ($repository->search() as $dataItem) {
             $results[] = $dataItem->toArray();
@@ -215,7 +216,7 @@ class DataManagerElement extends Element
     {
         $itemId = $request->query->get('id', null);
         $schemaName = $request->query->get('schema');
-        $repository = $this->getDataStoreBySchemaName($schemaName);
+        $repository = $this->getSchemaFilter()->getDataStore($this->entity, $schemaName);
         $requestData = json_decode($request->getContent(), true);
         if ($itemId) {
             // update existing item
@@ -231,45 +232,15 @@ class DataManagerElement extends Element
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    protected function deleteAction(Request $request)
-    {
-        $schemaName = $request->query->get('schema');
-        if (!$this->getSchemaFilter()->checkAllowDelete($this->entity, $schemaName)) {
-            return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
-        }
-        $repository = $this->getDataStoreBySchemaName($schemaName);
-        $id = $request->query->get('id');
-        return new JsonResponse($repository->remove($id));
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    protected function fileUploadAction(Request $request)
-    {
-        $schemaName = $request->query->get('schema');
-
-        if (!$this->getSchemaFilter()->checkAllowSave($this->entity, $schemaName, false)) {
-            return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
-        }
-        $repository = $this->getDataStoreBySchemaName($schemaName);
-        return new JsonResponse($this->getUploadHandlerResponseData($repository, $request->query->get('field')));
-    }
-
-    /**
      * @param string $schemaName
      * @return DataStore
      * @throws ConfigurationErrorException
      * @since 1.0.7
+     * @deprecated
      */
     protected function getDataStoreBySchemaName($schemaName)
     {
-        $config = $this->getSchemaFilter()->getDataStoreConfig($this->entity, $schemaName);
-        return DataStoreUtil::storeFromConfig($this->getDataStoreService(), $config);
+        return $this->getSchemaFilter()->getDataStore($this->entity, $schemaName);
     }
 
     /**
@@ -365,47 +336,6 @@ class DataManagerElement extends Element
     }
 
     /**
-     * @param DataStore $store
-     * @param string $fieldName
-     * @return mixed[]
-     * @todo: this is pretty much an exact match of the same logic in digitizer 1.1. Fold.
-     * @todo: Digitizer already has a method uploadFileAction, but it has FeatureType interactions built in and
-     *        returns the response immediately. Cannot safely have a method with incompatible signature.
-     */
-    protected function getUploadHandlerResponseData(DataStore $store, $fieldName)
-    {
-        $uploadHandler = $this->getUploadHandler($store, $fieldName);
-        return $uploadHandler->get_response();
-    }
-
-    /**
-     * @param DataStore $store
-     * @param string $fieldName
-     * @return Uploader
-     */
-    protected function getUploadHandler(DataStore $store, $fieldName)
-    {
-        $uploadDir = $store->getFilePath($fieldName);
-        $uploadUrl = $store->getFileUrl($fieldName) . "/";
-        return new Uploader(array(
-            'upload_dir' => $uploadDir . "/",
-            'upload_url' => $uploadUrl,
-            'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
-            'print_response' => false,
-            'access_control_allow_methods' => array(
-                'OPTIONS',
-                'HEAD',
-                'GET',
-                'POST',
-                'PUT',
-                'PATCH',
-                //                        'DELETE'
-            ),
-            'image_versions' => array('' => array()),
-        ));
-    }
-
-    /**
      * @return DataStoreService
      */
     protected function getDataStoreService()
@@ -413,6 +343,18 @@ class DataManagerElement extends Element
         /** @var DataStoreService $service */
         $service = $this->container->get('mb.data-manager.registry');
         return $service;
+    }
+
+    /**
+     * @return LegacyHttpHandler
+     * @internal
+     */
+    private function getHttpHandler()
+    {
+        if (!$this->httpHandler) {
+            $this->httpHandler = new LegacyHttpHandler($this->getSchemaFilter());
+        }
+        return $this->httpHandler;
     }
 
     /**
