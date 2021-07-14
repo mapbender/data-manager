@@ -187,13 +187,9 @@ class DataManagerElement extends Element
     protected function getSelectActionResponseData(Request $request)
     {
         $schemaName = $request->query->get('schema');
-        $schemaConfig = $this->getSchemaConfig($schemaName, true);
         $repository = $this->getDataStoreBySchemaName($schemaName);
         $results = array();
-        $criteria = array(
-            'maxResults' => $schemaConfig['maxResults'],
-        );
-        foreach ($repository->search($criteria) as $dataItem) {
+        foreach ($repository->search() as $dataItem) {
             $results[] = $dataItem->toArray();
         }
         return $results;
