@@ -5,9 +5,12 @@ namespace Mapbender\DataManagerBundle\Component;
 
 
 use Mapbender\CoreBundle\Entity\Element;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Handler for DataManager http actions NOT modified by inheriting Digitizer
@@ -16,9 +19,13 @@ class BaseHttpHandler
 {
     /** @var SchemaFilter */
     protected $schemaFilter;
+    /** @var FormFactoryInterface */
+    protected $formFactory;
 
-    public function __construct(SchemaFilter $schemaFilter)
+    public function __construct(FormFactoryInterface $formFactory,
+                                SchemaFilter $schemaFilter)
     {
+        $this->formFactory = $formFactory;
         $this->schemaFilter = $schemaFilter;
     }
 
@@ -109,36 +116,52 @@ class BaseHttpHandler
             return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
         }
         $fieldName = $request->query->get('field');
-        // @todo: eliminate blueimp/jqueryfileupload client + server
-        $handler = $this->getUploadHandler($element, $schemaName, $fieldName);
-        return new JsonResponse($handler->get_response());
+
+        $form = $this->formFactory->createNamed('files', 'Symfony\Component\Form\Extension\Core\Type\FileType', null, array(
+            'property_path' => 'files',
+            // @todo: blueimp client cannot disable multiple file supprt; drop if blueimp client removed / possible otherwise
+            'multiple' => true,
+        ));
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid() && $data = $form->getData()) {
+            assert(\is_array($data) && count($data) === 1);
+            // @todo: blueimp client cannot disable multiple file supprt; drop if blueimp client removed / possible otherwise
+            $data = $data[0];
+            $targetDir = $this->schemaFilter->getUploadPath($element, $schemaName, $fieldName);
+            $targetFile = $this->moveUpload($data, $targetDir);
+
+            return new JsonResponse(array('files' => array(array(
+                'url' => $targetDir . '/' . $targetFile->getFilename(),
+                'name' => $targetFile->getFilename(),
+            ))));
+        } else {
+            throw new BadRequestHttpException();
+        }
     }
 
     /**
-     * @param Element $element
-     * @param string $schemaName
-     * @param string $fieldName
-     * @return Uploader
+     * @param UploadedFile $file
+     * @param string $targetDir
+     * @return \Symfony\Component\HttpFoundation\File\File
      */
-    protected function getUploadHandler(Element $element, $schemaName, $fieldName)
+    protected function moveUpload(UploadedFile $file, $targetDir)
     {
-        $uploadDir = $this->schemaFilter->getUploadPath($element, $schemaName, $fieldName);
+        $webDir = \preg_replace('#^(.*?)[\w_]*\.php#i', '$1', $_SERVER['SCRIPT_FILENAME']);
+        $suffix = null;
+        $counter = 1;
+        // Disambiguate
+        $initialName = $name = $file->getClientOriginalName();
+        $fullDir = $webDir . $targetDir;
+        do {
+            $fullPath = "{$fullDir}/{$name}";
+            if (!\file_exists($fullPath)) {
+                break;
+            }
+            $suffix = ".{$counter}";
+            $name = \preg_replace('#(\.\w+)$#i', $suffix . '$1', $initialName);
+            ++$counter;
+        } while (true);
 
-        return new Uploader(array(
-            'upload_dir' => $uploadDir . "/",
-            'upload_url' => $uploadDir . "/",
-            'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
-            'print_response' => false,
-            'access_control_allow_methods' => array(
-                'OPTIONS',
-                'HEAD',
-                'GET',
-                'POST',
-                'PUT',
-                'PATCH',
-                //                        'DELETE'
-            ),
-            'image_versions' => array('' => array()),
-        ));
+        return $file->move($fullDir, $name);
     }
 }

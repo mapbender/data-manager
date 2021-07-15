@@ -10,7 +10,6 @@ use Mapbender\DataManagerBundle\Component\LegacyHttpHandler;
 use Mapbender\DataManagerBundle\Component\SchemaFilterLegacy;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
-use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Component\DataStoreService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -320,7 +319,9 @@ class DataManagerElement extends Element
     private function getHttpHandler()
     {
         if (!$this->httpHandler) {
-            $this->httpHandler = new LegacyHttpHandler($this->getSchemaFilter());
+            /** @var \Symfony\Component\Form\FormFactoryInterface $formFactory */
+            $formFactory = $this->container->get('form.factory');
+            $this->httpHandler = new LegacyHttpHandler($formFactory, $this->getSchemaFilter());
         }
         return $this->httpHandler;
     }
