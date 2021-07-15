@@ -139,7 +139,7 @@
             if (!isValid) {
                 var self = this;
                 // Re-validate once on change, to make error message disappear
-                $input.one('change', function() {
+                $input.one('change input', function() {
                     self.validateInput(input);
                 });
             }
