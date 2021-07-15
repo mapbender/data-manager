@@ -238,7 +238,7 @@
                 });
             });
         },
-        updateFileInputs: function(scope, values, fileConfigs) {
+        updateFileInputs: function(scope, values) {
             var fileInputs = $('.fileinput-button input[name]', scope).get();
             var dataImages = $('img[data-preview-for]', scope).get();
             var i;
@@ -248,23 +248,16 @@
                 if (displayValue) {
                     var $group = fileInput.closest('.form-group');
                     $('.upload-button-text', $group).text(displayValue);
-                    $('.upload-button', $group).attr('title', displayValue);
+                    $('.btn', $group).attr('title', displayValue);
                 }
             }
 
             for (i = 0; i < dataImages.length; ++i) {
                 var $img = $(dataImages[i]);
                 var dataProp = $img.attr('data-preview-for');
-                var fileConfig = fileConfigs.filter(function(x) {
-                    return x.field === dataProp;
-                })[0];
-
                 var value = values[dataProp];
                 if (value) {
                     if (!/^(http[s]?)?:?\/\//.test(value || '')) {
-                        if (fileConfig && fileConfig.uri) {
-                            value = [fileConfig.uri, value].join('/');
-                        }
                         $img.attr('src', Mapbender.configuration.application.urls.asset + value);
                     } else {
                         $img.attr('src', value || '');
