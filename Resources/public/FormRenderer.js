@@ -211,6 +211,7 @@
                     $(this).select2($select.data('select2-options') || {});
                 });
             }
+            var self = this;
             $('input[type="file"][data-upload-url][data-name]', scope).each(function() {
                 var $input = $(this);
                 var name = $input.attr('data-name');
@@ -226,14 +227,10 @@
                     },
                     success: function(response) {
                         var fileInfo = response.files && response.files[0];
-                        var $previewImage = $('img[data-preview-for="' + name + '"]', $group.closest('.ui-dialog'));
-                        $('.progress-bar', $group).css('width', '0');
-                        $previewImage.attr('src', [Mapbender.configuration.application.urls.asset, fileInfo.url].join(''));
-                        if (fileInfo.name) {
-                            $('.upload-button-text', $group).text(fileInfo.name);
-                            $('.btn', $group).attr('title', fileInfo.name);
-                        }
+                        var values = {};
+                        values[name] = fileInfo.name;
                         $realInput.val(fileInfo.url);
+                        self.updateFileInputs(scope, values);
                     }
                 });
             });
