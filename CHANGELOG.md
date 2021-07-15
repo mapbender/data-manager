@@ -1,3 +1,21 @@
+# dev-master @ 74cbcb8 (1.2.x WIP)
+* Fix broken vertical alignment of "fieldSet" children when displaying validation errors
+* Fix form validation message not displaying when field not in currently active tab
+* Fix copy to clipboard for multi-select
+* Fix multi-select layout break / lack of growth when resizing form dialog
+* Fix form dialog file upload buttons not reflecting already stored values
+* Fix initial poor preview quality of uploaded images
+* Fix non-portable persisted urls for file uploads (previously included http schema + host name)
+* Fix revalidation of text inputs with input errors happening only after removing field focus
+* Add "readonly" input setting
+* Decouple / remove deprecated vis-ui.js dependency for Composer 2 compatibility
+* Decouple / remove dependency on outdated blueimp server-side upload handling
+* Strictness: Throw an exception if a schema references an undefined dataStore / featureType
+* Strictness: Detect dataStore / featureType reference cycles and throw an exception
+* Strictness: throw exception if dataStore / featureType configures an (client inaccessible) absolute upload path ("uri" / "path"); use web-relative paths only
+* Add more client-side (console) warnings about legacy / ambiguous `formItems` contents
+* Drop support for file uploads on IE <= 10
+
 # 1.1.9
 - Fix incomplete client-side configuration for central "dataStore" / "featureType" referenced by name
 
