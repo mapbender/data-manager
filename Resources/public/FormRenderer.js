@@ -15,15 +15,17 @@
         ].join('|'),
         ')$/'
     ].join(''));
-
-    var browserSupportsHtml5Date = (function() {
-        // detect support for HTML5 date input; see https://stackoverflow.com/a/10199306
-        var dateInput = document.createElement('input');
-        var invalidDate = 'not-a-date';
-        dateInput.setAttribute('type', 'date');
-        dateInput.setAttribute('value', invalidDate);
-        return dateInput.value !== invalidDate;
-    })();
+    var browserNativeInputs = {
+        date: (function() {
+                // detect support for HTML5 date input; see https://stackoverflow.com/a/10199306
+                var dateInput = document.createElement('input');
+                var invalidDate = 'not-a-date';
+                dateInput.setAttribute('type', 'date');
+                dateInput.setAttribute('value', invalidDate);
+                return dateInput.value !== invalidDate;
+            })()
+        // @todo: native color input
+    };
 
     /**
      * @param {String} expr
@@ -283,7 +285,8 @@
             return this.wrapInput_($input, settings);
         },
         handle_date_: function(settings) {
-            var type = browserSupportsHtml5Date && 'date' || 'text';
+            var native = browserNativeInputs.date;
+            var type = native && 'date' || 'text';
             var $input = this.textInput_(settings, type);
             if (settings.required || settings.mandatory) {
                 var now = new Date();
@@ -291,7 +294,7 @@
                 $input.val(defaultValue);
             }
             var $wrapper = this.wrapInput_($input, settings);
-            if (!browserSupportsHtml5Date) {
+            if (!native) {
                 $input.addClass('-js-datepicker');
             }
             return $wrapper;
