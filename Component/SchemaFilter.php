@@ -42,7 +42,6 @@ class SchemaFilter
             'allowRefresh' => false,
             'allowCreate' => true,
             'allowDelete' => true,
-            'maxResults' => 5000,
             'popup' => array(
                 'width' => '550px',
             ),
