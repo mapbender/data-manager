@@ -97,7 +97,12 @@ class BaseHttpHandler
         $schemaName = $request->query->get('schema');
         $repository = $this->schemaFilter->getDataStore($element, $schemaName);
         $results = array();
-        foreach ($repository->search() as $dataItem) {
+        $criteria = array();
+        $schemaConfig = $this->schemaFilter->getRawSchemaConfig($element, $schemaName, true);
+        if (!empty($schemaConfig['maxResults'])) {
+            $criteria['maxResults'] = $schemaConfig['maxResults'];
+        }
+        foreach ($repository->search($criteria) as $dataItem) {
             $results[] = $dataItem->toArray();
         }
         return $results;
