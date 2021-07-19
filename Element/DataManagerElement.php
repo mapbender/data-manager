@@ -335,6 +335,7 @@ class DataManagerElement extends Element
             /** @var FormItemFilter $formItemFilter */
             $formItemFilter = $this->container->get('mb.data-manager.form_item_filter');
             $this->schemaFilter = new SchemaFilterLegacy($this->getDataStoreService(), $formItemFilter, $uploadsBasePath);
+            $this->schemaFilter->setSchemaConfigDefaults($this->getSchemaConfigDefaults());
         }
         return $this->schemaFilter;
     }

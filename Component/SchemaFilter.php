@@ -18,6 +18,11 @@ class SchemaFilter
     /** @var string */
     protected $uploadsBasePath;
 
+    /**
+     * @param DataStoreService $registry
+     * @param FormItemFilter $formItemFilter
+     * @param string $uploadsBasePath
+     */
     public function __construct(DataStoreService $registry,
                                 FormItemFilter $formItemFilter,
                                 $uploadsBasePath)
@@ -25,7 +30,6 @@ class SchemaFilter
         $this->registry = $registry;
         $this->formItemFilter = $formItemFilter;
         $this->uploadsBasePath = trim($uploadsBasePath, '/\\');
-
     }
 
     /**
@@ -86,8 +90,17 @@ class SchemaFilter
      */
     public function checkAllowDelete(Element $element, $schemaName)
     {
-        $baseConfig = $this->getRawSchemaConfig($element, $schemaName, true);
-        return !empty($baseConfig['allowDelete']);
+        $schemaConfig = $this->getRawSchemaConfig($element, $schemaName, true);
+        return $this->checkAllowDeleteInternal($schemaConfig);
+    }
+
+    /**
+     * @param array $schemaConfig
+     * @return boolean
+     */
+    protected function checkAllowDeleteInternal(array $schemaConfig)
+    {
+        return !empty($schemaConfig['allowDelete']);
     }
 
     /**
@@ -98,12 +111,22 @@ class SchemaFilter
      */
     public function checkAllowSave(Element $element, $schemaName, $isNew)
     {
-        $baseConfig = $this->getRawSchemaConfig($element, $schemaName, true);
-        if (!$isNew || !\array_key_exists('allowCreate', $baseConfig)) {
+        $schemaConfig = $this->getRawSchemaConfig($element, $schemaName, true);
+        return $this->checkAllowSaveInternal($schemaConfig, $isNew);
+    }
+
+    /**
+     * @param array $schemaConfig
+     * @param boolean $isNew
+     * @return boolean
+     */
+    protected function checkAllowSaveInternal(array $schemaConfig, $isNew)
+    {
+        if (!$isNew || !\array_key_exists('allowCreate', $schemaConfig)) {
             // "allowEditData": Digitizer quirk
-            return !empty($baseConfig['allowEdit']) || !empty($baseConfig['allowEditData']);
+            return !empty($schemaConfig['allowEdit']) || !empty($schemaConfig['allowEditData']);
         } else {
-            return !empty($baseConfig['allowCreate']);
+            return !empty($schemaConfig['allowCreate']);
         }
     }
 
