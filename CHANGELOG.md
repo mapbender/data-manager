@@ -1,4 +1,4 @@
-# dev-master @ 74cbcb8 (1.2.x WIP)
+# dev-master @ d08360a (1.2.x WIP)
 * Fix broken vertical alignment of "fieldSet" children when displaying validation errors
 * Fix form validation message not displaying when field not in currently active tab
 * Fix copy to clipboard for multi-select
@@ -15,6 +15,7 @@
 * Strictness: throw exception if dataStore / featureType configures an (client inaccessible) absolute upload path ("uri" / "path"); use web-relative paths only
 * Add more client-side (console) warnings about legacy / ambiguous `formItems` contents
 * Drop support for file uploads on IE <= 10
+* Misc preparatory restructuring for Mapbender Symfony 4 compatibility
 
 # 1.1.9
 - Fix incomplete client-side configuration for central "dataStore" / "featureType" referenced by name
