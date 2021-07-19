@@ -8,6 +8,7 @@
 * Fix non-portable persisted urls for file uploads (previously included http schema + host name)
 * Fix revalidation of text inputs with input errors happening only after removing field focus
 * Add "readonly" input setting
+* Make per-schema `maxResults` setting optional (removes hard-coded 5000 rows limit)
 * Decouple / remove deprecated vis-ui.js dependency for Composer 2 compatibility
 * Decouple / remove dependency on outdated blueimp server-side upload handling
 * Strictness: Throw an exception if a schema references an undefined dataStore / featureType
