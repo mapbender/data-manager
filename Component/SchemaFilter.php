@@ -99,7 +99,7 @@ class SchemaFilter
     public function checkAllowSave(Element $element, $schemaName, $isNew)
     {
         $baseConfig = $this->getRawSchemaConfig($element, $schemaName, true);
-        if ($isNew || !\array_key_exists('allowCreate', $baseConfig)) {
+        if (!$isNew || !\array_key_exists('allowCreate', $baseConfig)) {
             // "allowEditData": Digitizer quirk
             return !empty($baseConfig['allowEdit']) || !empty($baseConfig['allowEditData']);
         } else {
