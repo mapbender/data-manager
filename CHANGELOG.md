@@ -1,4 +1,4 @@
-# dev-master @ d08360a (1.2.x WIP)
+# 1.2.0
 * Fix broken vertical alignment of "fieldSet" children when displaying validation errors
 * Fix form validation message not displaying when field not in currently active tab
 * Fix copy to clipboard for multi-select
@@ -14,6 +14,9 @@
 * Strictness: Detect dataStore / featureType reference cycles and throw an exception
 * Strictness: throw exception if dataStore / featureType configures an (client inaccessible) absolute upload path ("uri" / "path"); use web-relative paths only
 * Add more client-side (console) warnings about legacy / ambiguous `formItems` contents
+* Change allowEdit default false => true (match Digitizer; match own allowCreate / allowDelete default)
+* Drop support for "service" select option configuration subtype (impossible with Symfony 4; use sql or statically predefined options if possible; use custom project code otherwise)
+* Drop support for "dataStore" / "featureType" select option configuration subtype select options (use sql)
 * Drop support for file uploads on IE <= 10
 * Misc preparatory restructuring for Mapbender Symfony 4 compatibility
 
