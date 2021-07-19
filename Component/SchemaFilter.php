@@ -6,6 +6,7 @@ namespace Mapbender\DataManagerBundle\Component;
 
 use Mapbender\CoreBundle\Entity\Element;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
+use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
 use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Component\DataStoreService;
 
@@ -159,10 +160,16 @@ class SchemaFilter
      * @param bool $addDefaults
      * @return mixed[]
      */
-    protected function getRawSchemaConfig(Element $element, $schemaName, $addDefaults = false)
+    public function getRawSchemaConfig(Element $element, $schemaName, $addDefaults = false)
     {
         $elementConfig = $element->getConfiguration();
         $rawSchemaConfig = $elementConfig['schemes'][$schemaName];
+        if (empty($elementConfig['schemes'])) {
+            throw new ConfigurationErrorException("Schema configuration completely empty");
+        }
+        if (empty($elementConfig['schemes'][$schemaName])) {
+            throw new UnknownSchemaException("No such schema " . print_r($schemaName, true));
+        }
         if ($addDefaults) {
             $rawSchemaConfig += $this->getConfigDefaults();
         }

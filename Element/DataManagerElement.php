@@ -218,9 +218,6 @@ class DataManagerElement extends Element
     protected function getSchemaConfigs()
     {
         $entityConfig = $this->entity->getConfiguration();
-        if (empty($entityConfig['schemes'])) {
-            throw new ConfigurationErrorException("Schema configuration completely empty");
-        }
         $schemaConfigs = array();
         foreach (\array_keys($entityConfig['schemes']) as $schemaName) {
             $schemaConfigs[$schemaName] = $this->getSchemaBaseConfig($schemaName);
@@ -240,14 +237,8 @@ class DataManagerElement extends Element
      */
     protected function getSchemaBaseConfig($schemaName)
     {
-        $entityConfig = $this->entity->getConfiguration() + array(
-            'schemes' => array(),
-        );
-        if (empty($entityConfig['schemes'][$schemaName])) {
-            throw new UnknownSchemaException("No such schema " . print_r($schemaName, true));
-        }
+        $rawConfig = $this->getSchemaFilter()->getRawSchemaConfig($this->entity, $schemaName, false);
         $defaults = $this->getSchemaConfigDefaults();
-        $rawConfig = $entityConfig['schemes'][$schemaName];
         $schemaConfig = array_replace($defaults, $rawConfig);
         // always guarantee "schemaName" and "label" properties, even with $raw = true
         $schemaConfig['schemaName'] = $schemaName;
