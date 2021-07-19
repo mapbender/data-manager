@@ -38,7 +38,7 @@ class SchemaFilter
     public static function getConfigDefaults()
     {
         return array(
-            'allowEdit' => false,
+            'allowEdit' => true,
             'allowRefresh' => false,
             'allowCreate' => true,
             'allowDelete' => true,
