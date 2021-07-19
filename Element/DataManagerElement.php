@@ -458,7 +458,7 @@ class DataManagerElement extends BaseElement
     protected function getSchemaConfigDefaults()
     {
         return array(
-            'allowEdit' => false,
+            'allowEdit' => true,
             'allowRefresh' => false,
             'fileUri' => $this->getDefaultUploadsPath(),
             'allowCreate' => true,
