@@ -226,10 +226,9 @@
                         $('.progress-bar', $group).css('width', [progressPct, '%'].join(''));
                     },
                     success: function(response) {
-                        var fileInfo = response.files && response.files[0];
                         var values = {};
-                        values[name] = fileInfo.name;
-                        $realInput.val(fileInfo.url);
+                        values[name] = response.url;
+                        $realInput.val(response.url);
                         self.updateFileInputs(scope, values);
                     }
                 });

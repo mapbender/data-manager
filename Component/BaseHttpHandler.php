@@ -135,10 +135,9 @@ class BaseHttpHandler
             $targetDir = $this->schemaFilter->getUploadPath($element, $schemaName, $fieldName);
             $targetFile = $this->moveUpload($data, $targetDir);
 
-            return new JsonResponse(array('files' => array(array(
+            return new JsonResponse(array(
                 'url' => $targetDir . '/' . $targetFile->getFilename(),
-                'name' => $targetFile->getFilename(),
-            ))));
+            ));
         } else {
             throw new BadRequestHttpException();
         }
