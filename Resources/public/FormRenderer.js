@@ -218,18 +218,21 @@
                 var $group = $input.closest('.form-group');
                 var $realInput = $('input[name="' + name + '"]', $group);
                 var url = $input.attr('data-upload-url');
+                var $loadingIcon = $('.fa-spin', $group);
                 $input.fileupload({
                     dataType: 'json',
                     url: url,
-                    progressall: function(evt, data) {
-                        var progressPct = parseInt(data.loaded / data.total * 100, 10);
-                        $('.progress-bar', $group).css('width', [progressPct, '%'].join(''));
-                    },
                     success: function(response) {
                         var values = {};
                         values[name] = response.url;
                         $realInput.val(response.url);
                         self.updateFileInputs(scope, values);
+                    },
+                    send: function() {
+                        $loadingIcon.removeClass('hidden');
+                    },
+                    always: function() {
+                        $loadingIcon.addClass('hidden');
                     }
                 });
             });
@@ -324,7 +327,7 @@
             ;
             var $group = $(document.createElement('div'))
                 .append($btn)
-                .append('<div class="progress-bar"/>')
+                .append('<i class="fa fas fa-fw fa-spinner fa-spin hidden" />')
             ;
             return this.wrapInput_($group, settings);
         },
