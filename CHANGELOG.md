@@ -1,3 +1,8 @@
+# 1.2.1
+* Fix upload preview image broken on new upload, before saving
+* Fix progress bar remaining visible after upload (replace with spinner icon)
+* Display null database values as empty string in table
+
 # 1.2.0
 * Fix broken vertical alignment of "fieldSet" children when displaying validation errors
 * Fix form validation message not displaying when field not in currently active tab
