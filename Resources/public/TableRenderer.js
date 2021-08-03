@@ -188,15 +188,16 @@
                     fieldName: fieldSettings.data,  // why?
                     render: function(data, type, row) {
                         var rowData = self.owner._getItemData(schema, row);
+                        var cellValue = rowData[fieldSettings.data];
                         switch (type) {
                             case 'sort':
                             case 'type':
                             default:
-                                return rowData[fieldSettings.data];
+                                return cellValue;
                             case 'filter':
-                                return ('' + rowData[fieldSettings.data]) || '';
+                                return ('' + cellValue) || '';
                             case 'display':
-                                return escapeHtml('' + rowData[fieldSettings.data]);
+                                return cellValue !== null ? escapeHtml('' + cellValue) : '';
                         }
                     }
                 });
