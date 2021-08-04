@@ -6,8 +6,8 @@ namespace Mapbender\DataManagerBundle\Component;
 
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataSourceBundle\Component\DataStore;
-use Mapbender\DataSourceBundle\Component\DataStoreService;
-use Mapbender\DataSourceBundle\Component\FeatureTypeService;
+use Mapbender\DataSourceBundle\Component\FeatureType;
+use Mapbender\DataSourceBundle\Component\RepositoryRegistry;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -17,44 +17,34 @@ use Symfony\Component\Filesystem\Filesystem;
 class DataStoreUtil
 {
     /**
-     * @param DataStoreService $registry
+     * @param RepositoryRegistry $registry
      * @return mixed[][]
      */
-    public static function getGlobalConfigs(DataStoreService $registry)
+    public static function getGlobalConfigs(RepositoryRegistry $registry)
     {
-        if ($registry instanceof FeatureTypeService) {
-            /** @todo data-source: use the same method name! */
-            return $registry->getFeatureTypeDeclarations() ?: array();
-        } else {
-            return $registry->getDataStoreDeclarations() ?: array();
-        }
+        return $registry->getDataStoreDeclarations() ?: array();
     }
 
     /**
      * @param array $config
-     * @param DataStoreService|null $registry
+     * @param RepositoryRegistry|null $registry
      * @return DataStore
      */
-    public static function storeFromConfig(DataStoreService $registry, array $config)
+    public static function storeFromConfig(RepositoryRegistry $registry, array $config)
     {
-        if ($registry instanceof FeatureTypeService) {
-            /** @todo data-source: use the same method name! */
-            return $registry->featureTypeFactory($config);
-        } else {
-            return $registry->dataStoreFactory($config);
-        }
+        return $registry->dataStoreFactory($config);
     }
 
     /**
      * Merges and reference-expands all dataStore / featureType configs
      * from DataStoreService global config plus passed-in schema configs.
      *
-     * @param DataStoreService $registry
+     * @param RepositoryRegistry $registry
      * @param array $schemaConfigs
      * @return mixed[][]
      * @throws ConfigurationErrorException
      */
-    public static function configsFromSchemaConfigs(DataStoreService $registry, array $schemaConfigs)
+    public static function configsFromSchemaConfigs(RepositoryRegistry $registry, array $schemaConfigs)
     {
         $merged = $globalConfigs = static::getGlobalConfigs($registry);
         foreach ($schemaConfigs as $schemaName => $schemaConfig) {
@@ -152,19 +142,19 @@ class DataStoreUtil
     }
 
     /**
-     * @param DataStoreService $registry
+     * @param RepositoryRegistry $registry
      * @param mixed[] $storeConfig
      * @param string $basePath
      * @param string $fieldName
      * @return string
      */
-    public static function getUploadPath(DataStoreService $registry, $storeConfig, $basePath, $fieldName)
+    public static function getUploadPath(RepositoryRegistry $registry, $storeConfig, $basePath, $fieldName)
     {
         $overrides = DataStoreUtil::getFileConfigOverrides($storeConfig);
         if (!empty($overrides[$fieldName]['path'])) {
             return $overrides[$fieldName]['path'];
         } else {
-            if ($registry instanceof FeatureTypeService) {
+            if (($registry->dataStoreFactory($storeConfig)) instanceof FeatureType) {
                 $path = 'featureTypes';
             } else {
                 $path = 'ds-uploads';
