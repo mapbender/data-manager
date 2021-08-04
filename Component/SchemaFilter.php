@@ -8,11 +8,11 @@ use Mapbender\CoreBundle\Entity\Element;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
 use Mapbender\DataSourceBundle\Component\DataStore;
-use Mapbender\DataSourceBundle\Component\DataStoreService;
+use Mapbender\DataSourceBundle\Component\RepositoryRegistry;
 
 class SchemaFilter
 {
-    /** @var DataStoreService */
+    /** @var RepositoryRegistry */
     protected $registry;
     /** @var FormItemFilter */
     protected $formItemFilter;
@@ -20,11 +20,11 @@ class SchemaFilter
     protected $uploadsBasePath;
 
     /**
-     * @param DataStoreService $registry
+     * @param RepositoryRegistry $registry
      * @param FormItemFilter $formItemFilter
      * @param string $uploadsBasePath
      */
-    public function __construct(DataStoreService $registry,
+    public function __construct(RepositoryRegistry $registry,
                                 FormItemFilter $formItemFilter,
                                 $uploadsBasePath)
     {

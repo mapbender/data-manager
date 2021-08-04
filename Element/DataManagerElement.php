@@ -10,7 +10,7 @@ use Mapbender\DataManagerBundle\Component\LegacyHttpHandler;
 use Mapbender\DataManagerBundle\Component\SchemaFilterLegacy;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
-use Mapbender\DataSourceBundle\Component\DataStoreService;
+use Mapbender\DataSourceBundle\Component\RepositoryRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -293,11 +293,11 @@ class DataManagerElement extends Element
     }
 
     /**
-     * @return DataStoreService
+     * @return RepositoryRegistry
      */
     protected function getDataStoreService()
     {
-        /** @var DataStoreService $service */
+        /** @var RepositoryRegistry $service */
         $service = $this->container->get('mb.data-manager.registry');
         return $service;
     }
