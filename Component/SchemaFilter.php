@@ -163,13 +163,13 @@ class SchemaFilter
     public function getRawSchemaConfig(Element $element, $schemaName, $addDefaults = false)
     {
         $elementConfig = $element->getConfiguration();
-        $rawSchemaConfig = $elementConfig['schemes'][$schemaName];
         if (empty($elementConfig['schemes'])) {
             throw new ConfigurationErrorException("Schema configuration completely empty");
         }
         if (empty($elementConfig['schemes'][$schemaName])) {
             throw new UnknownSchemaException("No such schema " . print_r($schemaName, true));
         }
+        $rawSchemaConfig = $elementConfig['schemes'][$schemaName];
         if ($addDefaults) {
             $rawSchemaConfig += $this->getConfigDefaults();
         }
