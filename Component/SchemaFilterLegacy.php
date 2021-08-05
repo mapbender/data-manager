@@ -10,6 +10,7 @@ use Mapbender\CoreBundle\Entity\Element;
  * Public access extension for legacy DataManagerElement / inheriting Digitizer
  *
  * @todo: drop this class (breaks DataManagerElement; breaks Digitizer <= 1.4.10)
+ * @deprecated
  */
 class SchemaFilterLegacy extends SchemaFilter
 {

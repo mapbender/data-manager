@@ -14,6 +14,7 @@ use Mapbender\CoreBundle\Entity\Element;
  * Digitizer.
  *
  * @todo: remove DataManagerElement and this class (breaks Digitizer <= 1.4.10; requires Mapbender >= 3.2.6)
+ * @deprecated
  */
 class DataManagerLegacyBridge extends DataManagerBase
 {

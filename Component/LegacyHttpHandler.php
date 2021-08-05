@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  * integration.
  *
  * @todo: drop this class (breaks DataManagerElement; breaks Digitizer <= 1.4.10)
+ * @deprecated
  */
 class LegacyHttpHandler extends BaseHttpHandler
 {
