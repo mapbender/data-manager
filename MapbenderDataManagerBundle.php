@@ -19,9 +19,13 @@ class MapbenderDataManagerBundle extends MapbenderBundle
      */
     public function getElements()
     {
-        return array(
-            'Mapbender\DataManagerBundle\Element\DataManagerElement',
-        );
+        if ($this->useService()) {
+            return array();
+        } else {
+            return array(
+                'Mapbender\DataManagerBundle\Element\DataManagerElement',
+            );
+        }
     }
 
     public function build(ContainerBuilder $container)
@@ -31,5 +35,19 @@ class MapbenderDataManagerBundle extends MapbenderBundle
         $loader = new XmlFileLoader($container, $configLocator);
         $loader->load('services.xml');
         $container->addResource(new FileResource($loader->getLocator()->locate('services.xml')));
+        if ($this->useService()) {
+            $loader->load('elements.xml');
+            $container->addResource(new FileResource($loader->getLocator()->locate('elements.xml')));
+        }
+    }
+
+    protected static function useService()
+    {
+        try {
+            return \class_exists('\Mapbender\Component\Element\AbstractElementService');
+        } catch (\ErrorException $e) {
+            // Thrown by Symfony 3+ debug class loader
+            return false;
+        }
     }
 }
