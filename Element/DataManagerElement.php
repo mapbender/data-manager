@@ -4,6 +4,8 @@ namespace Mapbender\DataManagerBundle\Element;
 
 use Doctrine\DBAL\DBALException;
 use Mapbender\CoreBundle\Component\Element;
+use Mapbender\DataManagerBundle\Component\DataManagerBase;
+use Mapbender\DataManagerBundle\Component\DataManagerLegacyBridge;
 use Mapbender\DataManagerBundle\Component\DataStoreUtil;
 use Mapbender\DataManagerBundle\Component\FormItemFilter;
 use Mapbender\DataManagerBundle\Component\LegacyHttpHandler;
@@ -23,18 +25,15 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DataManagerElement extends Element
 {
-    /** @var LegacyHttpHandler|null */
-    private $httpHandler;
-    /** @var SchemaFilterLegacy|null */
-    private $schemaFilter;
+    /** @var DataManagerLegacyBridge|null */
+    private $bridge;
 
     /**
      * @inheritdoc
      */
     public static function getClassTitle()
     {
-        // @todo: translations
-        return "Data manager";
+        return DataManagerBase::getClassTitle();
     }
 
     /**
@@ -42,8 +41,7 @@ class DataManagerElement extends Element
      */
     public static function getClassDescription()
     {
-        // @todo: translations
-        return "Data manager element";
+        return DataManagerBase::getClassDescription();
     }
 
     /**
@@ -51,7 +49,7 @@ class DataManagerElement extends Element
      */
     public function getWidgetName()
     {
-        return 'mapbender.mbDataManager';
+        return $this->getBridge()->getWidgetName($this->entity);
     }
 
     /**
@@ -59,9 +57,7 @@ class DataManagerElement extends Element
      */
     public static function getDefaultConfiguration()
     {
-        return array(
-            'schemes' => null,
-        );
+        return DataManagerBase::getDefaultConfiguration();
     }
 
     /**
@@ -69,7 +65,7 @@ class DataManagerElement extends Element
      */
     public static function getType()
     {
-        return 'Mapbender\DataManagerBundle\Element\Type\DataManagerAdminType';
+        return DataManagerBase::getType();
     }
 
     /**
@@ -77,7 +73,7 @@ class DataManagerElement extends Element
      */
     public static function getFormTemplate()
     {
-        return 'MapbenderDataManagerBundle:ElementAdmin:dataManager.html.twig';
+        return DataManagerBase::getFormTemplate();
     }
 
     public function getFrontendTemplatePath($suffix = '.html.twig')
@@ -97,23 +93,7 @@ class DataManagerElement extends Element
      */
     public function getAssets()
     {
-        return array(
-            'css' => array(
-                '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
-            ),
-            'js' => array(
-                '@MapbenderDataManagerBundle/Resources/public/FormRenderer.js',
-                '@MapbenderDataManagerBundle/Resources/public/FormUtil.js',
-                '@MapbenderDataManagerBundle/Resources/public/DialogFactory.js',
-                '../../vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js',
-                '@MapbenderDataManagerBundle/Resources/public/TableRenderer.js',
-                '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
-            ),
-            'trans' => array(
-                'mb.data-manager.*',
-                'mb.data.store.*',  // legacy quirk: this is in our translation catalogs
-            ),
-        );
+        return $this->getBridge()->getRequiredAssets($this->entity);
     }
 
     /**
@@ -293,6 +273,29 @@ class DataManagerElement extends Element
     }
 
     /**
+     * @return DataManagerLegacyBridge
+     */
+    private function getBridge()
+    {
+        if (!$this->bridge) {
+            $uploadsBasePath = $this->container->getParameter('mapbender.uploads_dir');
+            $registry = $this->getDataStoreService();
+            /** @var FormItemFilter $formItemFilter */
+            $formItemFilter = $this->container->get('mb.data-manager.form_item_filter');
+            $schemaFilter = new SchemaFilterLegacy($registry, $formItemFilter, $uploadsBasePath);
+
+            /** @var \Symfony\Component\Form\FormFactoryInterface $formFactory */
+            $formFactory = $this->container->get('form.factory');
+            $httpHandler = new LegacyHttpHandler($formFactory, $schemaFilter);
+
+            // Initialize first (avoid infinite recursion from getSchemaConfigDefaults
+            $this->bridge = new DataManagerLegacyBridge($registry, $schemaFilter, $httpHandler);
+            $this->bridge->getSchemaFilter()->setSchemaConfigDefaults($this->getSchemaConfigDefaults());
+        }
+        return $this->bridge;
+    }
+
+    /**
      * @return RepositoryRegistry
      */
     protected function getDataStoreService()
@@ -308,12 +311,7 @@ class DataManagerElement extends Element
      */
     private function getHttpHandler()
     {
-        if (!$this->httpHandler) {
-            /** @var \Symfony\Component\Form\FormFactoryInterface $formFactory */
-            $formFactory = $this->container->get('form.factory');
-            $this->httpHandler = new LegacyHttpHandler($formFactory, $this->getSchemaFilter());
-        }
-        return $this->httpHandler;
+        return $this->getBridge()->getHttpHandler($this->entity);
     }
 
     /**
@@ -321,13 +319,6 @@ class DataManagerElement extends Element
      */
     private function getSchemaFilter()
     {
-        if (!$this->schemaFilter) {
-            $uploadsBasePath = $this->container->getParameter('mapbender.uploads_dir');
-            /** @var FormItemFilter $formItemFilter */
-            $formItemFilter = $this->container->get('mb.data-manager.form_item_filter');
-            $this->schemaFilter = new SchemaFilterLegacy($this->getDataStoreService(), $formItemFilter, $uploadsBasePath);
-            $this->schemaFilter->setSchemaConfigDefaults($this->getSchemaConfigDefaults());
-        }
-        return $this->schemaFilter;
+        return $this->getBridge()->getSchemaFilter();
     }
 }
