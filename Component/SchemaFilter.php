@@ -151,7 +151,7 @@ class SchemaFilter
     public function getDataStore(Element $element, $schemaName)
     {
         $config = $this->getDataStoreConfig($element, $schemaName);
-        return DataStoreUtil::storeFromConfig($this->registry, $config);
+        return $this->registry->dataStoreFactory($config);
     }
 
     /**

@@ -253,7 +253,7 @@ class DataManagerElement extends Element
     protected function resolveDataStoreConfig($value)
     {
         if (\is_string($value)) {
-            $storeConfigs = DataStoreUtil::getGlobalConfigs($this->getDataStoreService());
+            $storeConfigs = $this->getDataStoreService()->getDataStoreDeclarations();
             return $storeConfigs[$value];
         } else {
             return $value;

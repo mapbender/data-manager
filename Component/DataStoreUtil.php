@@ -5,7 +5,6 @@ namespace Mapbender\DataManagerBundle\Component;
 
 
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
-use Mapbender\DataSourceBundle\Component\DataStore;
 use Mapbender\DataSourceBundle\Component\FeatureType;
 use Mapbender\DataSourceBundle\Component\RepositoryRegistry;
 use Symfony\Component\Filesystem\Filesystem;
@@ -17,25 +16,6 @@ use Symfony\Component\Filesystem\Filesystem;
 class DataStoreUtil
 {
     /**
-     * @param RepositoryRegistry $registry
-     * @return mixed[][]
-     */
-    public static function getGlobalConfigs(RepositoryRegistry $registry)
-    {
-        return $registry->getDataStoreDeclarations() ?: array();
-    }
-
-    /**
-     * @param array $config
-     * @param RepositoryRegistry|null $registry
-     * @return DataStore
-     */
-    public static function storeFromConfig(RepositoryRegistry $registry, array $config)
-    {
-        return $registry->dataStoreFactory($config);
-    }
-
-    /**
      * Merges and reference-expands all dataStore / featureType configs
      * from DataStoreService global config plus passed-in schema configs.
      *
@@ -46,7 +26,7 @@ class DataStoreUtil
      */
     public static function configsFromSchemaConfigs(RepositoryRegistry $registry, array $schemaConfigs)
     {
-        $merged = $globalConfigs = static::getGlobalConfigs($registry);
+        $merged = $registry->getDataStoreDeclarations() ?: array();
         foreach ($schemaConfigs as $schemaName => $schemaConfig) {
             foreach (array('dataStore', 'featureType') as $dsKey) {
                 if (!empty($schemaConfig[$dsKey])) {
