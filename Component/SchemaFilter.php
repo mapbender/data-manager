@@ -8,6 +8,7 @@ use Mapbender\CoreBundle\Entity\Element;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
 use Mapbender\DataSourceBundle\Component\DataStore;
+use Mapbender\DataSourceBundle\Component\FeatureType;
 use Mapbender\DataSourceBundle\Component\RepositoryRegistry;
 
 class SchemaFilter
@@ -18,6 +19,8 @@ class SchemaFilter
     protected $formItemFilter;
     /** @var string */
     protected $uploadsBasePath;
+    /** @var boolean|null lazy-init */
+    protected $isFeatureTypeRegistry;
 
     /**
      * @param RepositoryRegistry $registry
@@ -187,7 +190,17 @@ class SchemaFilter
     public function getUploadPath(Element $element, $schemaName, $fieldName)
     {
         $storeConfig = $this->getDataStoreConfig($element, $schemaName);
-        return DataStoreUtil::getUploadPath($this->registry, $storeConfig, $this->uploadsBasePath, $fieldName);
+        $overrides = DataStoreUtil::getFileConfigOverrides($storeConfig);
+        if (!empty($overrides[$fieldName]['path'])) {
+            return $overrides[$fieldName]['path'];
+        } else {
+            $path = $this->getExtendedUploadsBasePath($storeConfig);
+            if (!empty($storeConfig['table'])) {
+                $path = "{$path}/{$storeConfig['table']}";
+            }
+            $path ="{$path}/{$fieldName}";
+            return $path;
+        }
     }
 
     /**
@@ -211,5 +224,13 @@ class SchemaFilter
             $schemaConfig['table'] = array_replace($defaults['table'], $rawConfig['table']);
         }
         return $schemaConfig;
+    }
+
+    protected function getExtendedUploadsBasePath($storeConfig)
+    {
+        if (null === $this->isFeatureTypeRegistry) {
+            $this->isFeatureTypeRegistry = (($this->registry->dataStoreFactory($storeConfig)) instanceof FeatureType);
+        }
+        return $this->uploadsBasePath . '/' . ($this->isFeatureTypeRegistry ? 'featureTypes' : 'ds-uploads');
     }
 }

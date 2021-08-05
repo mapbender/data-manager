@@ -5,7 +5,6 @@ namespace Mapbender\DataManagerBundle\Component;
 
 
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
-use Mapbender\DataSourceBundle\Component\FeatureType;
 use Mapbender\DataSourceBundle\Component\RepositoryRegistry;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -119,36 +118,5 @@ class DataStoreUtil
             }
         }
         return $overrides;
-    }
-
-    /**
-     * @param RepositoryRegistry $registry
-     * @param mixed[] $storeConfig
-     * @param string $basePath
-     * @param string $fieldName
-     * @return string
-     */
-    public static function getUploadPath(RepositoryRegistry $registry, $storeConfig, $basePath, $fieldName)
-    {
-        $overrides = DataStoreUtil::getFileConfigOverrides($storeConfig);
-        if (!empty($overrides[$fieldName]['path'])) {
-            return $overrides[$fieldName]['path'];
-        } else {
-            if (($registry->dataStoreFactory($storeConfig)) instanceof FeatureType) {
-                $path = 'featureTypes';
-            } else {
-                $path = 'ds-uploads';
-            }
-            if (!empty($basePath)) {
-                $path = "{$basePath}/{$path}";
-            }
-            if (!empty($storeConfig['table'])) {
-                $path = "{$path}/{$storeConfig['table']}";
-            }
-            if (!empty($fieldName)) {
-                $path = "{$path}/{$fieldName}";
-            }
-            return $path;
-        }
     }
 }
