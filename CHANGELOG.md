@@ -1,3 +1,7 @@
+# 1.2.2
+* Add full service-type element implementation for Symfony 4 / Mapbender >= 3.2.6
+* Fix schema config error checking not working as intended
+
 # 1.2.1
 * Fix upload preview image broken on new upload, before saving
 * Fix progress bar remaining visible after upload (replace with spinner icon)
