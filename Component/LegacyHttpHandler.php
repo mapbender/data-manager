@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Http handler with extended public API access for legacy Digitizer
  * integration.
+ *
+ * @todo: drop this class (breaks DataManagerElement; breaks Digitizer <= 1.4.10)
  */
 class LegacyHttpHandler extends BaseHttpHandler
 {
