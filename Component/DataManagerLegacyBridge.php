@@ -24,4 +24,9 @@ class DataManagerLegacyBridge extends DataManagerBase
     {
         return $this->schemaFilter;
     }
+
+    public function processSchemaBaseConfig(array $schemaConfig, $schemaName)
+    {
+        return parent::processSchemaBaseConfig($schemaConfig, $schemaName);
+    }
 }

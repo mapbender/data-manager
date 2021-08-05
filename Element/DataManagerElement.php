@@ -220,19 +220,7 @@ class DataManagerElement extends Element
         $rawConfig = $this->getSchemaFilter()->getRawSchemaConfig($this->entity, $schemaName, false);
         $defaults = $this->getSchemaConfigDefaults();
         $schemaConfig = array_replace($defaults, $rawConfig);
-        // always guarantee "schemaName" and "label" properties, even with $raw = true
-        $schemaConfig['schemaName'] = $schemaName;
-        if (empty($schemaConfig['label'])) {
-            $schemaConfig['label'] = $schemaName;
-        }
-        // Re-merge "popup" sub-array
-        if (!empty($rawConfig['popup']) && !empty($defaults['popup'])) {
-            $schemaConfig['popup'] = array_replace($defaults['popup'], $rawConfig['popup']);
-        }
-        // Re-merge "table" sub-array
-        if (!empty($rawConfig['table']) && !empty($defaults['table'])) {
-            $schemaConfig['table'] = array_replace($defaults['table'], $rawConfig['table']);
-        }
+        $schemaConfig = $this->getBridge()->getSchemaFilter()->processSchemaBaseConfig($schemaConfig, $schemaName);
         return $schemaConfig;
     }
 

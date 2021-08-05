@@ -189,4 +189,27 @@ class SchemaFilter
         $storeConfig = $this->getDataStoreConfig($element, $schemaName);
         return DataStoreUtil::getUploadPath($this->registry, $storeConfig, $this->uploadsBasePath, $fieldName);
     }
+
+    /**
+     * @param mixed[] $schemaConfig
+     * @param $schemaName
+     * @return mixed[]
+     */
+    public function processSchemaBaseConfig(array $schemaConfig, $schemaName)
+    {
+        // always guarantee "schemaName" and "label" properties, even with $raw = true
+        $schemaConfig['schemaName'] = $schemaName;
+        if (empty($schemaConfig['label'])) {
+            $schemaConfig['label'] = $schemaName;
+        }
+        // Re-merge "popup" sub-array
+        if (!empty($rawConfig['popup']) && !empty($defaults['popup'])) {
+            $schemaConfig['popup'] = array_replace($defaults['popup'], $rawConfig['popup']);
+        }
+        // Re-merge "table" sub-array
+        if (!empty($rawConfig['table']) && !empty($defaults['table'])) {
+            $schemaConfig['table'] = array_replace($defaults['table'], $rawConfig['table']);
+        }
+        return $schemaConfig;
+    }
 }
