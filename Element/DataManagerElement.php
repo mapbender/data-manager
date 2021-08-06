@@ -6,7 +6,6 @@ use Doctrine\DBAL\DBALException;
 use Mapbender\CoreBundle\Component\Element;
 use Mapbender\DataManagerBundle\Component\DataManagerBase;
 use Mapbender\DataManagerBundle\Component\DataManagerLegacyBridge;
-use Mapbender\DataManagerBundle\Component\DataStoreUtil;
 use Mapbender\DataManagerBundle\Component\FormItemFilter;
 use Mapbender\DataManagerBundle\Component\LegacyHttpHandler;
 use Mapbender\DataManagerBundle\Component\SchemaFilterLegacy;
