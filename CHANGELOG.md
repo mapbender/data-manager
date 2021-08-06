@@ -1,3 +1,8 @@
+# 2.0.0
+Same as 1.2.2, but with backwards compatibility considerations removed.
+Provide only Symfony 4+-conformant Element implementation.
+Incompatible / not installable with Mapbender versions before v3.2.6.
+
 # 1.2.2
 * Add full service-type element implementation for Symfony 4 / Mapbender >= 3.2.6
 * Fix schema config error checking not working as intended
