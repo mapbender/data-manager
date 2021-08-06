@@ -9,15 +9,50 @@ use Mapbender\Component\Element\HttpHandlerProvider;
 use Mapbender\Component\Element\StaticView;
 use Mapbender\CoreBundle\Entity\Element;
 use Mapbender\DataManagerBundle\Component\BaseHttpHandler;
-use Mapbender\DataManagerBundle\Component\DataManagerBase;
 use Mapbender\DataManagerBundle\Component\SchemaFilter;
 use Mapbender\DataSourceBundle\Component\RepositoryRegistry;
 
-class DataManager extends DataManagerBase implements ElementServiceInterface, HttpHandlerProvider
+class DataManager implements ElementServiceInterface, HttpHandlerProvider
 {
-    public function __construct(RepositoryRegistry $registry, SchemaFilter $schemaFilter, BaseHttpHandler $httpHandler)
+    /** @var RepositoryRegistry */
+    protected $registry;
+    /** @var SchemaFilter */
+    protected $schemaFilter;
+    /** @var BaseHttpHandler */
+    protected $httpHandler;
+
+    public function __construct(RepositoryRegistry $registry,
+                                SchemaFilter $schemaFilter,
+                                BaseHttpHandler $httpHandler)
     {
-        parent::__construct($registry, $schemaFilter, $httpHandler);
+        $this->registry = $registry;
+        $this->schemaFilter = $schemaFilter;
+        $this->httpHandler = $httpHandler;
+    }
+
+    public static function getClassTitle()
+    {
+        // @todo: translations
+        return "Data manager";
+    }
+
+    public static function getClassDescription()
+    {
+        // @todo: translation
+        return "Data manager element";
+    }
+
+
+    public function getWidgetName(Element $element)
+    {
+        return 'mapbender.mbDataManager';
+    }
+
+    public static function getDefaultConfiguration()
+    {
+        return array(
+            'schemes' => null,
+        );
     }
 
     public function getView(Element $element)
@@ -26,6 +61,37 @@ class DataManager extends DataManagerBase implements ElementServiceInterface, Ht
         $view = new StaticView('');
         $view->attributes['class'] = 'mb-element-data-manager';
         return $view;
+    }
+
+    public function getRequiredAssets(Element $element)
+    {
+        return array(
+            'css' => array(
+                '@MapbenderDataManagerBundle/Resources/styles/dataManager.element.scss',
+            ),
+            'js' => array(
+                '@MapbenderDataManagerBundle/Resources/public/FormRenderer.js',
+                '@MapbenderDataManagerBundle/Resources/public/FormUtil.js',
+                '@MapbenderDataManagerBundle/Resources/public/DialogFactory.js',
+                '../../vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js',
+                '@MapbenderDataManagerBundle/Resources/public/TableRenderer.js',
+                '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
+            ),
+            'trans' => array(
+                'mb.data-manager.*',
+                'mb.data.store.*',  // legacy quirk: this is in our translation catalogs
+            ),
+        );
+    }
+
+    public static function getFormTemplate()
+    {
+        return 'MapbenderDataManagerBundle:ElementAdmin:dataManager.html.twig';
+    }
+
+    public static function getType()
+    {
+        return 'Mapbender\DataManagerBundle\Element\Type\DataManagerAdminType';
     }
 
     public function getClientConfiguration(Element $element)
@@ -39,5 +105,14 @@ class DataManager extends DataManagerBase implements ElementServiceInterface, Ht
         }
         $configuration['schemes'] = $this->schemaFilter->prepareConfigs($schemaConfigs);
         return $configuration;
+    }
+
+    /**
+     * @param Element $element
+     * @return BaseHttpHandler
+     */
+    public function getHttpHandler(Element $element)
+    {
+        return $this->httpHandler;
     }
 }
