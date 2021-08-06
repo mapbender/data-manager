@@ -8,7 +8,7 @@ use Mapbender\Component\Element\ElementServiceInterface;
 use Mapbender\Component\Element\HttpHandlerProvider;
 use Mapbender\Component\Element\StaticView;
 use Mapbender\CoreBundle\Entity\Element;
-use Mapbender\DataManagerBundle\Component\BaseHttpHandler;
+use Mapbender\DataManagerBundle\Component\HttpHandler;
 use Mapbender\DataManagerBundle\Component\SchemaFilter;
 use Mapbender\DataSourceBundle\Component\RepositoryRegistry;
 
@@ -18,12 +18,12 @@ class DataManager implements ElementServiceInterface, HttpHandlerProvider
     protected $registry;
     /** @var SchemaFilter */
     protected $schemaFilter;
-    /** @var BaseHttpHandler */
+    /** @var HttpHandler */
     protected $httpHandler;
 
     public function __construct(RepositoryRegistry $registry,
                                 SchemaFilter $schemaFilter,
-                                BaseHttpHandler $httpHandler)
+                                HttpHandler $httpHandler)
     {
         $this->registry = $registry;
         $this->schemaFilter = $schemaFilter;
@@ -109,7 +109,7 @@ class DataManager implements ElementServiceInterface, HttpHandlerProvider
 
     /**
      * @param Element $element
-     * @return BaseHttpHandler
+     * @return HttpHandler
      */
     public function getHttpHandler(Element $element)
     {
