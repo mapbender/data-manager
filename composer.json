@@ -10,11 +10,8 @@
     "require": {
         "php": ">=5.3.3",
         "blueimp/jquery-file-upload": "9.*",
-        "mapbender/data-source": "~0.1.24 || ^0.2"
-    },
-    "conflict": {
-        "mapbender/mapbender": "<3.2",
-        "mapbender/digitizer": "<1.4.6"
+        "mapbender/data-source": "~0.1.24 || ^0.2",
+        "mapbender/mapbender": "^3.2.6"
     },
     "autoload": {
         "psr-4": {
