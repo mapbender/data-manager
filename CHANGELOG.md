@@ -1,3 +1,6 @@
+# 1.2.3
+- Fix initialization errors if MapbenderDataSourceBundle is not registered in kernel
+
 # 1.2.2
 * Add full service-type element implementation for Symfony 4 / Mapbender >= 3.2.6
 * Fix schema config error checking not working as intended
