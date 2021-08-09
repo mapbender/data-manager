@@ -1,3 +1,6 @@
+# 2.0.1
+- Fix initialization errors if MapbenderDataSourceBundle is not registered in kernel
+
 # 2.0.0
 Same as 1.2.2, but with backwards compatibility considerations removed.
 Provide only Symfony 4+-conformant Element implementation.
