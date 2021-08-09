@@ -1,6 +1,7 @@
 <?php
 namespace Mapbender\DataManagerBundle;
 
+use Mapbender\DataSourceBundle\MapbenderDataSourceBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,7 +17,10 @@ class MapbenderDataManagerBundle extends Bundle
 {
     public function build(ContainerBuilder $container)
     {
-        parent::build($container);
+        // Ensure DataSourceBundle services exist (independent of kernel registration)
+        $dsBundle = new MapbenderDataSourceBundle();
+        $dsBundle->build($container);
+
         $configLocator = new FileLocator(__DIR__ . '/Resources/config');
         $loader = new XmlFileLoader($container, $configLocator);
         $loader->load('services.xml');

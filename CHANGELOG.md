@@ -3,6 +3,9 @@ Same as 1.2.2, but with backwards compatibility considerations removed.
 Provide only Symfony 4+-conformant Element implementation.
 Incompatible / not installable with Mapbender versions before v3.2.6.
 
+# 1.2.3
+- Fix initialization errors if MapbenderDataSourceBundle is not registered in kernel
+
 # 1.2.2
 * Add full service-type element implementation for Symfony 4 / Mapbender >= 3.2.6
 * Fix schema config error checking not working as intended
@@ -34,6 +37,11 @@ Incompatible / not installable with Mapbender versions before v3.2.6.
 * Drop support for "dataStore" / "featureType" select option configuration subtype select options (use sql)
 * Drop support for file uploads on IE <= 10
 * Misc preparatory restructuring for Mapbender Symfony 4 compatibility
+
+# 1.1.10
+- Fix initialization errors if MapbenderDataSourceBundle is not registered in kernel
+- Fix bundle configuration changes not applying until forced cache clear
+- Change allowEdit default false => true (match Digitizer; match own allowCreate / allowDelete default)
 
 # 1.1.9
 - Fix incomplete client-side configuration for central "dataStore" / "featureType" referenced by name
