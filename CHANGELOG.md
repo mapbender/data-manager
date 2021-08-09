@@ -1,3 +1,8 @@
+# 1.1.10
+- Fix initialization errors if MapbenderDataSourceBundle is not registered in kernel
+- Fix bundle configuration changes not applying until forced cache clear
+- Change allowEdit default false => true (match Digitizer; match own allowCreate / allowDelete default)
+
 # 1.1.9
 - Fix incomplete client-side configuration for central "dataStore" / "featureType" referenced by name
 
