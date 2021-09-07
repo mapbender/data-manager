@@ -39,6 +39,12 @@
                         break;
                     default:
                         value = input.value;
+                        // Date special: if date is not required and empty, convert empty string to null
+                        // This fixes errors saving empty string into SQL DATE columns. OTOH this
+                        // means non-required date fields can only map to nullable columns.
+                        if (value === '' && !input.required && input.type === 'date' || $(input).is('.js-datepicker')) {
+                            value = null;
+                        }
                         break;
                 }
                 values[input.name] = value;
