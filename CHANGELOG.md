@@ -1,3 +1,8 @@
+# 2.0.2
+- Fix errors trying to save empty string into columns mapped to type "date" form fields that are not required inputs
+
+NOTE: columns mapped to a non-required date input must be nullable. Conversely, any type "date" form field mapped to non-nullable column must be a required input.
+
 # 2.0.1
 - Fix initialization errors if MapbenderDataSourceBundle is not registered in kernel
 
