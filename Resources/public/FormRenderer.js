@@ -50,11 +50,11 @@
          * Fixes / amends form items list (in place).
          *
          * @param {Array<Object>} items
-         * @param {String} uploadUrl
+         * @param {String} baseUrl
          * @param {Array<Object>} fileConfigs
          * @param {Object} [parent]
          */
-        prepareItems: function(items, uploadUrl, fileConfigs, parent) {
+        prepareItems: function(items, baseUrl, fileConfigs, parent) {
             var dropped = [], i;
             for (i = 0; i < items.length; ++i) {
                 var item = items[i];
@@ -67,9 +67,9 @@
                     dropped.push(item);
                     items[i] = null;
                 } else {
-                    item = items[i] = this.prepareLeaf_(item, uploadUrl, fileConfigs, dropped) || item;
+                    item = items[i] = this.prepareLeaf_(item, baseUrl, fileConfigs) || item;
                     if ((item.children || []).length) {
-                        this.prepareItems(item.children, uploadUrl, fileConfigs, item);
+                        this.prepareItems(item.children, baseUrl, fileConfigs, item);
                     }
                 }
             }
@@ -90,12 +90,12 @@
         },
         /**
          * @param {Object} item
-         * @param {String} uploadUrl
+         * @param {String} baseUrl
          * @param {Array<Object>} fileConfigs
          * @return {Object}
          * @private
          */
-        prepareLeaf_: function(item, uploadUrl, fileConfigs) {
+        prepareLeaf_: function(item, baseUrl, fileConfigs) {
             if (item.type === 'inline' || item.type === 'fieldSet') {
                 var reformedRadioGroup = this.reformRadioGroup_(item.children || [], item);
                 if (reformedRadioGroup && reformedRadioGroup.__filtered__.length) {
@@ -123,7 +123,7 @@
                     item.attr = item.attr || {};
                     item.attr.accept = fileConfig.formats;
                 }
-                item.__uploadUrl__ = [uploadUrl, '&field=', encodeURIComponent(item.name)].join('');
+                item.__uploadUrl__ = [baseUrl, 'attachment', '?field=', encodeURIComponent(item.name)].join('');
                 return item;
             }
         },
@@ -189,7 +189,7 @@
                     return this.handle_breakLine_(settings);
             }
         },
-        initializeWidgets: function(scope) {
+        initializeWidgets: function(scope, baseUrl) {
             if ($.fn.colorpicker) {
                 $('.-js-init-colorpicker', scope).each(function() {
                     $(this).colorpicker({
@@ -226,7 +226,7 @@
                         var values = {};
                         values[name] = response.url;
                         $realInput.val(response.url);
-                        self.updateFileInputs(scope, values);
+                        self.updateFileInputs(scope, baseUrl, values);
                     },
                     send: function() {
                         $loadingIcon.removeClass('hidden');
@@ -237,7 +237,7 @@
                 });
             });
         },
-        updateFileInputs: function(scope, values) {
+        updateFileInputs: function(scope, baseUrl, values) {
             var fileInputs = $('.fileinput-button input[name]', scope).get();
             var dataImages = $('img[data-preview-for]', scope).get();
             var i;
@@ -256,11 +256,12 @@
                 var dataProp = $img.attr('data-preview-for');
                 var value = values[dataProp];
                 if (value) {
-                    if (!/^(http[s]?)?:?\/\//.test(value || '')) {
-                        $img.attr('src', Mapbender.configuration.application.urls.asset + value);
-                    } else {
-                        $img.attr('src', value || '');
+                    var imgSrc = value || '';
+                    if (imgSrc && !/^(http[s]?)?:?\/\//.test(imgSrc)) {
+                        var baseName = imgSrc.replace(/^.*?\/([^/]*)$/, '$1');
+                        imgSrc = [baseUrl, 'attachment', '?field=', encodeURIComponent(dataProp), '&name=', encodeURIComponent(baseName)].join('');
                     }
+                    $img.attr('src', imgSrc);
                 }
             }
         },

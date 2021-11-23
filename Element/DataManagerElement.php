@@ -139,11 +139,8 @@ class DataManagerElement extends Element
                 return $this->selectAction($request);
             case 'save':
                 return $this->saveAction($request);
-            case 'delete':
-            case 'file-upload':
-                return $this->getHttpHandler()->dispatchRequest($this->entity, $request);
             default:
-                return null;
+                return $this->getHttpHandler()->dispatchRequest($this->entity, $request);
         }
     }
 

@@ -64,8 +64,8 @@
                 var schemaName = schemaNames[s];
                 var schema = this.options.schemes[schemaName];
                 var fileConfigs = this._getDataStoreFromSchema(schema).files || [];
-                var uploadUrl = this.elementUrl + "file-upload?schema=" + schemaName;
-                this.formRenderer_.prepareItems(schema.formItems || [], uploadUrl, fileConfigs);
+                var schemaBaseUrl = [this.elementUrl, schemaName, '/'].join('');
+                this.formRenderer_.prepareItems(schema.formItems || [], schemaBaseUrl, fileConfigs);
             }
             this.tableRenderer = this._createTableRenderer();
             this._initializeEvents();
@@ -445,7 +445,8 @@
             this.dialogFactory_.dialog(dialog, dialogOptions);
             widget.currentPopup = dialog;
             Mapbender.DataManager.FormUtil.setValues(dialog, itemValues);
-            this.formRenderer_.updateFileInputs(dialog, itemValues);
+            var schemaBaseUrl = [this.elementUrl, schema.schemaName, '/'].join('');
+            this.formRenderer_.updateFileInputs(dialog, schemaBaseUrl, itemValues);
             // Legacy custom vis-ui event shenanigans
             $('.-js-custom-events[name]', dialog).each(function() {
                 $(this).trigger('filled', {data: itemValues, value: itemValues[$(this).attr('name')]});
@@ -457,7 +458,7 @@
                 var $input = $(':input', $(this).closest('.form-group'));
                 Mapbender.DataManager.FormUtil.copyToClipboard($input);
             });
-            this.formRenderer_.initializeWidgets(dialog);
+            this.formRenderer_.initializeWidgets(dialog, schemaBaseUrl);
 
             dialog.one('dialogclose', function() {
                 widget._cancelForm(schema, dataItem);

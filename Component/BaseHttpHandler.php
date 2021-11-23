@@ -6,11 +6,13 @@ namespace Mapbender\DataManagerBundle\Component;
 
 use Mapbender\CoreBundle\Entity\Element;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Handler for DataManager http actions NOT modified by inheriting Digitizer
@@ -36,11 +38,37 @@ class BaseHttpHandler
      */
     public function dispatchRequest(Element $element, Request $request)
     {
-        switch ($request->attributes->get('action')) {
+        $schemaMatches = array();
+        $action = $request->attributes->get('action');
+        if (\preg_match('#^([\w\d\-_]+)/(attachment)$#', $action, $schemaMatches)) {
+            $schemaName = $schemaMatches[1];
+            $schemaAction = $schemaMatches[2];
+            if ($response = $this->dispatchSchemaRequest($element, $request, $schemaName, $schemaAction)) {
+                return $response;
+            }
+        }
+
+        switch ($action) {
             case 'delete':
                 return $this->deleteAction($element, $request);
-            case 'file-upload':
-                return $this->fileUploadAction($element, $request);
+            default:
+                return null;
+        }
+    }
+
+    protected function dispatchSchemaRequest(Element $element, Request $request, $schemaName, $schemaAction)
+    {
+        switch ($schemaAction) {
+            case 'attachment':
+                switch ($request->getMethod()) {
+                    case Request::METHOD_POST:
+                    case Request::METHOD_PUT:
+                        return $this->fileUploadAction($element, $request, $schemaName);
+                    case Request::METHOD_GET:
+                        return $this->fileDownloadAction($element, $request, $schemaName);
+                    default:
+                        throw new BadRequestHttpException();
+                }
             default:
                 return null;
         }
@@ -108,15 +136,30 @@ class BaseHttpHandler
         return $results;
     }
 
+    protected function fileDownloadAction(Element $element, Request $request, $schemaName)
+    {
+        if (!($fieldName = $request->query->get('field'))) {
+            throw new BadRequestHttpException('Missing field name');
+        }
+        $baseName = $request->query->get('name');
+        $targetDir = $this->schemaFilter->getUploadPath($element, $schemaName, $fieldName);
+        $path = "{$targetDir}/{$baseName}";
+        if (!$baseName || !\is_file($path)) {
+            throw new NotFoundHttpException();
+        }
+        $response = new BinaryFileResponse($path);
+        $response->isNotModified($request);
+        return $response;
+    }
+
     /**
      * @param Element $element
      * @param Request $request
+     * @param string $schemaName
      * @return JsonResponse
      */
-    protected function fileUploadAction(Element $element, Request $request)
+    protected function fileUploadAction(Element $element, Request $request, $schemaName)
     {
-        $schemaName = $request->query->get('schema');
-
         if (!$this->schemaFilter->checkAllowSave($element, $schemaName, false)) {
             return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
         }
