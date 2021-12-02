@@ -6,17 +6,17 @@ namespace Mapbender\DataManagerBundle\Component;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ConnectionRegistry;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class FormItemFilter
 {
-    /** @var RegistryInterface */
+    /** @var ConnectionRegistry */
     protected $connectionRegistry;
     /** @var TranslatorInterface */
     protected $translator;
 
-    public function __construct(RegistryInterface $connectionRegistry,
+    public function __construct(ConnectionRegistry $connectionRegistry,
                                 TranslatorInterface $translator)
     {
         $this->connectionRegistry = $connectionRegistry;

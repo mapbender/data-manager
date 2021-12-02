@@ -28,7 +28,7 @@ class DataStoreUtil
         $merged = $registry->getDataStoreDeclarations() ?: array();
         foreach ($schemaConfigs as $schemaName => $schemaConfig) {
             foreach (array('dataStore', 'featureType') as $dsKey) {
-                if (!empty($schemaConfig[$dsKey])) {
+                if (!empty($schemaConfig[$dsKey]) && empty($merged[$schemaName])) {
                     $merged[$schemaName] = $schemaConfig[$dsKey];
                 }
             }
