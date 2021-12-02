@@ -17,10 +17,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class BaseHttpHandler
 {
-    /** @var SchemaFilter */
-    protected $schemaFilter;
     /** @var FormFactoryInterface */
     protected $formFactory;
+    /** @var SchemaFilter */
+    protected $schemaFilter;
 
     public function __construct(FormFactoryInterface $formFactory,
                                 SchemaFilter $schemaFilter)
