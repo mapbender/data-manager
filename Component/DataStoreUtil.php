@@ -98,17 +98,6 @@ class DataStoreUtil
                 }
                 $uri = !empty($filesConfig['uri']) ? ($filesConfig['uri'] ?: null) : null;
                 $path = !empty($filesConfig['path']) ? ($filesConfig['path'] ?: null) : null;
-                $fs = new Filesystem();
-                if ($path) {
-                    if ($fs->isAbsolutePath($path) || preg_match('#^(\.\.)?/#', $path)) {
-                        throw new ConfigurationErrorException("DataStore / FeatureType 'files' 'path' setting be web-relative");
-                    }
-                }
-                if ($uri) {
-                    if ($fs->isAbsolutePath($uri) || preg_match('#^(\.\.)?/#', $path)) {
-                        throw new ConfigurationErrorException("DataStore / FeatureType 'files' 'uri' setting be web-relative");
-                    }
-                }
                 if ($uri && $path && $uri !== $path) {
                     throw new ConfigurationErrorException("Ambiguous DataStore / FeatureType 'files' settings 'uri' and 'path'. Remove 'uri'.");
                 }
