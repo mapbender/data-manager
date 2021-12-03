@@ -224,8 +224,8 @@
                     url: url,
                     success: function(response) {
                         var values = {};
-                        values[name] = response.url;
-                        $realInput.val(response.url);
+                        values[name] = response.filename;
+                        $realInput.val(response.filename);
                         self.updateFileInputs(scope, baseUrl, values);
                     },
                     send: function() {

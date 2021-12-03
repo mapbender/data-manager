@@ -5,6 +5,7 @@ namespace Mapbender\DataManagerBundle\Component;
 
 
 use Mapbender\CoreBundle\Entity\Element;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -142,14 +143,19 @@ class BaseHttpHandler
             throw new BadRequestHttpException('Missing field name');
         }
         $baseName = $request->query->get('name');
-        $targetDir = $this->schemaFilter->getUploadPath($element, $schemaName, $fieldName);
-        $path = "{$targetDir}/{$baseName}";
-        if (!$baseName || !\is_file($path)) {
-            throw new NotFoundHttpException();
+        $targetDirs =$this->schemaFilter->getUploadPaths($element, $schemaName, $fieldName);
+        foreach ($targetDirs as $targetDir) {
+            $path = "{$targetDir}/{$baseName}";
+            if ($baseName && \is_file($path)) {
+                $response = new BinaryFileResponse($path);
+                $response->isNotModified($request);
+                $response->headers->add(array(
+                    'X-Local-Path' => $path,
+                ));
+                return $response;
+            }
         }
-        $response = new BinaryFileResponse($path);
-        $response->isNotModified($request);
-        return $response;
+        throw new NotFoundHttpException();
     }
 
     /**
@@ -179,7 +185,7 @@ class BaseHttpHandler
             $targetFile = $this->moveUpload($data, $targetDir);
 
             return new JsonResponse(array(
-                'url' => $targetDir . '/' . $targetFile->getFilename(),
+                'filename' => $targetFile->getFilename(),
             ));
         } else {
             throw new BadRequestHttpException();
@@ -193,14 +199,18 @@ class BaseHttpHandler
      */
     protected function moveUpload(UploadedFile $file, $targetDir)
     {
-        $webDir = \preg_replace('#^(.*?)[\w_]*\.php#i', '$1', $_SERVER['SCRIPT_FILENAME']);
+        $fs = new Filesystem();
+        if (!$fs->isAbsolutePath($targetDir)) {
+            $webDir = \preg_replace('#^(.*?)[\w_]*\.php#i', '$1', $_SERVER['SCRIPT_FILENAME']);
+            $targetDir = $webDir . $targetDir;
+        }
+        $fs->mkdir($targetDir);
         $suffix = null;
         $counter = 1;
         // Disambiguate
         $initialName = $name = $file->getClientOriginalName();
-        $fullDir = $webDir . $targetDir;
         do {
-            $fullPath = "{$fullDir}/{$name}";
+            $fullPath = "{$targetDir}/{$name}";
             if (!\file_exists($fullPath)) {
                 break;
             }
@@ -209,6 +219,6 @@ class BaseHttpHandler
             ++$counter;
         } while (true);
 
-        return $file->move($fullDir, $name);
+        return $file->move($targetDir, $name);
     }
 }

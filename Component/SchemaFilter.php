@@ -180,27 +180,41 @@ class SchemaFilter
     }
 
     /**
-     * Returns web-relative path to file uploads.
+     * Returns storage path for new file uploads.
+     *
+     * @param Element $element
+     * @param $schemaName
+     * @param $fieldName
+     * @return string
+     */
+    public function getUploadPath(Element $element, $schemaName, $fieldName)
+    {
+        $paths = $this->getUploadPaths($element, $schemaName, $fieldName);
+        return $paths[0];
+    }
+
+    /**
+     * Returns possible paths to preeexisting file uploads.
      *
      * @param Element $element
      * @param string $schemaName
      * @param string $fieldName
-     * @return mixed|string
+     * @return string[]
      */
-    public function getUploadPath(Element $element, $schemaName, $fieldName)
+    public function getUploadPaths(Element $element, $schemaName, $fieldName)
     {
+        $paths = array();
         $storeConfig = $this->getDataStoreConfig($element, $schemaName);
         $overrides = DataStoreUtil::getFileConfigOverrides($storeConfig);
         if (!empty($overrides[$fieldName]['path'])) {
-            return $overrides[$fieldName]['path'];
-        } else {
-            $path = $this->getExtendedUploadsBasePath($storeConfig);
-            if (!empty($storeConfig['table'])) {
-                $path = "{$path}/{$storeConfig['table']}";
-            }
-            $path ="{$path}/{$fieldName}";
-            return $path;
+            $paths[] = $overrides[$fieldName]['path'];
         }
+        $defaultPath = $this->getExtendedUploadsBasePath($storeConfig);
+        if (!empty($storeConfig['table'])) {
+            $defaultPath = "{$defaultPath}/{$storeConfig['table']}";
+        }
+        $paths[] ="{$defaultPath}/{$fieldName}";
+        return $paths;
     }
 
     /**
