@@ -236,6 +236,17 @@
                     }
                 });
             });
+            $(scope).on('click', '.-fn-delete-attachment', function() {
+                var $link = $(this);
+                var $group = $link.closest('.form-group');
+                var $input = $('input[type="hidden"][name]', $group);
+                var dataProp = $('input[type="file"][data-name]', $group).attr('data-name');
+                $input.val('');
+                var fakeValues = {};
+                fakeValues[dataProp] = '';
+                self.updateFileInputs($group, baseUrl, fakeValues);
+                return false;
+            });
         },
         getAttachmentUrl_: function(baseUrl, fieldName, inputValue) {
             if (inputValue && !/^(http[s]?)?:?\/\//.test(inputValue)) {
@@ -348,9 +359,18 @@
                 .append('<i class="fa fa-upload" aria-hidden="true"/>')
                 .append($btnText)
             ;
+            var $downloadBtn = $('<a href="#" class="btn btn-xs -fn-open-attachment"><i class="fa fa-lg fa-fw fas fa-external-link-alt fa-external-link"></i></a>')
+                .attr('title', 'Öffnen')    // @todo: translate
+                .attr('target', '_blank')
+            ;
+            var $deleteBtn = $('<a href="#" class="btn btn-xs -fn-delete-attachment"><i class="fa fa-lg fa-fw fas fa-trash-alt fa-trash"></i></a>')
+                .attr('title', 'Löschen')    // @todo: translate
+            ;
             var $group = $(document.createElement('div'))
                 .addClass('file-group')
                 .append($btn)
+                .append($downloadBtn)
+                .append($deleteBtn)
                 .append('<i class="fa fas fa-fw fa-spinner fa-spin hidden" />')
             ;
             return this.wrapInput_($group, settings);

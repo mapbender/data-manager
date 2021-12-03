@@ -177,6 +177,16 @@
     border-radius: 0;
   }
 
+  .file-group {
+    display: flex;
+    flex-direction: row;
+    >i, >a {
+      flex: 0 0 auto;
+    }
+    .fileinput-button {
+      flex: 0 1 auto;
+    }
+  }
   .fileinput-button {
     position: relative;
     input {

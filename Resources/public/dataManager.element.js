@@ -438,6 +438,9 @@
 
             var dialog = $("<div/>");
             dialog.append(this.formRenderer_.renderElements(schema.formItems));
+            if (!schema.allowEdit) {
+                $('.-fn-delete-attachment', dialog).remove();
+            }
             var dialogOptions = this._getEditDialogPopupConfig(schema, dataItem);
             if (!$('> .ui-tabs', dialog).length) {
                 dialog.addClass('content-padding');
