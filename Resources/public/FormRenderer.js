@@ -237,31 +237,53 @@
                 });
             });
         },
+        getAttachmentUrl_: function(baseUrl, fieldName, inputValue) {
+            if (inputValue && !/^(http[s]?)?:?\/\//.test(inputValue)) {
+                var baseName = inputValue.replace(/^.*?\/([^/]*)$/, '$1');
+                return [baseUrl, 'attachment', '?field=', encodeURIComponent(fieldName), '&name=', encodeURIComponent(baseName)].join('');
+            } else {
+                return inputValue;
+            }
+        },
         updateFileInputs: function(scope, baseUrl, values) {
             var fileInputs = $('.fileinput-button input[name]', scope).get();
-            var dataImages = $('img[data-preview-for]', scope).get();
+            var dataImages = $('img[data-preview-for]', $(scope).closest('.ui-dialog')).get();
             var i;
             for (i = 0; i < fileInputs.length; ++i) {
                 var fileInput = fileInputs[i];
-                var displayValue = fileInput.value.split('/').pop();
-                if (displayValue) {
-                    var $group = fileInput.closest('.form-group');
-                    $('.upload-button-text', $group).text(displayValue);
-                    $('.btn', $group).attr('title', displayValue);
+                var $group = fileInput.closest('.form-group');
+                var inputValue = fileInput.value;
+                var displayValue = inputValue && inputValue.split('/').pop();
+                var $display = $('.upload-button-text', $group);
+                if (displayValue && inputValue) {
+                    $display.text(displayValue);
+                    $('.fileinput-button', $group).attr('title', displayValue);
+                } else {
+                    $display.text($display.attr('data-placeholder'));
+                    $('.fileinput-button', $group).attr('title', '');
                 }
+                var url = this.getAttachmentUrl_(baseUrl, fileInput.name, values[fileInput.name] || '');
+                $('.-fn-open-attachment', $group)
+                    .toggle(!!displayValue)
+                    .attr('href', url)
+                ;
+                $('.-fn-delete-attachment', $group)
+                    .toggle(!!displayValue)
+                    .attr('data-href', url)
+                ;
             }
 
             for (i = 0; i < dataImages.length; ++i) {
                 var $img = $(dataImages[i]);
                 var dataProp = $img.attr('data-preview-for');
                 var value = values[dataProp];
-                if (value) {
-                    var imgSrc = value || '';
-                    if (imgSrc && !/^(http[s]?)?:?\/\//.test(imgSrc)) {
-                        var baseName = imgSrc.replace(/^.*?\/([^/]*)$/, '$1');
-                        imgSrc = [baseUrl, 'attachment', '?field=', encodeURIComponent(dataProp), '&name=', encodeURIComponent(baseName)].join('');
+                if (typeof value !== 'undefined') {
+                    if (value) {
+                        $img.attr('src', this.getAttachmentUrl_(baseUrl, dataProp, value));
+                    } else {
+                        var defaultSrc = $img.attr('data-default-src') || '';
+                        $img.attr('src', defaultSrc || '').toggle(!!defaultSrc);
                     }
-                    $img.attr('src', imgSrc);
                 }
             }
         },
@@ -318,7 +340,7 @@
                 .attr('data-name', settings.name)
             ;
             var $btnText = $('<span class="upload-button-text">')
-                .text(settings.text || 'Select')
+                .attr('data-placeholder', settings.text || 'Select')
             ;
             var $btn = $('<span class="btn btn-success button fileinput-button">')
                 .append($fileInput)
@@ -327,6 +349,7 @@
                 .append($btnText)
             ;
             var $group = $(document.createElement('div'))
+                .addClass('file-group')
                 .append($btn)
                 .append('<i class="fa fas fa-fw fa-spinner fa-spin hidden" />')
             ;
@@ -343,6 +366,7 @@
             var $img = $(document.createElement('img'))
                 .addClass('img-responsive')
                 .attr('src', src)
+                .attr('data-default-src', settings.src || '')
                 .attr('data-preview-for', settings.name || null)
             ;
             // Wrap in form-group (potentially with label), but
