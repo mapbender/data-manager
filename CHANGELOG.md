@@ -1,3 +1,8 @@
+# 2.0.3
+- Add interaction button to file inputs to open current attachment in new tab
+- Add interaction button to file inputs to remove attachment
+- Fix (false positive) cycle detection errors if schema name matches data store / feature type name exactly
+- Fix incompatibility with doctrine/dbal >= 2.8 (PHP 8 support)
 
 # 2.0.2
 - Fix errors trying to save empty string into columns mapped to type "date" form fields that are not required inputs
