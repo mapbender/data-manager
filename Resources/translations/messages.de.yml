@@ -19,3 +19,8 @@ mb.data-manager.table:
   empty_after_filtering: Keine Treffer
   from_to_total: Zeige _START_ bis _END_ von _TOTAL_
   out_of: (aus insgesamt _MAX_)
+
+mb:
+  'data-manager':
+    attachment:
+      open: Anhang öffnen

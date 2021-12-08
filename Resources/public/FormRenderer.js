@@ -360,11 +360,13 @@
                 .append($btnText)
             ;
             var $downloadBtn = $('<a href="#" class="btn btn-xs -fn-open-attachment"><i class="fa fa-lg fa-fw fas fa-external-link-alt fa-external-link"></i></a>')
-                .attr('title', 'Öffnen')    // @todo: translate
+                .attr('title', Mapbender.trans('mb.data-manager.attachment.open'))
                 .attr('target', '_blank')
+                .append($('<span class="sr-only">').text(Mapbender.trans('mb.data-manager.attachment.open')))
             ;
             var $deleteBtn = $('<a href="#" class="btn btn-xs -fn-delete-attachment"><i class="fa fa-lg fa-fw fas fa-trash-alt fa-trash"></i></a>')
-                .attr('title', 'Löschen')    // @todo: translate
+                .attr('title', Mapbender.trans('mb.actions.remove'))
+                .append($('<span class="sr-only">').text(Mapbender.trans('mb.actions.remove')))
             ;
             var $group = $(document.createElement('div'))
                 .addClass('file-group')
