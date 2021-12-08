@@ -1,3 +1,4 @@
+
 # 2.0.2
 - Fix errors trying to save empty string into columns mapped to type "date" form fields that are not required inputs
 
@@ -10,6 +11,12 @@ NOTE: columns mapped to a non-required date input must be nullable. Conversely, 
 Same as 1.2.2, but with backwards compatibility considerations removed.
 Provide only Symfony 4+-conformant Element implementation.
 Incompatible / not installable with Mapbender versions before v3.2.6.
+
+# 1.2.5
+- Add interaction button to file inputs to open current attachment in new tab
+- Add interaction button to file inputs to remove attachment
+- Fix (false positive) cycle detection errors if schema name matches data store / feature type name exactly
+- Fix incompatibility with doctrine/dbal >= 2.8 (PHP 8 support)
 
 # 1.2.4
 - Fix errors trying to save empty string into columns mapped to type "date" form fields that are not required inputs

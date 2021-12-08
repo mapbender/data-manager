@@ -8,12 +8,15 @@ use Mapbender\Component\Element\ElementHttpHandlerInterface;
 use Mapbender\CoreBundle\Entity\Element;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
 use Mapbender\DataManagerBundle\Exception\UnknownSchemaException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Data manager http handler for new (Mapbender >= 3.2.6) service Element
@@ -21,10 +24,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class HttpHandler implements ElementHttpHandlerInterface
 {
-    /** @var SchemaFilter */
-    protected $schemaFilter;
     /** @var FormFactoryInterface */
     protected $formFactory;
+    /** @var SchemaFilter */
+    protected $schemaFilter;
 
     public function __construct(FormFactoryInterface $formFactory,
                                 SchemaFilter $schemaFilter)
@@ -58,6 +61,16 @@ class HttpHandler implements ElementHttpHandlerInterface
      */
     public function dispatchRequest(Element $element, Request $request)
     {
+        $schemaMatches = array();
+        $action = $request->attributes->get('action');
+        if (\preg_match('#^([\w\d\-_]+)/(attachment)$#', $action, $schemaMatches)) {
+            $schemaName = $schemaMatches[1];
+            $schemaAction = $schemaMatches[2];
+            if ($response = $this->dispatchSchemaRequest($element, $request, $schemaName, $schemaAction)) {
+                return $response;
+            }
+        }
+
         $action = $request->attributes->get('action');
         switch ($action) {
             case 'select':
@@ -66,8 +79,24 @@ class HttpHandler implements ElementHttpHandlerInterface
                 return $this->saveAction($element, $request);
             case 'delete':
                 return $this->deleteAction($element, $request);
-            case 'file-upload':
-                return $this->fileUploadAction($element, $request);
+            default:
+                return null;
+        }
+    }
+
+    protected function dispatchSchemaRequest(Element $element, Request $request, $schemaName, $schemaAction)
+    {
+        switch ($schemaAction) {
+            case 'attachment':
+                switch ($request->getMethod()) {
+                    case Request::METHOD_POST:
+                    case Request::METHOD_PUT:
+                        return $this->fileUploadAction($element, $request, $schemaName);
+                    case Request::METHOD_GET:
+                        return $this->fileDownloadAction($element, $request, $schemaName);
+                    default:
+                        throw new BadRequestHttpException();
+                }
             default:
                 return null;
         }
@@ -161,15 +190,35 @@ class HttpHandler implements ElementHttpHandlerInterface
         return $results;
     }
 
+    protected function fileDownloadAction(Element $element, Request $request, $schemaName)
+    {
+        if (!($fieldName = $request->query->get('field'))) {
+            throw new BadRequestHttpException('Missing field name');
+        }
+        $baseName = $request->query->get('name');
+        $targetDirs =$this->schemaFilter->getUploadPaths($element, $schemaName, $fieldName);
+        foreach ($targetDirs as $targetDir) {
+            $path = "{$targetDir}/{$baseName}";
+            if ($baseName && \is_file($path)) {
+                $response = new BinaryFileResponse($path);
+                $response->isNotModified($request);
+                $response->headers->add(array(
+                    'X-Local-Path' => $path,
+                ));
+                return $response;
+            }
+        }
+        throw new NotFoundHttpException();
+    }
+
     /**
      * @param Element $element
      * @param Request $request
+     * @param string $schemaName
      * @return JsonResponse
      */
-    protected function fileUploadAction(Element $element, Request $request)
+    protected function fileUploadAction(Element $element, Request $request, $schemaName)
     {
-        $schemaName = $request->query->get('schema');
-
         if (!$this->schemaFilter->checkAllowSave($element, $schemaName, false)) {
             return new JsonResponse(array('message' => "It is not allowed to edit this data"), JsonResponse::HTTP_FORBIDDEN);
         }
@@ -189,7 +238,7 @@ class HttpHandler implements ElementHttpHandlerInterface
             $targetFile = $this->moveUpload($data, $targetDir);
 
             return new JsonResponse(array(
-                'url' => $targetDir . '/' . $targetFile->getFilename(),
+                'filename' => $targetFile->getFilename(),
             ));
         } else {
             throw new BadRequestHttpException();
@@ -203,14 +252,18 @@ class HttpHandler implements ElementHttpHandlerInterface
      */
     protected function moveUpload(UploadedFile $file, $targetDir)
     {
-        $webDir = \preg_replace('#^(.*?)[\w_]*\.php#i', '$1', $_SERVER['SCRIPT_FILENAME']);
+        $fs = new Filesystem();
+        if (!$fs->isAbsolutePath($targetDir)) {
+            $webDir = \preg_replace('#^(.*?)[\w_]*\.php#i', '$1', $_SERVER['SCRIPT_FILENAME']);
+            $targetDir = $webDir . $targetDir;
+        }
+        $fs->mkdir($targetDir);
         $suffix = null;
         $counter = 1;
         // Disambiguate
         $initialName = $name = $file->getClientOriginalName();
-        $fullDir = $webDir . $targetDir;
         do {
-            $fullPath = "{$fullDir}/{$name}";
+            $fullPath = "{$targetDir}/{$name}";
             if (!\file_exists($fullPath)) {
                 break;
             }
@@ -219,6 +272,6 @@ class HttpHandler implements ElementHttpHandlerInterface
             ++$counter;
         } while (true);
 
-        return $file->move($fullDir, $name);
+        return $file->move($targetDir, $name);
     }
 }

@@ -50,11 +50,11 @@
          * Fixes / amends form items list (in place).
          *
          * @param {Array<Object>} items
-         * @param {String} uploadUrl
+         * @param {String} baseUrl
          * @param {Array<Object>} fileConfigs
          * @param {Object} [parent]
          */
-        prepareItems: function(items, uploadUrl, fileConfigs, parent) {
+        prepareItems: function(items, baseUrl, fileConfigs, parent) {
             var dropped = [], i;
             for (i = 0; i < items.length; ++i) {
                 var item = items[i];
@@ -67,9 +67,9 @@
                     dropped.push(item);
                     items[i] = null;
                 } else {
-                    item = items[i] = this.prepareLeaf_(item, uploadUrl, fileConfigs, dropped) || item;
+                    item = items[i] = this.prepareLeaf_(item, baseUrl, fileConfigs) || item;
                     if ((item.children || []).length) {
-                        this.prepareItems(item.children, uploadUrl, fileConfigs, item);
+                        this.prepareItems(item.children, baseUrl, fileConfigs, item);
                     }
                 }
             }
@@ -90,12 +90,12 @@
         },
         /**
          * @param {Object} item
-         * @param {String} uploadUrl
+         * @param {String} baseUrl
          * @param {Array<Object>} fileConfigs
          * @return {Object}
          * @private
          */
-        prepareLeaf_: function(item, uploadUrl, fileConfigs) {
+        prepareLeaf_: function(item, baseUrl, fileConfigs) {
             if (item.type === 'inline' || item.type === 'fieldSet') {
                 var reformedRadioGroup = this.reformRadioGroup_(item.children || [], item);
                 if (reformedRadioGroup && reformedRadioGroup.__filtered__.length) {
@@ -123,7 +123,7 @@
                     item.attr = item.attr || {};
                     item.attr.accept = fileConfig.formats;
                 }
-                item.__uploadUrl__ = [uploadUrl, '&field=', encodeURIComponent(item.name)].join('');
+                item.__uploadUrl__ = [baseUrl, 'attachment', '?field=', encodeURIComponent(item.name)].join('');
                 return item;
             }
         },
@@ -189,7 +189,7 @@
                     return this.handle_breakLine_(settings);
             }
         },
-        initializeWidgets: function(scope) {
+        initializeWidgets: function(scope, baseUrl) {
             if ($.fn.colorpicker) {
                 $('.-js-init-colorpicker', scope).each(function() {
                     $(this).colorpicker({
@@ -224,9 +224,9 @@
                     url: url,
                     success: function(response) {
                         var values = {};
-                        values[name] = response.url;
-                        $realInput.val(response.url);
-                        self.updateFileInputs(scope, values);
+                        values[name] = response.filename;
+                        $realInput.val(response.filename);
+                        self.updateFileInputs(scope, baseUrl, values);
                     },
                     send: function() {
                         $loadingIcon.removeClass('hidden');
@@ -236,30 +236,64 @@
                     }
                 });
             });
+            $(scope).on('click', '.-fn-delete-attachment', function() {
+                var $link = $(this);
+                var $group = $link.closest('.form-group');
+                var $input = $('input[type="hidden"][name]', $group);
+                var dataProp = $('input[type="file"][data-name]', $group).attr('data-name');
+                $input.val('');
+                var fakeValues = {};
+                fakeValues[dataProp] = '';
+                self.updateFileInputs($group, baseUrl, fakeValues);
+                return false;
+            });
         },
-        updateFileInputs: function(scope, values) {
+        getAttachmentUrl_: function(baseUrl, fieldName, inputValue) {
+            if (inputValue && !/^(http[s]?)?:?\/\//.test(inputValue)) {
+                var baseName = inputValue.replace(/^.*?\/([^/]*)$/, '$1');
+                return [baseUrl, 'attachment', '?field=', encodeURIComponent(fieldName), '&name=', encodeURIComponent(baseName)].join('');
+            } else {
+                return inputValue;
+            }
+        },
+        updateFileInputs: function(scope, baseUrl, values) {
             var fileInputs = $('.fileinput-button input[name]', scope).get();
-            var dataImages = $('img[data-preview-for]', scope).get();
+            var dataImages = $('img[data-preview-for]', $(scope).closest('.ui-dialog')).get();
             var i;
             for (i = 0; i < fileInputs.length; ++i) {
                 var fileInput = fileInputs[i];
-                var displayValue = fileInput.value.split('/').pop();
-                if (displayValue) {
-                    var $group = fileInput.closest('.form-group');
-                    $('.upload-button-text', $group).text(displayValue);
-                    $('.btn', $group).attr('title', displayValue);
+                var $group = fileInput.closest('.form-group');
+                var inputValue = fileInput.value;
+                var displayValue = inputValue && inputValue.split('/').pop();
+                var $display = $('.upload-button-text', $group);
+                if (displayValue && inputValue) {
+                    $display.text(displayValue);
+                    $('.fileinput-button', $group).attr('title', displayValue);
+                } else {
+                    $display.text($display.attr('data-placeholder'));
+                    $('.fileinput-button', $group).attr('title', '');
                 }
+                var url = this.getAttachmentUrl_(baseUrl, fileInput.name, values[fileInput.name] || '');
+                $('.-fn-open-attachment', $group)
+                    .toggle(!!displayValue)
+                    .attr('href', url)
+                ;
+                $('.-fn-delete-attachment', $group)
+                    .toggle(!!displayValue)
+                    .attr('data-href', url)
+                ;
             }
 
             for (i = 0; i < dataImages.length; ++i) {
                 var $img = $(dataImages[i]);
                 var dataProp = $img.attr('data-preview-for');
                 var value = values[dataProp];
-                if (value) {
-                    if (!/^(http[s]?)?:?\/\//.test(value || '')) {
-                        $img.attr('src', Mapbender.configuration.application.urls.asset + value);
+                if (typeof value !== 'undefined') {
+                    if (value) {
+                        $img.attr('src', this.getAttachmentUrl_(baseUrl, dataProp, value));
                     } else {
-                        $img.attr('src', value || '');
+                        var defaultSrc = $img.attr('data-default-src') || '';
+                        $img.attr('src', defaultSrc || '').toggle(!!defaultSrc);
                     }
                 }
             }
@@ -317,7 +351,7 @@
                 .attr('data-name', settings.name)
             ;
             var $btnText = $('<span class="upload-button-text">')
-                .text(settings.text || 'Select')
+                .attr('data-placeholder', settings.text || 'Select')
             ;
             var $btn = $('<span class="btn btn-success button fileinput-button">')
                 .append($fileInput)
@@ -325,8 +359,20 @@
                 .append('<i class="fa fa-upload" aria-hidden="true"/>')
                 .append($btnText)
             ;
+            var $downloadBtn = $('<a href="#" class="btn btn-xs -fn-open-attachment"><i class="fa fa-lg fa-fw fas fa-external-link-alt fa-external-link"></i></a>')
+                .attr('title', Mapbender.trans('mb.data-manager.attachment.open'))
+                .attr('target', '_blank')
+                .append($('<span class="sr-only">').text(Mapbender.trans('mb.data-manager.attachment.open')))
+            ;
+            var $deleteBtn = $('<a href="#" class="btn btn-xs -fn-delete-attachment"><i class="fa fa-lg fa-fw fas fa-trash-alt fa-trash"></i></a>')
+                .attr('title', Mapbender.trans('mb.actions.remove'))
+                .append($('<span class="sr-only">').text(Mapbender.trans('mb.actions.remove')))
+            ;
             var $group = $(document.createElement('div'))
+                .addClass('file-group')
                 .append($btn)
+                .append($downloadBtn)
+                .append($deleteBtn)
                 .append('<i class="fa fas fa-fw fa-spinner fa-spin hidden" />')
             ;
             return this.wrapInput_($group, settings);
@@ -342,6 +388,7 @@
             var $img = $(document.createElement('img'))
                 .addClass('img-responsive')
                 .attr('src', src)
+                .attr('data-default-src', settings.src || '')
                 .attr('data-preview-for', settings.name || null)
             ;
             // Wrap in form-group (potentially with label), but
