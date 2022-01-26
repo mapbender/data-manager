@@ -523,11 +523,12 @@
         },
         handle_select_: function(settings) {
             var required = (settings.attr || {}).required || settings.required;
+            var multiple = (settings.attr || {}).multiple || settings.multiple;
             var $select = $(document.createElement('select'))
                 .attr(settings.attr || {})
                 .prop('required', required)
                 .attr('name', settings.name)
-                .prop('multiple', !!settings.multiple)
+                .prop('multiple', !!multiple)
                 .addClass('form-control')
             ;
             var options = settings.options || [];
@@ -540,7 +541,7 @@
                 ;
                 $select.append($option);
             }
-            if (settings.multiple || settings.select2) {
+            if (multiple || settings.select2) {
                 $select.addClass('-js-init-select2');
                 if (settings.placeholder) {
                     $select.data('select2-options', {placeholder: settings.placeholder});
@@ -548,7 +549,7 @@
             }
             if (settings.value !== null && typeof (settings.value) !== 'undefined') {
                 var initial = settings.value;
-                if (settings.multiple && !Array.isArray(initial)) {
+                if (multiple && !Array.isArray(initial)) {
                     initial = initial.toString().split(settings.separator || ',') || [];
                 }
                 $select.val(initial);
@@ -567,13 +568,15 @@
             var groupValue = settings.value || '';
             for (var r = 0; r < settings.options.length; ++r) {
                 var radio = settings.options[r];
+                var disabled = (radio.attr || {}).disabled || radio.disabled || settings.disabled;
                 var $radio = $('<input type="radio">')
+                    .attr(radio.attr || {})
                     .attr('name', settings.name)
                     .attr('value', radio.value || '')
                     // Browser magic: if multiple radios with same name have "checked" prop,
                     // the last one (in DOM order) will win out
                     .prop('checked', r === 0 || (radio.value || '') === groupValue)
-                    .prop('disabled', radio.disabled || settings.disabled)
+                    .prop('disabled', disabled)
                 ;
                 /** @see https://getbootstrap.com/docs/3.4/css/#checkboxes-and-radios */
                 var $label = $(document.createElement('label'))
