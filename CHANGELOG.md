@@ -3,6 +3,7 @@
 - Fix missing `attr` support on radioGroup option
 - Fix label margin for radioGroup form type
 - Fix alignment of file upload spinning process indicator
+- Document "formItems", upload paths and misc other configuration options
 
 # 2.0.3
 - Add interaction button to file inputs to open current attachment in new tab
