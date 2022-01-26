@@ -186,6 +186,9 @@
     .fileinput-button {
       flex: 0 1 auto;
     }
+    >i.fa-spin {
+      line-height: inherit;
+    }
   }
   .fileinput-button {
     position: relative;
@@ -217,6 +220,9 @@
   span.select2-container {
     display: block;
     width: auto !important; // overrule inline style
+  }
+  label + div.radio, label + div.checkbox {
+    margin-top: 0;
   }
 }
 
