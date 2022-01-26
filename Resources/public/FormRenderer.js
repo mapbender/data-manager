@@ -166,7 +166,7 @@
                 case 'text':
                     return this.handle_text_(settings);
                 case 'label':
-                    return this.handle_label_(settings);
+                    return this.renderTag_('p', settings);
                 case 'input':
                     return this.handle_input_(settings);
                 case 'textArea':
@@ -187,6 +187,10 @@
                     return this.handle_radioGroup_(settings);
                 case 'breakLine':
                     return this.handle_breakLine_(settings);
+                case 'div':
+                case 'span':
+                case 'p':
+                    return this.renderTag_(settings.type, settings);
             }
         },
         initializeWidgets: function(scope, baseUrl) {
@@ -472,14 +476,15 @@
             }
             return $container;
         },
-        handle_label_: function(settings) {
-            // NOT a field label. Ignore input-related stuff and
-            // emit a simple text paragraph.
-            return $(document.createElement('p'))
+        renderTag_: function(tagName, settings) {
+            var $element = $(document.createElement(tagName))
                 .attr(settings.attr || {})
-                .addClass(settings.cssClass)
+                .addClass(settings.cssClass || '')
+                .css(settings.css || {})
                 .text(settings.text || settings.title)
+                .append(this.renderElements(settings.children || []))
             ;
+            return $element;
         },
         handle_html_: function(settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L265 */
