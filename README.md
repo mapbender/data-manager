@@ -53,7 +53,7 @@ value. All inputs share a common set of configuration options:
 | value | string | Initial field value on newly created items | -none- |
 | title | string | Label text for form input field | -none- |
 | attr | object | Mapping of HTML attributes to add to the input | -none- |
-| infoText | string | Mapping of HTML attributes to add to the input | -none- |
+| infoText | string | Explanatory text placed in a tooltip next to the label | -none- |
 | css | object | Mapping of CSS rules to add to the form group (container around label and input) | -none- |
 | cssClass | string | Added to the class attribute of the form group (container around label and input) | -none- |
 
@@ -104,8 +104,8 @@ Types "radioGroup" and "select" require a list of objects under key
 
 | name | type | description | default |
 |---|---|---|---|
-| type | string | Type of form input field (see below) | -none- |
-| name | string | Database column mapped to the input | -none- |
+| value | string | Generated database value for the choice | -none- |
+| label | string | Displayed text for the choice | Same as value |
 | attr | object | Mapping of HTML attributes to add to the individual HTML `<option>` or `<input type="radio">` | -none- |
 
 ```yml
