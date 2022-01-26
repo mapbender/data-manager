@@ -1,3 +1,9 @@
+# 1.2.6
+- Fix missing `attr` and `required` support on select type form item
+- Fix missing `attr` support on radioGroup option
+- Fix label margin for radioGroup form type
+- Fix alignment of file upload spinning process indicator
+
 # 1.2.5
 - Add interaction button to file inputs to open current attachment in new tab
 - Add interaction button to file inputs to remove attachment
