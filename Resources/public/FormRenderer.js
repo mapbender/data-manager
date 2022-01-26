@@ -522,7 +522,10 @@
             ;
         },
         handle_select_: function(settings) {
+            var required = (settings.attr || {}).required || settings.required;
             var $select = $(document.createElement('select'))
+                .attr(settings.attr || {})
+                .prop('required', required)
                 .attr('name', settings.name)
                 .prop('multiple', !!settings.multiple)
                 .addClass('form-control')
