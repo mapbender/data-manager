@@ -629,6 +629,7 @@
         },
         wrapInput_: function($input, settings) {
             var $group = $(document.createElement('div'))
+                .addClass(settings.cssClass || '')
                 .addClass('form-group')
                 .css(settings.css || {})
             ;
