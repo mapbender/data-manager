@@ -478,7 +478,7 @@
                 minWidth = parseInt(width.replace(/px$/, '')) || minWidth
             }
             return {
-                title: schema.popup.title || Mapbender.trans('mb.data.store.edit.title'),
+                title: schema.popup.title || Mapbender.trans('mb.data-manager.details_title'),
                 width: schema.popup.width,
                 minWidth: minWidth,
                 classes: {
