@@ -1,15 +1,8 @@
 mb.data.store:
-  cancel: Отменить
   create: Создать
-  edit: Редактировать
-  edit.title: 'Редактирование данных'
-  feature:
-    remove: Удалить
-  remove: Удалить
   remove.successfully: 'Данные удалены'
   remove.confirm:
     text: 'Подведите удаление'
-  save: Сохранить
   save.successfully: 'Данные сохранены'
   api.query.error-message: Ошибка
 
@@ -19,3 +12,7 @@ mb.data-manager.table:
   empty_after_filtering: Без результатов
   from_to_total: от _START_ до _END_ из _TOTAL_
   out_of: (отфильтровано из _MAX_ объектов)
+
+mb:
+  'data-manager':
+    details_title: Редактирование данных
