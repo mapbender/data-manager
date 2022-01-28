@@ -162,13 +162,13 @@
             // NOTE: "edit" interaction is always added even with "allowEdit" schema config false. Without "allowEdit",
             //       the dialog will not have a save button, but it will still function as an attribute data viewer.
             buttons.push({
-                title: Mapbender.trans('mb.data.store.edit'),
+                title: Mapbender.trans(schema && schema.allowEdit ? 'mb.actions.edit' : 'mb.data-manager.actions.show_details'),
                 cssClass: 'fa fa-edit -fn-edit-data btn-default'
             });
 
             if (schema.allowDelete) {
                 buttons.push({
-                    title: Mapbender.trans('mb.data.store.remove'),
+                    title: Mapbender.trans('mb.actions.delete'),
                     cssClass: 'critical fa fa-times -fn-delete btn-danger'
                 });
             }

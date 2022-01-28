@@ -30,6 +30,7 @@ Incompatible / not installable with Mapbender versions before v3.2.6.
 - Fix label margin for radioGroup form type
 - Fix alignment of file upload spinning process indicator
 - Document "formItems", upload paths and misc other configuration options
+- Misc translation fixes
 
 # 1.2.5
 - Add interaction button to file inputs to open current attachment in new tab

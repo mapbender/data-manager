@@ -1,15 +1,8 @@
 mb.data.store:  
-  cancel: Abbrechen
   create: Erstellen
-  edit: Bearbeiten
-  edit.title: Daten
-  feature:
-    remove: Löschen
-  remove: Löschen
   remove.successfully: 'Erfolgreich gelöscht'
   remove.confirm:
     text: 'Objekt löschen?'
-  save: Speichern
   save.successfully: 'Erfolgreich gespeichert'
   api.query.error-message: Fehler
 
@@ -22,5 +15,8 @@ mb.data-manager.table:
 
 mb:
   'data-manager':
+    actions:
+      show_details: Details anzeigen
+    details_title: Objektdetails
     attachment:
       open: Anhang öffnen

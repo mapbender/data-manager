@@ -148,14 +148,8 @@
             });
             this.element.on('click', '.-fn-refresh-schema', function() {
                 var schema = $(this).data('schema');
-                if (self.currentPopup) {
-                    self.confirmDialog(Mapbender.trans('mb.data.store.confirm.close.edit.form')).then(function() {
-                        self._closeCurrentPopup();
-                        self._getData(schema);
-                    });
-                } else {
-                    self._getData(schema);
-                }
+                self._closeCurrentPopup();
+                self._getData(schema);
             });
             this.element.on('click', '.-fn-create-item', function() {
                 var schema = $(this).data('schema');
@@ -259,7 +253,7 @@
                 var $refreshButton = $('<button>').data('schema', schema).attr({
                     type: 'button',
                     'class': 'btn btn-sm -fn-refresh-schema btn-default',
-                    title: Mapbender.trans('mb.data.store.create')      // sic! @todo: distinct translation
+                    title: Mapbender.trans('mb.actions.refresh')
                 });
                 $refreshButton.append($('<i/>').addClass('fa fa-refresh'));
                 buttons.push($refreshButton);
@@ -484,7 +478,7 @@
                 minWidth = parseInt(width.replace(/px$/, '')) || minWidth
             }
             return {
-                title: schema.popup.title || Mapbender.trans('mb.data.store.edit.title'),
+                title: schema.popup.title || Mapbender.trans('mb.data-manager.details_title'),
                 width: schema.popup.width,
                 minWidth: minWidth,
                 classes: {
@@ -505,7 +499,7 @@
             var widget = this;
             if (schema.allowEdit) {
                 buttons.push({
-                    text: Mapbender.trans('mb.data.store.save'),
+                    text: Mapbender.trans('mb.actions.save'),
                     click: function() {
                         var $scope = $(this).closest('.ui-dialog-content');
                         var saved = widget._submitFormData(schema, $scope, dataItem);
@@ -519,7 +513,7 @@
             }
             if (schema.allowDelete && this._getUniqueItemId(schema, dataItem)) {
                 buttons.push({
-                    text: Mapbender.trans('mb.data.store.remove'),
+                    text: Mapbender.trans('mb.actions.delete'),
                     'class': 'critical',
                     click: function() {
                         widget._closeCurrentPopup();
@@ -528,7 +522,7 @@
                 });
             }
             buttons.push({
-                text: Mapbender.trans('mb.data.store.cancel'),
+                text: Mapbender.trans('mb.actions.cancel'),
                 click: function() {
                     widget._cancelForm(schema, dataItem);
                 }
