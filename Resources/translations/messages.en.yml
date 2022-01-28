@@ -15,8 +15,8 @@ mb.data-manager.table:
 
 mb:
   'data-anager':
-    show_details:
-      tooltip: Show details
+    actions:
+      show_details: Show details
     details_title: Detail data
     attachment:
       open: Open attachment
