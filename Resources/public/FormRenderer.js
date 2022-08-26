@@ -531,6 +531,7 @@
                 ;
         },
         handle_select_: function (settings) {
+            var widget = this.widget;
             var required = (settings.attr || {}).required || settings.required;
             var multiple = (settings.attr || {}).multiple || settings.multiple;
             var $select = $(document.createElement('select'))
@@ -562,6 +563,31 @@
                     initial = initial.toString().split(settings.separator || ',') || [];
                 }
                 $select.val(initial);
+            }
+            if (settings.calculateMaxElevationOnChange) {
+                $select.change(()=>{
+                    return $.ajax({
+                        url: widget.elementUrl + 'getMaxElevation',
+                        type: 'POST',
+                        dataType:    "json",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            curveseg_id: $select.val(),
+                            schema: widget._getCurrentSchema(),
+                            srs: widget.getCurrentSrid()
+                        })
+                    }).done((res)=>{
+                        let dialog = widget.currentPopup;
+
+                        dialog.find("input[name=height_max_curveseg]").val(res.height_max_curveseg);
+                        dialog.find("input.-fn-coordinates.x").val(res.x).trigger("change");
+                        dialog.find("input.-fn-coordinates.y").val(res.y).trigger("change");
+
+
+                    }).fail(()=>{
+                        console.log("Request failed");
+                    });
+                });
             }
             // Legacy amenities
             $select.data('declaration', settings);
