@@ -143,10 +143,10 @@ class FormItemFilter
             } else {
                 $flat = \array_values($row);
                 $options[] = array(
-                    'label' => $flat[0],
+                    'value' => $flat[0],
                     // Use LAST column, like legacy BaseElement
                     /** @see https://github.com/mapbender/data-source/blob/0.0.35/Element/BaseElement.php#L95 */
-                    'value' => $flat[count($flat) - 1],
+                    'label' => $flat[count($flat) - 1],
                     'properties' => $row,
                 );
             }

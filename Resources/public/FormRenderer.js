@@ -16,14 +16,14 @@
         ')$/'
     ].join(''));
     var browserNativeInputs = {
-        date: (function() {
-                // detect support for HTML5 date input; see https://stackoverflow.com/a/10199306
-                var dateInput = document.createElement('input');
-                var invalidDate = 'not-a-date';
-                dateInput.setAttribute('type', 'date');
-                dateInput.setAttribute('value', invalidDate);
-                return dateInput.value !== invalidDate;
-            })()
+        date: (function () {
+            // detect support for HTML5 date input; see https://stackoverflow.com/a/10199306
+            var dateInput = document.createElement('input');
+            var invalidDate = 'not-a-date';
+            dateInput.setAttribute('type', 'date');
+            dateInput.setAttribute('value', invalidDate);
+            return dateInput.value !== invalidDate;
+        })()
         // @todo: native color input
     };
 
@@ -41,7 +41,8 @@
         }
     }
 
-    Mapbender.DataManager.FormRenderer = function FormRenderer() {
+    Mapbender.DataManager.FormRenderer = function FormRenderer(widget) {
+        this.widget = widget;
     };
 
     Object.assign(Mapbender.DataManager.FormRenderer.prototype, {
@@ -54,7 +55,7 @@
          * @param {Array<Object>} fileConfigs
          * @param {Object} [parent]
          */
-        prepareItems: function(items, baseUrl, fileConfigs, parent) {
+        prepareItems: function (items, baseUrl, fileConfigs, parent) {
             var dropped = [], i;
             for (i = 0; i < items.length; ++i) {
                 var item = items[i];
@@ -74,7 +75,7 @@
                 }
             }
             if (dropped.length) {
-                var remaining = items.filter(function(x) {
+                var remaining = items.filter(function (x) {
                     return !!x;
                 });
                 items.splice.apply(items, [0, items.length].concat(remaining));
@@ -95,15 +96,15 @@
          * @return {Object}
          * @private
          */
-        prepareLeaf_: function(item, baseUrl, fileConfigs) {
+        prepareLeaf_: function (item, baseUrl, fileConfigs) {
             if (item.type === 'inline' || item.type === 'fieldSet') {
                 var reformedRadioGroup = this.reformRadioGroup_(item.children || [], item);
                 if (reformedRadioGroup && reformedRadioGroup.__filtered__.length) {
                     var spliceIndex = item.children.indexOf(reformedRadioGroup.__filtered__[0]);
-                    var remainingChildren = item.children.filter(function(ch) {
+                    var remainingChildren = item.children.filter(function (ch) {
                         return -1 === reformedRadioGroup.__filtered__.indexOf(ch);
                     });
-                    delete(reformedRadioGroup['__filtered__']);
+                    delete (reformedRadioGroup['__filtered__']);
                     if (item.type === 'inline' || !remainingChildren.length) {
                         // Replace entire parent item
                         return reformedRadioGroup;
@@ -115,7 +116,7 @@
                 }
             }
             if (item.type === 'file' && item.name) {
-                var fileConfig = fileConfigs.filter(function(x) {
+                var fileConfig = fileConfigs.filter(function (x) {
                     return x.field === item.name;
                 })[0];
                 if (!item.accept && !(item.attr || {}).accept && fileConfig && fileConfig.formats) {
@@ -131,7 +132,7 @@
          * @param {Array<Object>} children
          * @return {Array<HTMLElement>}
          */
-        renderElements: function(children) {
+        renderElements: function (children) {
             var elements = [];
             for (var i = 0; i < children.length; ++i) {
                 var $element = this.renderElement(children[i]);
@@ -143,7 +144,7 @@
          * @param {Object} settings
          * @return {jQuery}
          */
-        renderElement: function(settings) {
+        renderElement: function (settings) {
             var definedChildren = settings.children && settings.children.length && settings.children || null;
             if (requireChildrenRxp.test(settings.type) && !definedChildren) {
                 console.error("Missing required 'children' on type " + settings.type + " => ignoring", settings);
@@ -153,6 +154,8 @@
                 default:
                     // Uh-oh
                     return this.renderFallback_(settings);
+                case 'coordinates':
+                    return this.handle_coordinates(settings);
                 case 'form':
                     console.warn("Not rendering top-level type: form, skipping directly into children. Move your form field configurations up directly into your 'formItems' list", settings);
                     // Completely ignore forms. Skip into children
@@ -193,16 +196,16 @@
                     return this.renderTag_(settings.type, settings);
             }
         },
-        initializeWidgets: function(scope, baseUrl) {
+        initializeWidgets: function (scope, baseUrl) {
             if ($.fn.colorpicker) {
-                $('.-js-init-colorpicker', scope).each(function() {
+                $('.-js-init-colorpicker', scope).each(function () {
                     $(this).colorpicker({
                         format: 'hex',
                         container: $('.input-group', $(this).closest('.form-group'))
                     });
                 });
             }
-            $('.-js-datepicker', scope).each(function() {
+            $('.-js-datepicker', scope).each(function () {
                 var dp = $(this).datepicker({
                     dateFormat: 'yy-mm-dd', // format must be SQL compatible / HTML5 interchangeable
                     firstDay: 1
@@ -210,13 +213,13 @@
                 dp.dpDiv.addClass('popover data-manager-datepicker');
             });
             if ($.fn.select2) {
-                $('.-js-init-select2', scope).each(function() {
+                $('.-js-init-select2', scope).each(function () {
                     var $select = $(this);
                     $(this).select2($select.data('select2-options') || {});
                 });
             }
             var self = this;
-            $('input[type="file"][data-upload-url][data-name]', scope).each(function() {
+            $('input[type="file"][data-upload-url][data-name]', scope).each(function () {
                 var $input = $(this);
                 var name = $input.attr('data-name');
                 var $group = $input.closest('.form-group');
@@ -226,21 +229,21 @@
                 $input.fileupload({
                     dataType: 'json',
                     url: url,
-                    success: function(response) {
+                    success: function (response) {
                         var values = {};
                         values[name] = response.filename;
                         $realInput.val(response.filename);
                         self.updateFileInputs(scope, baseUrl, values);
                     },
-                    send: function() {
+                    send: function () {
                         $loadingIcon.removeClass('hidden');
                     },
-                    always: function() {
+                    always: function () {
                         $loadingIcon.addClass('hidden');
                     }
                 });
             });
-            $(scope).on('click', '.-fn-delete-attachment', function() {
+            $(scope).on('click', '.-fn-delete-attachment', function () {
                 var $link = $(this);
                 var $group = $link.closest('.form-group');
                 var $input = $('input[type="hidden"][name]', $group);
@@ -252,7 +255,7 @@
                 return false;
             });
         },
-        getAttachmentUrl_: function(baseUrl, fieldName, inputValue) {
+        getAttachmentUrl_: function (baseUrl, fieldName, inputValue) {
             if (inputValue && !/^(http[s]?)?:?\/\//.test(inputValue)) {
                 var baseName = inputValue.replace(/^.*?\/([^/]*)$/, '$1');
                 return [baseUrl, 'attachment', '?field=', encodeURIComponent(fieldName), '&name=', encodeURIComponent(baseName)].join('');
@@ -260,7 +263,7 @@
                 return inputValue;
             }
         },
-        updateFileInputs: function(scope, baseUrl, values) {
+        updateFileInputs: function (scope, baseUrl, values) {
             var fileInputs = $('.fileinput-button input[name]', scope).get();
             var dataImages = $('img[data-preview-for]', $(scope).closest('.ui-dialog')).get();
             var i;
@@ -302,19 +305,19 @@
                 }
             }
         },
-        handle_input_: function(settings) {
+        handle_input_: function (settings) {
             var $input = this.textInput_(settings, 'text');
             this.addCustomEvents_($input, settings);
             return this.wrapInput_($input, settings);
         },
-        handle_textArea_: function(settings) {
+        handle_textArea_: function (settings) {
             var $input = $(document.createElement('textarea'))
                 .attr('rows', settings.rows || 3)
             ;
             this.configureTextInput_($input, settings);
             return this.wrapInput_($input, settings);
         },
-        handle_date_: function(settings) {
+        handle_date_: function (settings) {
             var native = browserNativeInputs.date;
             var type = native && 'date' || 'text';
             var $input = this.textInput_(settings, type);
@@ -329,7 +332,7 @@
             }
             return $wrapper;
         },
-        handle_colorPicker_: function(settings) {
+        handle_colorPicker_: function (settings) {
             var $input = this.textInput_(settings, 'text');
             if ($.fn.colorpicker) {
                 var $addonGroup = $(document.createElement('div'))
@@ -342,7 +345,7 @@
                 return this.wrapInput_($input, settings);
             }
         },
-        handle_file_: function(settings) {
+        handle_file_: function (settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L545 */
             var $inputReal = $('<input type="hidden" />')
                 // NOTE: do not attempt required / disabled etc on hidden inputs
@@ -381,7 +384,7 @@
             ;
             return this.wrapInput_($group, settings);
         },
-        handle_image_: function(settings) {
+        handle_image_: function (settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L496 */
             /** @todo: support "enlargeImage"...? */
             var src = settings.src || null;
@@ -403,12 +406,12 @@
                 css: settings.css
             });
         },
-        textInput_: function(settings, type) {
+        textInput_: function (settings, type) {
             var $input = $('<input type="' + type + '"/>');
             this.configureTextInput_($input, settings);
             return $input;
         },
-        configureTextInput_: function($input, settings) {
+        configureTextInput_: function ($input, settings) {
             // Used for input type="text" and textarea
             $input
                 .prop({
@@ -419,6 +422,7 @@
                 .attr(settings.attr || {})
                 .attr('name', settings.name || null)
                 .addClass('form-control')
+                .addClass(settings.cssClass || '');
             ;
             if (settings.value) {
                 $input.val(settings.value);
@@ -428,7 +432,7 @@
             }
             $input.attr('data-custom-validation-message', settings.mandatoryText || null);
         },
-        handle_tabs_: function(settings) {
+        handle_tabs_: function (settings) {
             /** https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L641 */
             var $tabList = $(document.createElement('ul'));
             var $container = $(document.createElement('div'));
@@ -458,7 +462,7 @@
             });
             return $container;
         },
-        handle_fieldSet_: function(settings) {
+        handle_fieldSet_: function (settings) {
             this.checkExtraSettings_(settings, ['type', 'children']);
             var $container = $(document.createElement('div'))
                 .addClass('row reduce-gutters')
@@ -466,7 +470,7 @@
             for (var i = 0; i < settings.children.length; ++i) {
                 var sub = settings.children[i];
                 var subSettings = Object.assign({}, sub);
-                delete(subSettings['css']);
+                delete (subSettings['css']);
                 var $column = $(document.createElement('div'))
                     .addClass('col-4 col-xs-4')
                     .css(sub.css || {})
@@ -476,7 +480,7 @@
             }
             return $container;
         },
-        renderTag_: function(tagName, settings) {
+        renderTag_: function (tagName, settings) {
             var $element = $(document.createElement(tagName))
                 .attr(settings.attr || {})
                 .addClass(settings.cssClass || '')
@@ -486,7 +490,7 @@
             ;
             return $element;
         },
-        handle_html_: function(settings) {
+        handle_html_: function (settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L265 */
             var $wrapper = $(document.createElement('div'))
                 .attr(settings.attr || {})
@@ -496,7 +500,7 @@
             ;
             return $wrapper;
         },
-        handle_text_: function(settings) {
+        handle_text_: function (settings) {
             /** https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L823 */
             var $wrapper = $(document.createElement('div')).addClass('form-group text');
             var $textContainer = $(document.createElement('div'))
@@ -511,7 +515,7 @@
             ;
             return $wrapper;
         },
-        handle_checkbox_: function(settings) {
+        handle_checkbox_: function (settings) {
             var $label = this.fieldLabel_(settings);
             var $checkbox = $('<input type="checkbox"/>')
                 .attr('name', settings.name || null)
@@ -524,9 +528,9 @@
             return $(document.createElement('div'))
                 .addClass('form-group checkbox')
                 .append($label)
-            ;
+                ;
         },
-        handle_select_: function(settings) {
+        handle_select_: function (settings) {
             var required = (settings.attr || {}).required || settings.required;
             var multiple = (settings.attr || {}).multiple || settings.multiple;
             var $select = $(document.createElement('select'))
@@ -564,7 +568,7 @@
             this.addCustomEvents_($select, settings);
             return this.wrapInput_($select, settings);
         },
-        handle_radioGroup_: function(settings) {
+        handle_radioGroup_: function (settings) {
             var wrappedRadios = [];
             if (!settings.options || !settings.options.length) {
                 console.error('Ignoring item type "radioGroup" with empty "options" list.', settings);
@@ -604,16 +608,152 @@
             }
             return this.wrapInput_(wrappedRadios, settings);
         },
-        handle_breakLine_: function(settings) {
+        handle_breakLine_: function (settings) {
             return $(document.createElement('hr'))
                 .attr(settings.attr || {})
                 .addClass(settings.cssClass || null)
-            ;
+                ;
         },
-        fieldLabel_: function(settings) {
+        handle_coordinates: function (settings) {
+            let widget = this.widget;
+            let projection, inputX, inputY;
+            var mapProjection = widget.mbMap.getModel().getCurrentProjectionCode();
+            let previousSRS = null;
+
+            proj4.defs("EPSG:31255","+proj=tmerc +lat_0=0 +lon_0=13.3333333333333 +k=1 +x_0=0 +y_0=-5000000 +ellps=bessel +towgs84=408.0895,-288.9616,791.5498,-4.078662,0.022669,9.825424,94.060626 +units=m +no_defs +type=crs");
+
+            let transform = (x, y, fromSrs, toSrs = mapProjection) => {
+                var
+                    fromProj = proj4.Proj(fromSrs),
+                    toProj = proj4.Proj(toSrs),
+                    transformedCoordinates = proj4.transform(fromProj, toProj, [x, y])
+                ;
+                return {
+                    x: transformedCoordinates.x,
+                    y: transformedCoordinates.y
+                };
+            }
+
+            let isDM = function(coordinate) {
+                return !!coordinate.match(/(\d*)\°([\d.]*)\'/);
+            };
+
+            let isDMS =  function(coordinate) {
+                return  !!coordinate.match(/(\d*)\°(\d*)\'([\d.]*)\"/);
+            };
+
+            let isDegree =function (coordinate) {
+                return isDM(coordinate) || isDMS(coordinate);
+            };
+
+            let toDecimal = function(value){
+                if(!isDegree(value)) {
+                    if (isNaN(value)) return false;
+                    else return value;
+                }
+                var match = value.match(/(\d*)\°([\d.]*)\'/) ;
+                match = match.length === 6 ?  match : value.match(/(\d*)\°(\d*)\'([\d.]*)\"/);
+
+                var decimals = (parseFloat(match[1])) + parseFloat((match[2]/60));
+                if (this.isDMS(value)){
+                    decimals = decimals + parseFloat((match[3]/3600));
+                }
+                return  decimals;
+            };
+
+            let changeInput = function() {
+                let feature = widget.currentPopup.data("feature");
+
+                let rawx = inputX.val();
+                let rawy = inputY.val();
+
+                let x = toDecimal(rawx);
+                let y = toDecimal(rawy);
+                let proj = projection.val();
+
+                if (x && y) {
+                    let transformation = transform(x, y, proj);
+
+                    if (!isNaN(transformation.x) && !isNaN(transformation.y)) {
+                        feature.getGeometry().setCoordinates([transformation.x,transformation.y]);
+                    }
+
+                }
+
+            }
+
+
+
+            let projectionSettings = {
+                title: (settings.title_epsg || 'EPSG')+':',
+                type: 'select',
+                options: settings.epsgCodes.map((code) => {
+                    return {
+                        value: code[0],
+                        label: code[1]
+                    }
+                }),
+                value: mapProjection,
+                cssClass: '-fn-active-epsgCode',
+                disabled: !!settings.disabled,
+                focus: function () {
+                    previousSRS = this.value;
+                },
+                change: function (event) {
+
+                    let rawx = inputX.val();
+                    let rawy = inputY.val();
+                    let x = toDecimal(rawx);
+                    let y = toDecimal(rawy);
+
+                    let toSrs = projection.val();
+
+                    let transformation = transform(x, y, previousSRS, toSrs);
+                    previousSRS = toSrs;
+
+                    inputX.val(transformation.x);
+                    inputY.val(transformation.y);
+
+                }
+            };
+
+            let inputXSettings = {
+                type: 'input',
+                cssClass : "-fn-coordinates x",
+                title: (settings.title_longitude || 'longitude')+':',
+                change: changeInput
+            }
+            let inputYSettings = {
+                type: 'input',
+                cssClass : "-fn-coordinates y",
+                title: (settings.title_latitude || 'latitude')+':',
+                change: changeInput
+
+            }
+
+            projection = this.renderElement(projectionSettings).find("select");
+            inputX = this.renderElement(inputXSettings).find("input");
+            inputY = this.renderElement(inputYSettings).find("input");
+
+
+            var $container = $(document.createElement('div')).addClass('row reduce-gutters');
+
+            [projection,inputX,inputY].forEach(($input) => {
+                let $column = $(document.createElement('div'))
+                    .addClass('col-4 col-xs-4')
+                    .css({'width':'33.3%'})
+                    .append($input);
+                ;
+                $container.append($column);
+            });
+
+            return $container;
+        },
+
+        fieldLabel_: function (settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L353 */
             var $label = $(document.createElement('label'))
-                .attr({'for': settings.name || null })
+                .attr({'for': settings.name || null})
                 .text(settings.title || settings.text)
             ;
             if (settings.infoText) {
@@ -632,7 +772,7 @@
             }
             return $label;
         },
-        wrapInput_: function($input, settings) {
+        wrapInput_: function ($input, settings) {
             var $group = $(document.createElement('div'))
                 .addClass(settings.cssClass || '')
                 .addClass('form-group')
@@ -644,30 +784,30 @@
             $group.append($input);
             return $group;
         },
-        renderFallback_: function(settings) {
+        renderFallback_: function (settings) {
             if ((settings.children || []).length) {
                 return $(document.createElement('div'))
                     .append(this.renderElements(settings.children))
-                ;
+                    ;
             } else {
                 console.error("Don't know how to render item type " + settings.type, settings);
                 return $nothing;
             }
         },
-        createValidationCallback_: function(expression) {
+        createValidationCallback_: function (expression) {
             // legacy fun fact: string runs through eval, but result of eval can only be used
             // if it happens to have an method named .exec accepting a single parameter
             // => this was never compatible with anything but regex literals
-            return (function() {
+            return (function () {
                 var rxp = expressionToRegex(expression);
-                return function(value) {
+                return function (value) {
                     return rxp.test(value);
                 }
             }());
         },
-        addCustomEvents_: function($input, settings) {
+        addCustomEvents_: function ($input, settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L123 */
-            var names = ['filled', 'change'].filter(function(name) {
+            var names = ['filled', 'change','focus'].filter(function (name) {
                 return settings[name];
             });
             for (var i = 0; i < names.length; ++i) {
@@ -676,10 +816,10 @@
                 $input.addClass('-js-custom-events');
                 if (typeof handler !== 'function') {
                     console.error("Using eval'd Javascript in the configuration is deprecated. Add event handlers to your project code.", settings);
-                    handler = (function(code) {
+                    handler = (function (code) {
                         var element = $input;
                         var el = element;
-                        return function() {
+                        return function () {
                             eval(code);
                         };
                     })(handler);
@@ -687,28 +827,28 @@
                 $input.on(name, handler);
             }
         },
-        checkExtraSettings_: function(settings, expectedProps, description) {
+        checkExtraSettings_: function (settings, expectedProps, description) {
             var description_ = description || ['type ', '"', settings.type, '"'].join('');
-            var other = Object.keys(settings).filter(function(name) {
+            var other = Object.keys(settings).filter(function (name) {
                 return -1 === expectedProps.indexOf(name);
             });
             if (other.length) {
                 console.warn(
                     ["Ignoring extra properties on ", description_, ": ",
-                    other.join(', '),
-                    "; keep ", expectedProps.join(', '),
-                    "; remove everything else"].join(''),
+                        other.join(', '),
+                        "; keep ", expectedProps.join(', '),
+                        "; remove everything else"].join(''),
                     settings);
             }
         },
-        reformRadioGroup_: function(children, parent) {
-            var radioItems = children.filter(function(sub) {
+        reformRadioGroup_: function (children, parent) {
+            var radioItems = children.filter(function (sub) {
                 return sub.type === 'radio';
             });
 
             if (radioItems.length) {
                 var filtered = [];
-                var labelItems = children.filter(function(sub) {
+                var labelItems = children.filter(function (sub) {
                     return sub.type === 'label';
                 });
                 if (labelItems.length) {
@@ -722,7 +862,7 @@
                         break;
                     }
                 }
-                var options = radioItems.map(function(legacyRadio) {
+                var options = radioItems.map(function (legacyRadio) {
                     if (legacyRadio.name === name) {
                         filtered.push(legacyRadio);
                         return {
@@ -733,7 +873,7 @@
                     } else {
                         return null;
                     }
-                }).filter(function(x) {
+                }).filter(function (x) {
                     return !!x;
                 });
 

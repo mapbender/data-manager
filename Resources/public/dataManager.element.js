@@ -72,7 +72,7 @@
             this._afterCreate();
         },
         _createFormRenderer: function() {
-            return new Mapbender.DataManager.FormRenderer();
+            return new Mapbender.DataManager.FormRenderer(this);
         },
         _createTableRenderer: function() {
             return new Mapbender.DataManager.TableRenderer(this);
@@ -391,6 +391,8 @@
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
                     console.warn("Form contains an input field for the object id", schema);
                 }
+                delete formData['x'];
+                delete formData['y'];
                 delete formData[uniqueIdAttribute];
                 return this._saveItem(schema, dataItem, formData);
             } else {
