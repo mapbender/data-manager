@@ -191,7 +191,8 @@
                 case 'breakLine':
                     return this.handle_breakLine_(settings);
                 case 'div':
-                case 'span':
+                case 'span' :
+                case 'button' :
                 case 'p':
                     return this.renderTag_(settings.type, settings);
             }
@@ -305,8 +306,60 @@
                 }
             }
         },
+        handle_automatic_detection(settings) {
+            var widget = this.widget;
+            var children = [];
+            var input = {
+                type: settings.type,
+                title: settings.title,
+                label: '',
+                name: settings.name,
+                mandatory: settings.mandatory,
+                options: settings.options,
+                css: {width: '80%', flex: '0 0 80%' },
+                keyup: settings.keyup,
+
+            };
+
+            var button = {
+                type: "button",
+                cssClass: "fa fa-plus",
+                css: { 'margin-bottom': '6px', 'width': '10%', 'max-width': '30px', flex: '0 0 20%'},
+                label: '&nbsp;',
+                attr: {'href': '#', 'title': 'Automatisch ermitteln' },
+                click: function () {
+                    widget._getRemotePropertyValues(widget.currentPopup.data("feature"), widget._getCurrentSchema(), settings.name).done(function (properties) {
+
+                        Objec.keys(properties).foreEach(function(prop){
+                            $(widget.currentPopup).find("[name=" + prop + "]");
+                            inputfield.val(properties[prop]).keyup();
+                        });
+
+                    });
+                    return false;
+                }
+            };
+
+            children.push(input);
+            children.push(button);
+
+            let item = {};
+
+            item.type = "fieldSet";
+            item.title = '';
+            item.label = '';
+            item.css = { display: 'flex', 'align-items' : 'flex-end' };
+            item.cssClass = 'automatic-detection-fieldset';
+            item.children = children;
+
+            return this.handle_fieldSet_(item);
+        },
         handle_input_: function (settings) {
+            var widget = this.widget;
             var $input = this.textInput_(settings, 'text');
+            if (widget._getCurrentSchema().popup.remoteData && settings.automatic_detection) {
+                return this.handle_automatic_detection(settings);
+            }
             this.addCustomEvents_($input, settings);
             return this.wrapInput_($input, settings);
         },
@@ -465,7 +518,7 @@
         handle_fieldSet_: function (settings) {
             this.checkExtraSettings_(settings, ['type', 'children']);
             var $container = $(document.createElement('div'))
-                .addClass('row reduce-gutters')
+                .addClass('row reduce-gutters').css(settings.css || {});
             ;
             for (var i = 0; i < settings.children.length; ++i) {
                 var sub = settings.children[i];
@@ -487,6 +540,10 @@
                 .css(settings.css || {})
                 .text(settings.text || settings.title)
                 .append(this.renderElements(settings.children || []))
+
+                if (tagName == "button") {
+                    $element.click(settings.click);
+                }
             ;
             return $element;
         },
@@ -563,6 +620,9 @@
                     initial = initial.toString().split(settings.separator || ',') || [];
                 }
                 $select.val(initial);
+            }
+            if (widget._getCurrentSchema().popup.remoteData && settings.automatic_detection) {
+                return this.handle_automatic_detection(settings);
             }
             if (settings.calculateMaxElevationOnChange) {
                 $select.change(()=>{
