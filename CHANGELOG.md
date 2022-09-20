@@ -1,3 +1,10 @@
+# 1.2.7
+- Fix misleading log warning when generating select item choices from single-column SQL ([#5](https://github.com/mapbender/data-manager/issues/5))
+- Forms: Fix missing support for configurable validation error text on required select items
+- Forms: Support "mandatory" alias for select item required property (boolean only)
+- Forms: Detect column / expression aliases "label" and "value" when generating select item choices from SQL
+- Add documentation for [SQL-generated select item choices](./README.md#choice-input-option-formats)
+
 # 1.2.6
 - Fix missing `attr` and `required` support on select type form item
 - Fix missing `attr` support on radioGroup option
