@@ -131,7 +131,7 @@ class FormItemFilter
             });
             if (count($row) <= 1) {
                 if (!$warnedSingleColumn) {
-                    @trigger_error("Sql for select item options is single-column. Use a statement that generates a value (first) and label (second).", E_USER_DEPRECATED);
+                    @trigger_error("Sql for select item options is single-column. Use a statement that generates a label (first) and value (second).", E_USER_DEPRECATED);
                     $warnedSingleColumn = true;
                 }
                 $both = array_values($row)[0];
@@ -140,7 +140,14 @@ class FormItemFilter
                     'value' => $both,
                     'properties' => $row,
                 );
+            } elseif (\array_key_exists('label', $row) && \array_key_exists('value', $row)) {
+                $options[] = array(
+                    'label' => $row['label'],
+                    'value' => $row['value'],
+                    'properties' => $row,
+                );
             } else {
+                // Fingers crossed
                 $flat = \array_values($row);
                 $options[] = array(
                     'label' => $flat[0],
