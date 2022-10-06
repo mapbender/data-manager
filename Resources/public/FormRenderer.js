@@ -633,7 +633,7 @@
                         contentType: "application/json; charset=utf-8",
                         data: JSON.stringify({
                             curveseg_id: $select.val(),
-                            schema: widget._getCurrentSchema(),
+                            schema: widget._getCurrentSchema().schemaName,
                             srs: widget.getCurrentSrid()
                         })
                     }).done((res)=>{
