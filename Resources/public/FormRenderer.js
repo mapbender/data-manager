@@ -335,7 +335,7 @@
                             inputfield.val(properties[prop]).keyup();
                         });
 
-                    });
+                    }).fail(()=>console.log("No geometry or no access to server"));
                     return false;
                 }
             };
