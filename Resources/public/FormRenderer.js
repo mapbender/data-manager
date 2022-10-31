@@ -890,7 +890,7 @@
             // => this was never compatible with anything but regex literals
             if (typeof (eval(expression)) == 'function') {
                 return function (value) {
-                    let result = (eval(expression)).apply($input.get(0),[value]);
+                    let result = !(eval(expression)).apply($input.get(0),[value]);
                     return result;
                 };
             } else
