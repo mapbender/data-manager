@@ -481,7 +481,7 @@
                 $input.val(settings.value);
             }
             if (settings.name && settings.mandatory && (typeof settings.mandatory === 'string')) {
-                $input.data('warn', this.createValidationCallback_(settings.mandatory));
+                $input.data('warn', this.createValidationCallback_(settings.mandatory,$input));
             }
             $input.attr('data-custom-validation-message', settings.mandatoryText || null);
         },
@@ -761,7 +761,11 @@
                     let transformation = transform(x, y, proj);
 
                     if (!isNaN(transformation.x) && !isNaN(transformation.y)) {
-                        feature.getGeometry().setCoordinates([transformation.x,transformation.y]);
+                        if (!feature.getGeometry()) {
+                            feature.setGeometry(new ol.geom.Point([transformation.x, transformation.y]));
+                        } else {
+                            feature.getGeometry().setCoordinates([transformation.x, transformation.y]);
+                        }
                     }
 
                 }
@@ -880,10 +884,16 @@
                 return $nothing;
             }
         },
-        createValidationCallback_: function (expression) {
+        createValidationCallback_: function (expression,$input) {
             // legacy fun fact: string runs through eval, but result of eval can only be used
             // if it happens to have an method named .exec accepting a single parameter
             // => this was never compatible with anything but regex literals
+            if (typeof (eval(expression)) == 'function') {
+                return function (value) {
+                    let result = (eval(expression)).apply($input.get(0),[value]);
+                    return result;
+                };
+            } else
             return (function () {
                 var rxp = expressionToRegex(expression);
                 return function (value) {
