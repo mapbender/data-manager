@@ -600,11 +600,13 @@
             ;
             var options = settings.options || [];
             for (var i = 0; i < options.length; ++i) {
-                var option = options[i];
+                var option = options[i]
+                let value = option.value === null ? '' : option.value;
+                let label = option.label === null ? '' : option.label;
                 var $option = $(document.createElement('option'))
                     .attr(option.attr || {})
-                    .attr('value', option.value)
-                    .text(option.label)
+                    .attr('value', value)
+                    .text(label)
                 ;
                 $select.append($option);
             }
