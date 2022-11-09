@@ -1,3 +1,9 @@
+# 2.0.6
+- Fix handling of web-relative image placeholder url
+- Fix file upload group layout
+- Limit dialog height to never exceed screen height
+- Fix documentation for select values generated via "sql" (showed wrong option nesting)
+
 # 2.0.5
 - Fix misleading log warning when generating select item choices from single-column SQL ([#5](https://github.com/mapbender/data-manager/issues/5))
 - Forms: Fix missing support for configurable validation error text on required select items
