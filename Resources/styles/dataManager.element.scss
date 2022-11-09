@@ -76,6 +76,7 @@
   .ui-dialog-titlebar, .ui-dialog-buttonpane {
     flex: 0 1 auto;
   }
+  max-height: 100vh;
   background: #e4e4e4;
   border: 1px solid #b3b3b3;
   .ui-dialog-button-pane {
