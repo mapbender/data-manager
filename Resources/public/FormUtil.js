@@ -8,14 +8,20 @@
     Mapbender.DataManager.FormUtil = {
         /**
          * @param {(HTMLElement|jQuery)} form
+         * @param {bool} [filterSubmit]
          * @return {Object}
          */
-        extractValues: function(form) {
+        extractValues: function(form, filterSubmit) {
             var values = {};
             var radioMap = {};
             var $allNamedInputs = $(':input[name]', form);
             $allNamedInputs.get().forEach(function(input) {
                 var type = input.type;
+                if (filterSubmit && (input.readOnly)) {
+                    // Treat read-only input as "unmapped" and omit it when
+                    // running storage.
+                    return;
+                }
                 var value;
                 switch (type) {
                     case 'radio':
@@ -135,10 +141,12 @@
                 // Individual radio buttons cannot be invalid and cannot be validated
                 return true;
             }
-            // NOTE: hidden inputs must be explicitly excluded from jQuery validation
+            // NOTE: hidden, disabled and read-only inputs must be explicitly excluded
+            //       from jQuery validation. They always come back as invalid, even without
+            //       any required / pattern constraints.
             //       see https://stackoverflow.com/questions/51534473/jquery-validate-not-working-on-hidden-input
             var isValid =
-                ($input.is(':valid') || $input.get(0).type === 'hidden')
+                ($input.is(':valid') || input.type === 'hidden' || input.readOnly || input.disabled)
                 && this.validateCustom_($input)
             ;
             this.markValidationState($input, isValid);
