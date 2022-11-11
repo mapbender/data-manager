@@ -1,3 +1,7 @@
+# 1.2.9
+- Fix read-only / disabled inputs form inputs blocking form validation
+- Treat read-only inputs as unmapped when submitting form data
+
 # 1.2.8
 - Fix handling of web-relative image placeholder url
 - Fix file upload group layout
