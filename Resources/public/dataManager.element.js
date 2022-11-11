@@ -374,7 +374,7 @@
          */
         _getFormData: function($form) {
             var valid = Mapbender.DataManager.FormUtil.validateForm($form);
-            return valid && Mapbender.DataManager.FormUtil.extractValues($form);
+            return valid && Mapbender.DataManager.FormUtil.extractValues($form, true);
         },
         /**
          * @param {DataManagerSchemaConfig} schema
