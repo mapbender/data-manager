@@ -480,6 +480,9 @@
             if (settings.value) {
                 $input.val(settings.value);
             }
+            if (!!settings.mandatory || settings.required) {
+                $input.css("border-color", "#c90");
+            }
             if (settings.name && settings.mandatory && (typeof settings.mandatory === 'string')) {
                 $input.data('warn', this.createValidationCallback_(settings.mandatory,$input));
             }
