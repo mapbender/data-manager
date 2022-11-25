@@ -47,7 +47,7 @@
             /** @type {Object<String, DataManagerSchemaConfig>} */
             schemes: {}
         },
-        /** @type {{DataManagerSchemaConfig|null}} */
+        /** @type {(DataManagerSchemaConfig|null)} */
         currentSettings: null,
 
         _create: function() {
