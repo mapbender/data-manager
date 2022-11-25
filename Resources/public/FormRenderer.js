@@ -330,7 +330,7 @@
                 click: function () {
                     widget._getRemotePropertyValues(widget.currentPopup.data("feature"), widget._getCurrentSchema(), settings.name).done(function (properties) {
 
-                        Objec.keys(properties).foreEach(function(prop){
+                        Object.keys(properties).forEach(function(prop){
                             $(widget.currentPopup).find("[name=" + prop + "]");
                             inputfield.val(properties[prop]).keyup();
                         });
