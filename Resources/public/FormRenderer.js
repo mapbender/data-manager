@@ -908,7 +908,7 @@
         },
         addCustomEvents_: function ($input, settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L123 */
-            var names = ['filled', 'change','focus'].filter(function (name) {
+            var names = ['filled', 'change','focus','keyup'].filter(function (name) {
                 return settings[name];
             });
             for (var i = 0; i < names.length; ++i) {
