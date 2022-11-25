@@ -385,7 +385,6 @@
          */
         _submitFormData: function(schema, $scope, dataItem) {
             var formData = this._getFormData($scope);
-
             if (formData) {
                 var uniqueIdAttribute = this._getUniqueItemIdProperty(schema);
                 if (typeof formData[uniqueIdAttribute] !== 'undefined') {
