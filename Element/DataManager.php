@@ -52,8 +52,10 @@ class DataManager implements ElementServiceInterface, HttpHandlerProvider
     {
         return array(
             'schemes' => null,
+            'dataManager' => null,
         );
     }
+
 
     public function getView(Element $element)
     {
@@ -76,6 +78,7 @@ class DataManager implements ElementServiceInterface, HttpHandlerProvider
                 '../../vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js',
                 '@MapbenderDataManagerBundle/Resources/public/TableRenderer.js',
                 '@MapbenderDataManagerBundle/Resources/public/dataManager.element.js',
+                '@MapbenderDataManagerBundle/Resources/public/RelatedItemTableRenderer.js',
             ),
             'trans' => array(
                 'mb.data-manager.*',

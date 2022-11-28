@@ -154,6 +154,8 @@
                 default:
                     // Uh-oh
                     return this.renderFallback_(settings);
+                case 'resultTable' :
+                    return this.render_resultTable_(settings);
                 case 'coordinates':
                     return this.handle_coordinates(settings);
                 case 'form':
@@ -220,6 +222,10 @@
                 });
             }
             var self = this;
+            $('.-js-rt-container', scope).each(function() {
+                self.init_resultTable_($(this));
+            });
+
             $('input[type="file"][data-upload-url][data-name]', scope).each(function () {
                 var $input = $(this);
                 var name = $input.attr('data-name');
@@ -991,6 +997,45 @@
                 console.warn('Detected legacy list of individual "radio" form items. Use a "radioGroup" item instead.', radioItems, replacement);
                 return replacement;
             }
+        },
+        render_resultTable_: function(settings) {
+            var $el = $(document.createElement('div'))
+                .addClass('-js-rt-container')
+                .data('rtOptions', settings)
+            ;
+            var renderer = new Mapbender.DataManager.RelatedItemTableRenderer($el, settings);
+            // Current config / old code always offers a creation interaction.
+            // This actually contradicts target DM schema allowCreate = false!
+            var $createButton = $(document.createElement('button'))
+                .attr('type', 'button')
+                .attr('title', Mapbender.trans('mb.data.store.create'))
+                .addClass('btn btn-default -fn-create')
+                //.append('<i class="fa fas fa-plus"></i>')
+            ;
+            $el.append($createButton);
+            $el.append(renderer.render({schemaName: (settings.dataManagerLink || {}).schema || '!!unknown-schema!!'}));
+            $el.data('renderer', renderer);
+            return $el;
+        },
+        init_resultTable_: function($rtContainer) {
+            /** @var {Mapbender.DataManager.RelatedItemTableRenderer} renderer */
+            var renderer =  $rtContainer.data('renderer');
+            var rtOptions = $rtContainer.data('rtOptions');
+            var parentItemId = $rtContainer.closest('.ui-dialog-content').attr('data-item-id');
+            var schemaName = rtOptions.dataManagerLink.schema;
+            if (parentItemId) {
+                    var loadParams = {
+                        schema: schemaName,
+                        match: {}
+                    };
+                    loadParams.match[rtOptions.dataManagerLink.fieldName] = parentItemId;
+                    this.widget.getJSON('select', loadParams)
+                    .then(function(items) {
+                        renderer.replaceRows({ schemaName: schemaName },items);
+                    });
+
+            }
+
         },
         __dummy: null
     });
