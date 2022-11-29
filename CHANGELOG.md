@@ -1,3 +1,7 @@
+# 2.0.8
+- Allow dialogs to be dragged off screen edges
+- Fix Doctrine DBAL 3.x incompatibilty
+
 # 2.0.7
 - Fix read-only / disabled inputs form inputs blocking form validation
 - Treat read-only inputs as unmapped when submitting form data
