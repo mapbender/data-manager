@@ -3,7 +3,6 @@
 
 namespace Mapbender\DataManagerBundle\Component;
 
-use Doctrine\DBAL\DBALException;
 use Mapbender\Component\Element\ElementHttpHandlerInterface;
 use Mapbender\CoreBundle\Entity\Element;
 use Mapbender\DataManagerBundle\Exception\ConfigurationErrorException;
@@ -47,7 +46,7 @@ class HttpHandler implements ElementHttpHandlerInterface
             return $response;
         } catch (UnknownSchemaException $e) {
             return new JsonResponse(array('message' => $e->getMessage()), JsonResponse::HTTP_NOT_FOUND);
-        } catch (DBALException $e) {
+        } catch (\Doctrine\DBAl\Exception $e) {
             return new JsonResponse(array('message' => $e->getMessage()), JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
