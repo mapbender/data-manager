@@ -79,6 +79,8 @@ class HttpHandler implements ElementHttpHandlerInterface
                 return $this->saveAction($element, $request);
             case 'delete':
                 return $this->deleteAction($element, $request);
+            case 'updateFormItems' :
+                return $this->updateFormItemsAction($element, $request);
             default:
                 return null;
         }
@@ -273,5 +275,19 @@ class HttpHandler implements ElementHttpHandlerInterface
         } while (true);
 
         return $file->move($targetDir, $name);
+    }
+
+    private function updateFormItemsAction(Element $element, Request $request)
+    {
+        $configuration = $element->getConfiguration();
+        $schemaConfigs = $configuration['schemes'];
+        $schema = $request->query->get('schema');
+        $schemaConfig = $schemaConfigs[$schema];
+        if (isset($schemaConfig['formItems'])) {
+            $ret = $this->schemaFilter->getFormItemFilter()->prepareItems($schemaConfig['formItems']);
+        } else {
+            $ret = [];
+        }
+        return new JsonResponse($ret);
     }
 }

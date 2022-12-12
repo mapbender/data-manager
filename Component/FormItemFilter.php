@@ -71,7 +71,7 @@ class FormItemFilter
             $options = array_merge($options, $this->getSqlSelectItemOptions($item));
         }
         $item['options'] = $options;
-        unset($item['sql']);
+        //unset($item['sql']);
         unset($item['connection']);
         return $item;
     }

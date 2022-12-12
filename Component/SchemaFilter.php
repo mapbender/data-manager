@@ -247,4 +247,8 @@ class SchemaFilter
         }
         return $this->uploadsBasePath . '/' . ($this->isFeatureTypeRegistry ? 'featureTypes' : 'ds-uploads');
     }
+
+    public function getFormItemFilter() {
+        return $this->formItemFilter;
+    }
 }
