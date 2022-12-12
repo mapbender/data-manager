@@ -608,6 +608,9 @@
                 .addClass('form-control')
             ;
             var options = settings.options || [];
+            if (settings.withDefault) {
+                options.unshift({value: '', text: '-'});
+            }
             for (var i = 0; i < options.length; ++i) {
                 var option = options[i]
                 let value = option.value === null ? '' : option.value;
