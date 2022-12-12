@@ -925,7 +925,7 @@
                 var handler = settings[name];
                 $input.addClass('-js-custom-events');
                 if (typeof handler !== 'function') {
-                    console.error("Using eval'd Javascript in the configuration is deprecated. Add event handlers to your project code.", settings);
+                    //console.error("Using eval'd Javascript in the configuration is deprecated. Add event handlers to your project code.", settings);
                     handler = (function (code) {
                         var element = $input;
                         var el = element;

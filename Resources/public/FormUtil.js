@@ -157,7 +157,7 @@
             $formGroup.toggleClass('has-success', isValid);
             /** @todo: ensure message container is always present in the right place */
             var $messageContainer = $('.invalid-feedback', $formGroup);
-            var invalidMessage = $input.attr('data-custom-validation-message');
+            var invalidMessage = $input.attr('data-custom-validation-message') || 'Ungültige Eingabe';
             if (!isValid && invalidMessage && $input.attr('type') !== 'checkbox') {
                 if (!$messageContainer.length) {
                     $messageContainer = $(document.createElement('div')).addClass('help-block invalid-feedback');
