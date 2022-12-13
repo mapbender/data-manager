@@ -609,7 +609,10 @@
             ;
             var options = settings.options || [];
             if (settings.withDefault) {
-                options.unshift({value: '', text: '-'});
+                // if options do not already contain an empty value, add one
+                if (!options.some(function (option) { return option.value === ''; })) {
+                    options.unshift({value: '', label: '-'});
+                };
             }
             for (var i = 0; i < options.length; ++i) {
                 var option = options[i]
