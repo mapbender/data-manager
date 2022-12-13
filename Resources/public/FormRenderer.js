@@ -1025,6 +1025,10 @@
             var renderer =  $rtContainer.data('renderer');
             var rtOptions = $rtContainer.data('rtOptions');
             var parentItemId = $rtContainer.closest('.ui-dialog-content').attr('data-item-id');
+            if (!rtOptions.dataManagerLink) {
+                console.error("Missing dataManagerLink configuration");
+                return;
+            }
             var schemaName = rtOptions.dataManagerLink.schema;
             if (parentItemId) {
                     var loadParams = {
