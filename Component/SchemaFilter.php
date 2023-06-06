@@ -143,7 +143,8 @@ class SchemaFilter
         $elementConfig = $element->getConfiguration();
         $schemaConfigs = $elementConfig['schemes'];
         $storeConfigs = DataStoreUtil::configsFromSchemaConfigs($this->registry, $schemaConfigs);
-        return $storeConfigs[$schemaName];
+        $schemaConfig = $schemaConfigs[$schemaName];
+        return $storeConfigs[$schemaConfig["featureType"]];
     }
 
     /**
