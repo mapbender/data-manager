@@ -41,7 +41,16 @@
         }
     }
 
-    Mapbender.DataManager.FormRenderer = function FormRenderer() {
+    Mapbender.DataManager.FormRenderer = function FormRenderer(owner,schemes) {
+        var schemaNames = Object.keys(schemes);
+        for (var s = 0; s < schemaNames.length; ++s) {
+            var schemaName = schemaNames[s];
+            var schema = schemes[schemaName];
+            var fileConfigs = owner._getDataStoreFromSchema(schema).files || [];
+            var schemaBaseUrl = [owner.elementUrl, schemaName, '/'].join('');
+            this.prepareItems(schema.formItems || [], schemaBaseUrl, fileConfigs);
+        }
+
     };
 
     Object.assign(Mapbender.DataManager.FormRenderer.prototype, {
