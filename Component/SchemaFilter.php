@@ -68,7 +68,7 @@ class SchemaFilter
             $haveDs = false;
             foreach (array('dataStore', 'featureType') as $dsKey) {
                 if (\array_key_exists($dsKey, $schemaConfig)) {
-                    $schemaConfig[$dsKey] = $storeConfigs[$schemaName];
+                    $schemaConfig[$dsKey] = $storeConfigs[$schemaConfig[$dsKey]];
                     $haveDs = true;
                 }
             }
