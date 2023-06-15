@@ -76,7 +76,7 @@ class SchemaFilter
                 throw new ConfigurationErrorException("No dataStore / featureType in schema {$schemaName}");
             }
             if (!empty($schemaConfig['formItems'])) {
-                $schemaConfig['formItems'] = $this->formItemFilter->prepareItems($schemaConfig['formItems']);
+                $schemaConfig['formItems'] = $this->prepareFormItems($schemaConfig);
             } else {
                 @trigger_error("WARNING: no formItems in schema {$schemaName}. Object detail view will not work", E_USER_DEPRECATED);
                 $schemaConfig['formItems'] = array();
@@ -84,6 +84,11 @@ class SchemaFilter
             $schemaConfigs[$schemaName] = $schemaConfig;
         }
         return $schemaConfigs;
+    }
+
+
+    protected function  prepareFormItems($schemaConfig) {
+        return $this->formItemFilter->prepareItems($schemaConfig['formItems']);
     }
 
     /**
