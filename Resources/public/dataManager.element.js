@@ -98,14 +98,20 @@
             this.hasOnlyOneScheme = (nSchemes === 1);
             $container.append(selector);
 
+            let visibleSchemes = this._filterVisibleSchemes();
+
             // build select options
-            _.each(this.options.schemes, function(schemaConfig) {
+            _.each(visibleSchemes, function(schemaConfig) {
                 var option = $("<option/>");
                 option.val(schemaConfig.schemaName).text(schemaConfig.label);
                 option.data('schema', schemaConfig);
                 selector.append(option);
             });
             return selector;
+        },
+
+        _filterVisibleSchemes: function() {
+            return this.options.schemes;
         },
         /**
          * Unraveled from _create for child class actions after initialization, but
