@@ -75,6 +75,9 @@
   }
   .ui-dialog-titlebar, .ui-dialog-buttonpane {
     flex: 0 1 auto;
+    span {
+        font-weight: bold;
+    }
   }
   background: #e4e4e4;
   border: 1px solid #b3b3b3;
