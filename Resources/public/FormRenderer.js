@@ -851,7 +851,7 @@
 
             var $container = $(document.createElement('div')).addClass('row reduce-gutters');
 
-            [projection,inputX,inputY].forEach(($input) => {
+            [projection,inputY,inputX].forEach(($input) => {
                 let $column = $(document.createElement('div'))
                     .addClass('col-4 col-xs-4')
                     .css({'width':'33.3%'})
