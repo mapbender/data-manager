@@ -737,32 +737,38 @@
                 };
             }
 
-            let isDM = function(coordinate) {
-                return !!coordinate.match(/(\d*)\°([\d.]*)\'/);
-            };
 
-            let isDMS =  function(coordinate) {
-                return  !!coordinate.match(/(\d*)\°(\d*)\'([\d.]*)\"/);
-            };
-
-            let isDegree =function (coordinate) {
-                return isDM(coordinate) || isDMS(coordinate);
-            };
-
-            let toDecimal = function(value){
-                if(!isDegree(value)) {
-                    if (isNaN(value)) return false;
-                    else return value;
+            const toDecimal = (value) => {
+                if (typeof value !== 'string') {
+                    $.notify("Ungültige Eingabe: " + value);
+                    return false;
                 }
-                var match = value.match(/(\d*)\°([\d.]*)\'/) ;
-                match = match.length === 6 ?  match : value.match(/(\d*)\°(\d*)\'([\d.]*)\"/);
 
-                var decimals = (parseFloat(match[1])) + parseFloat((match[2]/60));
-                if (this.isDMS(value)){
-                    decimals = decimals + parseFloat((match[3]/3600));
+                const numericPattern = /^-?\d+(\.\d+)?$/;
+                if (numericPattern.test(value)) {
+                    return  Number(value);
                 }
-                return  decimals;
+
+                const dmsPattern = /(\d*)\°(\d*)\'([\d.]*)\"?/;
+                const match = value.match(dmsPattern);
+
+                if (!match || match.length < 3) {
+                    $.notify("Ungültige Eingabe: " + value);
+                    return false;
+                }
+
+                const [_, degrees, minutes, seconds] = match;
+                let decimals = parseFloat(degrees) + parseFloat(minutes / 60);
+
+                if (seconds) {
+                    decimals += parseFloat(seconds / 3600);
+                }
+
+                return decimals;
             };
+
+
+
 
             let changeInput = function() {
                 let feature = widget.currentPopup.data("feature");
