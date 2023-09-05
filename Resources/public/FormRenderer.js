@@ -844,9 +844,9 @@
 
             }
 
-            projection = this.renderElement(projectionSettings).find("select");
-            inputX = this.renderElement(inputXSettings).find("input");
-            inputY = this.renderElement(inputYSettings).find("input");
+            projection = this.renderElement(projectionSettings);
+            inputX = this.renderElement(inputXSettings);
+            inputY = this.renderElement(inputYSettings);
 
 
             var $container = $(document.createElement('div')).addClass('row reduce-gutters');
