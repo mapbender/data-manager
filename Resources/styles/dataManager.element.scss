@@ -64,11 +64,19 @@
 }
 
 .ui-dialog.data-manager-dialog {
+
+  max-height:100vh;
+  overflow:auto;
+  display: flex;
+  flex-direction: column;
+  background: #e4e4e4;
+  border: 1px solid #b3b3b3;
+
   &:focus {
     outline: none;
   }
-  display: flex;
-  flex-direction: column;
+
+
   .ui-dialog-content {
     flex: 1 1 auto;
     height: initial !important; // Overrule inline style
@@ -79,8 +87,7 @@
         font-weight: bold;
     }
   }
-  background: #e4e4e4;
-  border: 1px solid #b3b3b3;
+
   .ui-dialog-button-pane {
     border-bottom: 5px solid #b3b3b3;
   }
