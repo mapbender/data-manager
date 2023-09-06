@@ -669,6 +669,13 @@
             // Legacy amenities
             $select.data('declaration', settings);
             this.addCustomEvents_($select, settings);
+            if (settings.mandatory === true && settings.mandatoryText) {
+                $select.data('warn', this.createValidationCallback_(val => {
+                    return val != "" && val !== null;
+                },$select));
+
+                $select.attr('data-custom-validation-message', settings.mandatoryText || null);
+            }
             return this.wrapInput_($select, settings);
         },
         handle_radioGroup_: function (settings) {
@@ -911,6 +918,12 @@
             // legacy fun fact: string runs through eval, but result of eval can only be used
             // if it happens to have an method named .exec accepting a single parameter
             // => this was never compatible with anything but regex literals
+            if (typeof (expression) == 'function') {
+                return function (value) {
+                    let result = expression.apply($input.get(0),[value]);
+                    return result;
+                };
+            } else
             if (typeof (eval(expression)) == 'function') {
                 return function (value) {
                     let result = (eval(expression)).apply($input.get(0),[value]);
