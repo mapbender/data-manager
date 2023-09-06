@@ -108,7 +108,7 @@
          */
         validateForm: function(form) {
             var self = this;
-            var invalidInputs = $(':input[name]', form).get().filter(function(input) {
+            var invalidInputs = $(':input', form).get().filter(function(input) {
                 return !self.validateInput(input);
             });
             // If there are erros, switch tab container (if any) to reveal the first affected input

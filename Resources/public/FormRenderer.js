@@ -841,13 +841,17 @@
                 type: 'input',
                 cssClass : "-fn-coordinates x",
                 title: (settings.title_longitude || 'longitude')+':',
-                change: changeInput
+                change: changeInput,
+                mandatory: true,
+                mandatoryText: "x-Koordinate muss vorhanden sein"
             }
             let inputYSettings = {
                 type: 'input',
                 cssClass : "-fn-coordinates y",
                 title: (settings.title_latitude || 'latitude')+':',
-                change: changeInput
+                change: changeInput,
+                mandatory: true,
+                mandatoryText: "y-Koordinate muss vorhanden sein"
 
             }
 
