@@ -367,6 +367,10 @@
                 return this.handle_automatic_detection(settings);
             }
             this.addCustomEvents_($input, settings);
+            if (typeof settings.mandatory === "function" && settings.mandatoryText) {
+                $input.data('warn', settings.mandatory);
+                $input.attr('data-custom-validation-message', settings.mandatoryText || null);
+            }
             return this.wrapInput_($input, settings);
         },
         handle_textArea_: function (settings) {
@@ -775,9 +779,13 @@
             };
 
 
+            let areCoordinatesValid = (x, y) => {
+                var mapExtentArray = widget.mbMap.getModel().getMaxExtentArray();
+                return (x >= mapExtentArray[0] && x <= mapExtentArray[2] && y >= mapExtentArray[1] && y <= mapExtentArray[3]);
+            };
 
 
-            let changeInput = function() {
+            let changeInput = function(changedField) {
                 let feature = widget.currentPopup.data("feature");
 
                 let rawx = inputX.find("input").val();
@@ -785,17 +793,27 @@
 
                 let x = toDecimal(rawx);
                 let y = toDecimal(rawy);
-                let proj = projection.val();
+                let proj = projection.find("select").val();
 
                 if (x && y) {
                     let transformation = transform(x, y, proj);
 
-                    if (!isNaN(transformation.x) && !isNaN(transformation.y)) {
+
+                    if (!isNaN(transformation.x) && !isNaN(transformation.y) ) {
+                        if (!areCoordinatesValid(transformation.x,transformation.y)) {
+                            let invalidValue = changedField.find("input").val();
+                            $.notify("Koordinate '"+invalidValue+"' ist außerhalb des maximalen Karten-Extent");
+                            //changedField.find("input").val("");
+                        } else
                         if (!feature.getGeometry()) {
                             feature.setGeometry(new ol.geom.Point([transformation.x, transformation.y]));
                         } else {
                             feature.getGeometry().setCoordinates([transformation.x, transformation.y]);
                         }
+                    } else {
+                        let invalidValue = changedField.find("input").val();
+                        $.notify("Koordinate '"+invalidValue+"' ist nicht gültig");
+                        //changedField.find("input").val("");
                     }
 
                 }
@@ -837,21 +855,33 @@
                 }
             };
 
+            let mandatory = function() {
+
+                    let rawx = inputX.find("input").val();
+                    let rawy = inputY.find("input").val();
+                    let x = toDecimal(rawx);
+                    let y = toDecimal(rawy);
+                    let proj = projection.find("select").val();
+                    let transformation = transform(x, y, proj);;
+                return (!isNaN(transformation.x) && !isNaN(transformation.y)
+                    && areCoordinatesValid(transformation.x,transformation.y));
+            };
+
             let inputXSettings = {
                 type: 'input',
                 cssClass : "-fn-coordinates x",
                 title: (settings.title_longitude || 'longitude')+':',
-                change: changeInput,
-                mandatory: true,
-                mandatoryText: "x-Koordinate muss vorhanden sein"
+                change: () => { changeInput(inputX); },
+                mandatory: mandatory,
+                mandatoryText: "x-Koordinate muss vorhanden sein, Koordinaten müssen gültig sein"
             }
             let inputYSettings = {
                 type: 'input',
                 cssClass : "-fn-coordinates y",
                 title: (settings.title_latitude || 'latitude')+':',
-                change: changeInput,
-                mandatory: true,
-                mandatoryText: "y-Koordinate muss vorhanden sein"
+                change: () => { changeInput(inputY); },
+                mandatory: mandatory,
+                mandatoryText: "y-Koordinate muss vorhanden sein, Koordinaten müssen gültig sein"
 
             }
 
