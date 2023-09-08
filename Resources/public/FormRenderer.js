@@ -780,8 +780,8 @@
             let changeInput = function() {
                 let feature = widget.currentPopup.data("feature");
 
-                let rawx = inputX.val();
-                let rawy = inputY.val();
+                let rawx = inputX.find("input").val();
+                let rawy = inputY.find("input").val();
 
                 let x = toDecimal(rawx);
                 let y = toDecimal(rawy);
@@ -821,18 +821,18 @@
                 },
                 change: function (event) {
 
-                    let rawx = inputX.val();
-                    let rawy = inputY.val();
+                    let rawx = inputX.find("input").val();
+                    let rawy = inputY.find("input").val();
                     let x = toDecimal(rawx);
                     let y = toDecimal(rawy);
 
-                    let toSrs = projection.val();
+                    let toSrs = projection.find("select").val();
 
                     let transformation = transform(x, y, previousSRS, toSrs);
                     previousSRS = toSrs;
 
-                    inputX.val(transformation.x);
-                    inputY.val(transformation.y);
+                    inputX.find("input").val(transformation.x);
+                    inputY.find("input").val(transformation.y);
 
                 }
             };
