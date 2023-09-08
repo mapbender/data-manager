@@ -1065,6 +1065,7 @@
             var renderer = new Mapbender.DataManager.RelatedItemTableRenderer($el, settings);
             // Current config / old code always offers a creation interaction.
             // This actually contradicts target DM schema allowCreate = false!
+            /**  Auskommentiert, weil Formular anhält beim Speichern /
             var $createButton = $(document.createElement('button'))
                 .attr('type', 'button')
                 .attr('title', Mapbender.trans('mb.data.store.create'))
@@ -1072,6 +1073,7 @@
                 //.append('<i class="fa fas fa-plus"></i>')
             ;
             $el.append($createButton);
+            / ** **/
             $el.append(renderer.render({schemaName: (settings.dataManagerLink || {}).schema || '!!unknown-schema!!'}));
             $el.data('renderer', renderer);
             return $el;
