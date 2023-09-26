@@ -1,4 +1,10 @@
-# Mapbender Data Manager element
+# Deprecated
+
+This repository is deprecated. Its functionality will be integrated into the [mapbender digitizer repository](https://github.com/mapbender/mapbender-digitizer) in version 2.0 and the code has already been ported to the [develop branch](https://github.com/mapbender/mapbender-digitizer/tree/develop/src/Mapbender/DataManagerBundle). Propose any changes there.
+
+---
+
+## Old description: Mapbender Data Manager element
 List and edit database table contents in a Mapbender application.
 
 Data listings are displayed as (HTML) tables. Individual items can be edited or created in customizable forms.
