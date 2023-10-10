@@ -907,7 +907,7 @@
         fieldLabel_: function (settings) {
             /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L353 */
             var $label = $(document.createElement('label'))
-                .attr({'for': settings.name || null})
+                .attr({'for': settings.name || null, 'title' : settings.title || settings.text })
                 .text(settings.title || settings.text)
             ;
             if (settings.infoText) {
