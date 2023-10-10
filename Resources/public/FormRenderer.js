@@ -998,14 +998,14 @@
             var other = Object.keys(settings).filter(function (name) {
                 return -1 === expectedProps.indexOf(name);
             });
-            if (other.length) {
-                console.warn(
-                    ["Ignoring extra properties on ", description_, ": ",
-                        other.join(', '),
-                        "; keep ", expectedProps.join(', '),
-                        "; remove everything else"].join(''),
-                    settings);
-            }
+            // if (other.length) {
+            //     console.warn(
+            //         ["Ignoring extra properties on ", description_, ": ",
+            //             other.join(', '),
+            //             "; keep ", expectedProps.join(', '),
+            //             "; remove everything else"].join(''),
+            //         settings);
+            // }
         },
         reformRadioGroup_: function (children, parent) {
             var radioItems = children.filter(function (sub) {
