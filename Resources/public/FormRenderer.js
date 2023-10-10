@@ -615,7 +615,7 @@
             if (settings.withDefault) {
                 // if options do not already contain an empty value, add one
                 if (!options.some(function (option) { return option.value === ''; })) {
-                    options.unshift({value: '', label: '-'});
+                    options.unshift({value: '', label: ' '});
                 };
             }
             for (var i = 0; i < options.length; ++i) {
