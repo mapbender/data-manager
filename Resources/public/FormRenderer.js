@@ -778,6 +778,20 @@
                 return decimals;
             };
 
+            const toDMS = (value) => {
+                if (typeof value !== 'number') {
+                    $.notify("Ungültige Eingabe: " + value);
+                    return false;
+                }
+
+                const degrees = Math.floor(value);
+                const minutesDecimal = (value - degrees) * 60;
+                const minutes = Math.floor(minutesDecimal);
+                const seconds = Math.round((minutesDecimal - minutes) * 60);
+
+                return `${degrees}°${minutes}'${seconds}"`;
+            };
+
 
             let areCoordinatesValid = (x, y) => {
                 var mapExtentArray = widget.mbMap.getModel().getMaxExtentArray();
@@ -831,7 +845,7 @@
                         label: code[1]
                     }
                 }),
-                value: mapProjection,
+                //value: mapProjection,
                 cssClass: '-fn-active-epsgCode',
                 disabled: !!settings.disabled,
                 focus: function () {
@@ -849,8 +863,11 @@
                     let transformation = transform(x, y, previousSRS, toSrs);
                     previousSRS = toSrs;
 
-                    inputX.find("input").val(transformation.x);
-                    inputY.find("input").val(transformation.y);
+                    let tx = toSrs == "EPSG:4326" ? toDMS(transformation.x) : transformation.x;
+                    let ty = toSrs == "EPSG:4326" ? toDMS(transformation.y) : transformation.y;
+
+                    inputX.find("input").val(tx);
+                    inputY.find("input").val(ty);
 
                 }
             };

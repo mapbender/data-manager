@@ -473,7 +473,6 @@
             return this.getJSON('updateFormItems', this._getSelectRequestParams(schema))
                 .then(function(formItems) {
                     schema.formItems = formItems || schema.formItems;
-                    console.log("Updated form items for schema", schema.schemaName, formItems);
                 });
         },
         /**
