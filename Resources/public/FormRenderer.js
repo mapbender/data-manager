@@ -922,27 +922,38 @@
         },
 
         fieldLabel_: function (settings) {
-            /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L353 */
+            // Create the label-wrapper div
+            var $labelWrapper = $(document.createElement('div'))
+                .addClass('label-wrapper');
+
+            // Create the label
             var $label = $(document.createElement('label'))
                 .attr({'for': settings.name || null, 'title' : settings.title || settings.text })
-                .text(settings.title || settings.text)
-            ;
+                .text(settings.title || settings.text);
+
+            // Adding info text, if available
             if (settings.infoText) {
                 var $icon = $('<i/>')
                     .addClass('fa fa-info-circle -visui-infotext')
-                    .attr('title', settings.infoText)
-                ;
+                    .attr('title', settings.infoText);
                 $label.append('&nbsp;', $icon);
             }
-            /** @see https://github.com/mapbender/vis-ui.js/blob/0.2.84/src/js/jquery.form.generator.js#L345 */
+
+            // Adding copy to clipboard functionality, if enabled
             if (settings.copyClipboard) {
                 $label.append('&nbsp;', $('<i/>')
                     .addClass('fa fa-clipboard far-clipboard -fn-copytoclipboard')
                     .attr('aria-hidden', 'true')
                 );
             }
-            return $label;
+
+            // Append the label to the label-wrapper div
+            $labelWrapper.append($label);
+
+            // Return the label-wrapper containing the label
+            return $labelWrapper;
         },
+
         wrapInput_: function ($input, settings) {
             var $group = $(document.createElement('div'))
                 .addClass(settings.cssClass || '')
