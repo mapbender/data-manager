@@ -59,20 +59,13 @@
             this.selector = $(this._renderSchemaSelector(this.element));
             this.formRenderer_ = this._createFormRenderer();
             this.dialogFactory_ = Mapbender.DataManager.DialogFactory;
-            var schemaNames = Object.keys(this.options.schemes);
-            for (var s = 0; s < schemaNames.length; ++s) {
-                var schemaName = schemaNames[s];
-                var schema = this.options.schemes[schemaName];
-                var fileConfigs = this._getDataStoreFromSchema(schema).files || [];
-                var schemaBaseUrl = [this.elementUrl, schemaName, '/'].join('');
-                this.formRenderer_.prepareItems(schema.formItems || [], schemaBaseUrl, fileConfigs);
-            }
             this.tableRenderer = this._createTableRenderer();
             this._initializeEvents();
             this._afterCreate();
         },
+
         _createFormRenderer: function() {
-            return new Mapbender.DataManager.FormRenderer();
+            return new Mapbender.DataManager.FormRenderer(this, this.options.schemes);
         },
         _createTableRenderer: function() {
             return new Mapbender.DataManager.TableRenderer(this);
@@ -105,14 +98,20 @@
             this.hasOnlyOneScheme = (nSchemes === 1);
             $container.append(selector);
 
+            let visibleSchemes = this._filterVisibleSchemes();
+
             // build select options
-            _.each(this.options.schemes, function(schemaConfig) {
+            _.each(visibleSchemes, function(schemaConfig) {
                 var option = $("<option/>");
                 option.val(schemaConfig.schemaName).text(schemaConfig.label);
                 option.data('schema', schemaConfig);
                 selector.append(option);
             });
             return selector;
+        },
+
+        _filterVisibleSchemes: function() {
+            return this.options.schemes;
         },
         /**
          * Unraveled from _create for child class actions after initialization, but
