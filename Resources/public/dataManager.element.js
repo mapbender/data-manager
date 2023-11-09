@@ -417,6 +417,13 @@
          */
         _replaceItemData: function(schema, dataItem, newValues) {
             // @todo Digitizer: when working with native Openlayers feature, use data properties instead of top-level object
+            /*** */
+            if (newValues.kg_nummer) {
+                newValues["KG_NUMMER"] = newValues["kg_nummer"];
+                delete newValues["kg_nummer"];
+            }
+
+            /** Quick and Dirty **/
             _.extend(dataItem, newValues);
         },
         /**
