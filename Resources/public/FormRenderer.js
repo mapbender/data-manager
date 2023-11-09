@@ -661,8 +661,10 @@
                         let dialog = widget.currentPopup;
 
                         dialog.find("input[name=height_max_curveseg]").val(res.height_max_curveseg);
-                        dialog.find("input.-fn-coordinates.x").val(res.x).trigger("change");
-                        dialog.find("input.-fn-coordinates.y").val(res.y).trigger("change");
+                        dialog.find("input.-fn-coordinates.x").val(res.x);
+                        dialog.find("input.-fn-coordinates.y").val(res.y);
+                        dialog.find("input.-fn-coordinates.x").trigger("change");
+                        dialog.find("input.-fn-coordinates.y").trigger("change");
 
 
                     }).fail(()=>{
