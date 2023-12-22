@@ -336,10 +336,15 @@
                 click: function () {
                     widget._getRemotePropertyValues(widget.currentPopup.data("feature"), widget._getCurrentSchema(), settings.name).done(function (properties) {
 
-                        Object.keys(properties).forEach(function(prop){
+                        Object.keys(properties).forEach(function(prop) {
                             let $inputfield = $(widget.currentPopup).find("[name=" + prop + "]");
-                            $inputfield.val(properties[prop]).keyup();
+                            if ($inputfield.val() === '' || settings.name == prop) {
+                                $inputfield.val(properties[prop]).keyup();
+                            } else {
+                                console.log('Benachrichtigung: Das Feld ' + prop + ' wurde nicht beschrieben, da es bereits einen Wert enthält.');
+                            }
                         });
+
 
                     }).fail(()=>console.log("No geometry or no access to server"));
                     return false;
